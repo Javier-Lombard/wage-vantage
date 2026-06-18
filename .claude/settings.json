@@ -1,4 +1,7 @@
 {
+  
+
+
   "permissions": {
     "allow": [
       "Bash(npm run *)",
@@ -25,3 +28,5 @@
     ]
   }
 }
+
+
