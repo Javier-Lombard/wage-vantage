@@ -12,18 +12,18 @@ TypeScript, naming, and component patterns for this codebase. Referenced from `C
 
 ```ts
 // ✅ correct
-import type { WageRecord } from '@/shared/types'
-import { useSelector } from 'react-redux'
+import type { WageRecord } from '@/shared/types';
+import { useSelector } from 'react-redux';
 
 // ❌ breaks the build — Country is a type, not a value
-import { Country } from '@/shared/types'
+import { Country } from '@/shared/types';
 ```
 
 If a module exports both types and values and you need both, split the import:
 
 ```ts
-import { wageApi } from './wageApi'
-import type { WageQueryParams } from './wageApi'
+import { wageApi } from './wageApi';
+import type { WageQueryParams } from './wageApi';
 ```
 
 ### No `any`. No `as` casting as a first resort
@@ -35,8 +35,8 @@ import type { WageQueryParams } from './wageApi'
 Use `type` (lowercase, descriptive) for closed string/value unions — these map directly to filter values from the Supabase table:
 
 ```ts
-type Gender = 'male' | 'female' | 'no-defined'
-type EducationLevel = 'primary' | 'secondary' | 'tertiary' | 'postgraduate'
+type Gender = 'male' | 'female' | 'no-defined';
+type EducationLevel = 'primary' | 'secondary' | 'tertiary' | 'postgraduate';
 ```
 
 ### `interface` for object shapes, `type` for everything else
@@ -48,16 +48,16 @@ type EducationLevel = 'primary' | 'secondary' | 'tertiary' | 'postgraduate'
 ```ts
 // Object shape → interface
 interface WageRecord {
-  country: string
-  gender: Gender
-  monthlyWage: number
+  country: string;
+  gender: Gender;
+  monthlyWage: number;
 }
 
 // Union → type
-type SortDirection = 'asc' | 'desc'
+type SortDirection = 'asc' | 'desc';
 
 // Function type → type
-type WageFormatter = (value: number) => string
+type WageFormatter = (value: number) => string;
 ```
 
 ### No enums — use union types or `as const` objects
@@ -69,31 +69,31 @@ const OCCUPATION_LEVEL = {
   Junior: 'junior',
   Mid: 'mid',
   Senior: 'senior',
-} as const
+} as const;
 
-type OccupationLevel = typeof OCCUPATION_LEVEL[keyof typeof OCCUPATION_LEVEL]
+type OccupationLevel = (typeof OCCUPATION_LEVEL)[keyof typeof OCCUPATION_LEVEL];
 ```
 
 ---
 
 ## 2. Naming
 
-| What | Convention | Example |
-|---|---|---|
-| Component files | `PascalCase.tsx` | `SalaryForm.tsx` |
-| Non-component files (hooks, utils, slices, api) | `camelCase.ts` | `useFeatureAccess.ts`, `wageApi.ts` |
-| Folders | `kebab-case` | `salary-calculator/` |
-| Components (the function/export itself) | `PascalCase` | `function SalaryForm()` |
-| Hooks | `camelCase`, prefixed `use` | `useFeatureAccess` |
-| Functions (non-hook) | `camelCase`, verb-first | `calculateMedian`, `formatCurrency` |
-| Types / interfaces | `PascalCase` | `WageRecord`, `SortDirection` |
-| Constants (module-level, immutable) | `UPPER_SNAKE_CASE` | `MAX_COMPARISON_COUNTRIES` |
-| RTK slices | `camelCase` + `Slice` suffix | `authSlice.ts`, `wageFormSlice.ts` |
-| RTK Query API modules | `camelCase` + `Api` suffix | `wageApi.ts` |
+| What                                            | Convention                   | Example                             |
+| ----------------------------------------------- | ---------------------------- | ----------------------------------- |
+| Component files                                 | `PascalCase.tsx`             | `SalaryForm.tsx`                    |
+| Non-component files (hooks, utils, slices, api) | `camelCase.ts`               | `useFeatureAccess.ts`, `wageApi.ts` |
+| Folders                                         | `kebab-case`                 | `salary-calculator/`                |
+| Components (the function/export itself)         | `PascalCase`                 | `function SalaryForm()`             |
+| Hooks                                           | `camelCase`, prefixed `use`  | `useFeatureAccess`                  |
+| Functions (non-hook)                            | `camelCase`, verb-first      | `calculateMedian`, `formatCurrency` |
+| Types / interfaces                              | `PascalCase`                 | `WageRecord`, `SortDirection`       |
+| Constants (module-level, immutable)             | `UPPER_SNAKE_CASE`           | `MAX_COMPARISON_COUNTRIES`          |
+| RTK slices                                      | `camelCase` + `Slice` suffix | `authSlice.ts`, `wageFormSlice.ts`  |
+| RTK Query API modules                           | `camelCase` + `Api` suffix   | `wageApi.ts`                        |
 
 **Why PascalCase for component files specifically**: it matches the named export 1:1 (`SalaryForm.tsx` exports `SalaryForm`), so editor auto-import never has to guess casing between file name and symbol name. Hooks and utils stay camelCase because that's what their own exported symbol looks like too (`useFeatureAccess.ts` exports `useFeatureAccess`).
 
-**No barrel re-export ambiguity**: feature `index.ts` files (currently empty placeholders) should only re-export the feature's *public* surface — the components/hooks other features are allowed to import. Internal helpers stay un-exported from the barrel even if they're exported from their own file.
+**No barrel re-export ambiguity**: feature `index.ts` files (currently empty placeholders) should only re-export the feature's _public_ surface — the components/hooks other features are allowed to import. Internal helpers stay un-exported from the barrel even if they're exported from their own file.
 
 ---
 
@@ -108,7 +108,9 @@ export function SalaryForm({ step, onNext }: SalaryFormProps) {
 }
 
 // ❌ never default export a component
-export default function SalaryForm() { /* ... */ }
+export default function SalaryForm() {
+  /* ... */
+}
 ```
 
 Exception: files that frameworks specifically expect a default export from (e.g. `vite.config.ts`, route-level lazy-loaded pages if React Router's `lazy()` convention requires it for a specific case). Components themselves: never.
@@ -117,9 +119,9 @@ Exception: files that frameworks specifically expect a default export from (e.g.
 
 ```tsx
 interface SalaryFormProps {
-  step: 1 | 2 | 3
-  onNext: (values: StepValues) => void
-  isLoading?: boolean
+  step: 1 | 2 | 3;
+  onNext: (values: StepValues) => void;
+  isLoading?: boolean;
 }
 
 export function SalaryForm({ step, onNext, isLoading = false }: SalaryFormProps) {
@@ -168,7 +170,7 @@ features/
 
 ## 5. Imports
 
-- The `@/` path alias is configured (`tsconfig.app.json` `paths`, resolved at build/dev time via `vite-tsconfig-paths` in `vite.config.ts`). Use it instead of relative `../../../` chains once nesting exceeds 2 levels. Short relative imports (`./SalaryForm`, `../hooks/useWageStats`) are still preferred over `@/` for anything 1-2 levels away — `@/` is for escaping deep nesting, not a blanket replacement for relative imports.
+- The `@/` path alias is configured (`tsconfig.app.json` `paths`, resolved at build/dev time via `vite-tsconfig-paths` in `vite.config.ts`). Use it from 2 levels of nesting onward (`../../hooks/useWageStats` → `@/features/.../hooks/useWageStats`). Relative imports (`./SalaryForm`) are reserved for direct siblings (1 level away) — `@/` is the default for anything beyond that, not just for escaping very deep chains.
 - Import order: external packages → internal `@/` absolute imports → relative imports → type-only imports last within each group. ESLint can enforce this later with `eslint-plugin-import` if it becomes a recurring review comment; not installed yet, not necessary to add preemptively.
 - Never import directly from another feature's internal folder (`features/auth/components/LoginForm.tsx` from outside `features/auth`) — always go through that feature's `index.ts` barrel.
 
@@ -177,5 +179,20 @@ features/
 ## 6. Comments & Documentation
 
 - Code comments in English (matches the product language decision).
-- Comment *why*, not *what* — `// recompute stats only when query data changes, not on every render` is useful; `// loop through records` is not.
+- Comment _why_, not _what_ — `// recompute stats only when query data changes, not on every render` is useful; `// loop through records` is not.
 - No commented-out code left in commits. If it's not needed, delete it — git history is the backup, not a comment block.
+
+## 7. Git branching
+
+-Strategy: Trunk-based development with short-lived feature branches. main is the stable branch; all work is either committed directly to main or goes through a short-lived feature branch that gets merged back into it.
+-When to create a feature branch:
+The change touches multiple files in a coordinated way (e.g., new infrastructure, cross-cutting refactors, or adding new dependencies).
+The work-in-progress could break existing functionality.
+The work might be abandoned, and we want to avoid polluting main.
+Examples: feature/rtk-query-setup, feature/multi-step-form, feature/supabase-auth.
+
+-When to commit directly to main: Configuration changes, documentation, a new isolated component that doesn't affect existing code, style tweaks, design tokens, or small, self-contained refactors within a single file or module.
+
+-Branch Naming Conventions: Branches should describe the task being performed, not the folder being modified. For instance, a branch setting up RTK Query will touch app/store.ts, several features/\*/api/ folders, and shared/types.ts—yet it remains a single task: feature/rtk-query-setup. Never name a branch after a folder inside src/features/ (e.g., feature/salary-calculator is always incorrect). Doing so confuses the Git concept of a "feature branch" (a unit of work) with the project's concept of a "feature folder" (a business domain).
+
+Handling Scope Creep / Unexpected Changes: If a large, unrelated change comes up midway through a feature branch (e.g., you realize you need to refactor AuthProvider before you can proceed), commit your current work-in-progress, switch back to main, resolve the prerequisite (either directly on main or in its own separate branch), go back to your feature branch, rebase or merge main into it, and resume your original task. Small, incidental changes to other domains (like adding a new type in shared or tweaking a provider's signature) can stay in the feature branch as separate commits with their own Conventional Commits messages.

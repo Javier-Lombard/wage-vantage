@@ -7,6 +7,7 @@
 This project follows a **feature-based architecture** where code is organized by business domain, not by technical role. Each feature is a self-contained vertical slice: it owns its own components, hooks, API layer, types, and (when needed) Redux slice. Features communicate with each other exclusively through their public barrel (`index.ts`), never by reaching into another feature's internal folders.
 
 Why this pattern (and not a flat `components/` + `hooks/` + `services/` layout):
+
 - **Locality of change**: when a feature evolves, everything that needs to change lives in one place.
 - **Explicit boundaries**: the barrel makes it impossible to accidentally couple features at the import level.
 - **Scalability**: adding a new feature means adding a new folder, not scattering files across six directories.
@@ -98,6 +99,7 @@ User interaction (form select, button click)
 ```
 
 Key constraints:
+
 - Data flows **down** (props) and **out** (callbacks/dispatch). No child component reaches up to modify a parent's state directly.
 - Supabase is accessed **exclusively** through RTK Query endpoints, never through raw client calls in components or hooks.
 - Computed values (statistical calculations from salary data) are derived in hooks, not in components and not in Redux selectors — selectors stay simple (pick a slice of state), hooks compose and transform.
@@ -108,12 +110,12 @@ Key constraints:
 
 Decisions already made, with reasoning preserved to prevent re-litigation:
 
-| Decision | Chosen | Over | Why |
-|---|---|---|---|
-| State management | RTK + RTK Query | Zustand + TanStack Query | Portfolio differentiation — Zustand/TanStack already known, RTK demonstrates a different paradigm |
-| Backend | Supabase | Custom API | Auth + DB + real-time in one service; row-level security; generous free tier |
-| Styling | Tailwind v4 CSS-first | CSS Modules, styled-components | Utility-first reduces context switching; v4's `@theme` maps directly to design tokens; no runtime cost |
-| Project structure | Feature-based | Flat by-role | Locality of change, explicit boundaries (see §1 above) |
-| Theme state | React Context | Redux | Theme has no cross-feature derived state — Context is simpler and avoids Redux boilerplate for a single boolean |
-| Store persistence | Selective (localStorage/sessionStorage via hooks) | redux-persist | Full-store mirroring is overkill; explicit persistence per value is more predictable and debuggable |
-| Dark/light mode | CSS variables in :root/.dark + Tailwind @theme | Tailwind dark: prefix on every utility | Token-driven swap means zero dark: prefixes in component code — single source of truth in index.css |
+| Decision          | Chosen                                            | Over                                   | Why                                                                                                             |
+| ----------------- | ------------------------------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| State management  | RTK + RTK Query                                   | Zustand + TanStack Query               | Portfolio differentiation — Zustand/TanStack already known, RTK demonstrates a different paradigm               |
+| Backend           | Supabase                                          | Custom API                             | Auth + DB + real-time in one service; row-level security; generous free tier                                    |
+| Styling           | Tailwind v4 CSS-first                             | CSS Modules, styled-components         | Utility-first reduces context switching; v4's `@theme` maps directly to design tokens; no runtime cost          |
+| Project structure | Feature-based                                     | Flat by-role                           | Locality of change, explicit boundaries (see §1 above)                                                          |
+| Theme state       | React Context                                     | Redux                                  | Theme has no cross-feature derived state — Context is simpler and avoids Redux boilerplate for a single boolean |
+| Store persistence | Selective (localStorage/sessionStorage via hooks) | redux-persist                          | Full-store mirroring is overkill; explicit persistence per value is more predictable and debuggable             |
+| Dark/light mode   | CSS variables in :root/.dark + Tailwind @theme    | Tailwind dark: prefix on every utility | Token-driven swap means zero dark: prefixes in component code — single source of truth in index.css             |

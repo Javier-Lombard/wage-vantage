@@ -1,46 +1,46 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ── Google Font ── */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 /* ── Light mode (default) — plain CSS variables ── */
 :root {
-  --primary: #DFFF88;
-  --primary-hover: #C8E67A;
-  --primary-muted: #DFFF8833;
-  --on-primary: #13161C;
+  --primary: #dfff88;
+  --primary-hover: #c8e67a;
+  --primary-muted: #dfff8833;
+  --on-primary: #13161c;
 
-  --background: #F5F6F8;
-  --surface: #FFFFFF;
-  --surface-hover: #EDF0F4;
+  --background: #f5f6f8;
+  --surface: #ffffff;
+  --surface-hover: #edf0f4;
 
-  --foreground: #13161C;
-  --muted: #5A6475;
-  --muted-foreground: #71798A;
+  --foreground: #13161c;
+  --muted: #5a6475;
+  --muted-foreground: #71798a;
 
-  --border: #D1D8E4;
-  --border-subtle: #E4E8EE;
-  --gray: #B8BCC2;
+  --border: #d1d8e4;
+  --border-subtle: #e4e8ee;
+  --gray: #b8bcc2;
 }
 
 /* ── Dark mode — same variable names, dark values ── */
 .dark {
-  --primary: #DFFF88;
-  --primary-hover: #C8E67A;
-  --primary-muted: #DFFF8833;
-  --on-primary: #13161C;
+  --primary: #dfff88;
+  --primary-hover: #c8e67a;
+  --primary-muted: #dfff8833;
+  --on-primary: #13161c;
 
-  --background: #13161C;
-  --surface: #1A1F27;
+  --background: #13161c;
+  --surface: #1a1f27;
   --surface-hover: #222833;
 
-  --foreground: #FFFFFF;
-  --muted: #8A95A3;
-  --muted-foreground: #A8AEAE;
+  --foreground: #ffffff;
+  --muted: #8a95a3;
+  --muted-foreground: #a8aeae;
 
-  --border: #2A3040;
-  --border-subtle: #1F2530;
-  --gray: #4D4D4D;
+  --border: #2a3040;
+  --border-subtle: #1f2530;
+  --gray: #4d4d4d;
 }
 
 /* ── Design Tokens — @theme maps to the plain variables above ── */
@@ -64,18 +64,18 @@
   --color-gray: var(--gray);
 
   /* Colors — Semantic (invariant across modes, literal values) */
-  --color-success: #4ADE80;
-  --color-warning: #FBBF24;
-  --color-error: #F87171;
-  --color-info: #60A5FA;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #60a5fa;
 
   /* Colors — Charts (invariant across modes, literal values) */
-  --color-chart-1: #DFFF88;
-  --color-chart-2: #60A5FA;
-  --color-chart-3: #F472B6;
-  --color-chart-4: #34D399;
-  --color-chart-5: #FB923C;
-  --color-chart-6: #A78BFA;
+  --color-chart-1: #dfff88;
+  --color-chart-2: #60a5fa;
+  --color-chart-3: #f472b6;
+  --color-chart-4: #34d399;
+  --color-chart-5: #fb923c;
+  --color-chart-6: #a78bfa;
 
   /* Typography */
   --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
@@ -88,7 +88,7 @@
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
 
-/* Shadows */
+  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
