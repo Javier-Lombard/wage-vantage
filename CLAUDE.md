@@ -76,6 +76,8 @@ Full architecture, folder structure, and design decisions: `docs/architecture.md
 - Claude Code does not need to track this threshold actively turn-by-turn; the hook is the mechanism that triggers the reminder. This section documents the criteria so it's clear why the reminder appears when it does.
 - **Prettier formatting is mandatory before commit.** A `PreToolUse` hook (`.claude/hooks/check-before-commit.js`) gates every `git commit`: it runs `prettier --check .` first, and unlike the `tsc`/`eslint` checks in the same hook (which block the commit on failure), a formatting mismatch is auto-fixed — it runs `prettier --write .`, re-stages the affected files, and lets the commit proceed. `tsc`/`eslint` errors still block the commit with no auto-fix. Run `npm run format` manually any time to format on demand without committing.
 
+
+
 ## State management
 
 - Server state: RTK Query (one `createApi` per feature under `features/<name>/api/`).
