@@ -7,6 +7,30 @@ if (!/git commit/.test(command)) {
 
 const { execSync } = require('child_process');
 
+// Formato: a diferencia de tsc/eslint, esto se autocorrige en vez de bloquear.
+// Se ejecuta primero porque normaliza el árbol antes de que tsc/eslint lo lean.
+try {
+  execSync('npx prettier --check .', { stdio: 'pipe' });
+} catch {
+  const before = execSync('git diff --name-only; git diff --staged --name-only', {
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).toString();
+
+  execSync('npx prettier --write .', { stdio: 'pipe' });
+
+  // Solo re-stagear lo que ya estaba trackeado/staged antes del autofix,
+  // para no arrastrar archivos sueltos sin relación al commit en curso.
+  const candidates = [...new Set(before.split('\n').filter(Boolean))];
+  if (candidates.length > 0) {
+    execSync(`git add ${candidates.map((f) => `"${f}"`).join(' ')}`, { stdio: 'pipe' });
+  }
+
+  console.error(
+    `Prettier reformateó y re-stageó ${candidates.length} archivo(s) antes del commit:`,
+  );
+  console.error(candidates.map((f) => `  - ${f}`).join('\n'));
+}
+
 try {
   execSync('npx tsc --noEmit', { stdio: 'pipe' });
   execSync('npx eslint . --max-warnings=0', { stdio: 'pipe' });

@@ -4,13 +4,13 @@
       "Bash(npm run *)",
       "Bash(npm install)",
       "Bash(npm install *)",
-      "Bash(git commit --amend -m ' *)"
+      "Bash(git commit --amend -m ' *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npx eslint *)",
+      "WebFetch(domain:prettier.io)",
+      "WebFetch(domain:github.com)"
     ],
-    "deny": [
-      "Bash(rm -rf *)",
-      "Bash(git push --force*)",
-      "Bash(git push -f*)"
-    ]
+    "deny": ["Bash(rm -rf *)", "Bash(git push --force*)", "Bash(git push -f*)"]
   },
   "hooks": {
     "PreToolUse": [
@@ -20,6 +20,17 @@
           {
             "type": "command",
             "command": "node .claude/hooks/check-before-commit.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/remind-commit.js"
           }
         ]
       }

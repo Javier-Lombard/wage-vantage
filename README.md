@@ -20,12 +20,12 @@ npm install
 npm run dev
 ```
 
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Start the Vite dev server |
-| `npm run build` | Type-check (`tsc -b`) and build for production |
-| `npm run lint` | Run ESLint |
-| `npm run preview` | Preview the production build locally |
+| Command           | Purpose                                        |
+| ----------------- | ---------------------------------------------- |
+| `npm run dev`     | Start the Vite dev server                      |
+| `npm run build`   | Type-check (`tsc -b`) and build for production |
+| `npm run lint`    | Run ESLint                                     |
+| `npm run preview` | Preview the production build locally           |
 
 ## Project structure
 

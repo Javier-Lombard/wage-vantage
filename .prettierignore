@@ -1,0 +1,7 @@
+# Mirrors .gitignore criteria — keep both aligned
+node_modules
+dist
+dist-ssr
+coverage
+
+package-lock.json
