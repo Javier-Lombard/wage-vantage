@@ -1,73 +1,61 @@
-# React + TypeScript + Vite
+# Wage Comparator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A multi-step salary comparator: users enter profile data (country, gender, education, occupation...) and get back salary statistics (mean, quartiles, min/max) visualized as charts, with optional multi-country comparison.
 
-Currently, two official plugins are available:
+> **Status**: early scaffolding stage. Providers, store, and feature folders are in place; the calculator form, charts, and Supabase integration are not yet implemented.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- **Vite + React 19 + TypeScript** (strict mode)
+- **React Router v7** for routing
+- **Tailwind CSS v4** for styling (CSS-first `@theme`, no `tailwind.config.js`)
+- **Recharts** for data visualization
+- **Redux Toolkit + RTK Query** for state management
+- **Supabase** for auth and persistence (planned, not yet wired in)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Type-check (`tsc -b`) and build for production |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview the production build locally |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project structure
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Feature-based architecture — code is organized by business domain, not technical role:
+
 ```
+src/
+  app/          ← Store config + global providers (auth, theme)
+  features/     ← Business domains (salary-calculator, comparison, auth, premium, export, templates)
+  shared/       ← Components, hooks, lib, and types with no domain knowledge
+  pages/        ← Route-level components that assemble features
+```
+
+Each feature owns its own components, hooks, RTK Query endpoints, and exposes a public API via `index.ts` — no cross-feature imports of internals.
+
+## Documentation
+
+Project conventions and decisions are documented for both contributors and AI coding assistants:
+
+- [`CLAUDE.md`](./CLAUDE.md) — stack, conventions, and architecture summary (entry point)
+- [`docs/architecture.md`](./docs/architecture.md) — folder structure, data flow, architectural decisions (ADR-lite)
+- [`docs/conventions.md`](./docs/conventions.md) — TypeScript, naming, and component patterns
+- [`docs/DESIGN.md`](./docs/DESIGN.md) — design system: color tokens, typography, spacing, component patterns
+
+## Access model
+
+- The calculator (form + chart) is publicly accessible without login.
+- Premium-gated features (export, save template, extended country comparison) prompt a login/upsell flow for anonymous or free-tier users.
+
+## Notes
+
+- Final product language is English (UI text, identifiers, comments).
+- This project is built on the default Vite React + TypeScript template. The React Compiler is not enabled (impacts dev/build performance) — see [the official docs](https://react.dev/learn/react-compiler/installation) if enabling it later. ESLint currently runs `typescript-eslint`'s `recommendedTypeChecked` config; see [`docs/conventions.md`](./docs/conventions.md) for the reasoning behind that choice.
