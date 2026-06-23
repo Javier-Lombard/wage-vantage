@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Bell, Check } from 'lucide-react';
-import { Icon } from './Icon';
+import { Icon } from '../Icon';
 
 const meta = {
   component: Icon,

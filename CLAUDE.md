@@ -10,6 +10,7 @@
 - Lucide for icons
 - Redux Toolkit + RTK Query for state management
 - Supabase for auth and persistence
+- Storybook (`@storybook/react-vite`) for isolated component development — see `docs/architecture.md` §6 for file placement conventions
 
 ## Design system
 
@@ -29,6 +30,8 @@ Full design system and Tailwind `@theme` config: `docs/DESIGN.md`
 - Format (Prettier, writes in place): `npm run format`
 - Check formatting without writing: `npm run format:check`
 - Preview production build: `npm run preview`
+- Storybook dev server: `npm run storybook` (port 6006)
+- Build static Storybook: `npm run build-storybook`
 
 ## Conventions
 

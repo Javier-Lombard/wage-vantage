@@ -128,3 +128,24 @@ Installed ahead of use (`npm install motion`); no component wired up yet. Each u
 1. **Multi-step form transitions** (`AnimatePresence` + `motion.div` for step enter/exit) — implemented in the form logic/state phase, once step navigation exists.
 2. **Recharts data-update animation** (chart re-render reacts to each form step) — implemented alongside real Supabase data integration.
 3. **Atomic component microinteractions** (hover states, mount-in for buttons/cards) — can land earlier, as soon as the first real design-system components exist in this same phase.
+
+---
+
+## 6. Storybook
+
+Storybook (`@storybook/react-vite`) is used for isolated component development — see `docs/DESIGN.md` §6 for the icon library it documents alongside, and the root `.storybook/` folder for `main.ts` (story discovery glob, addons) and `preview.tsx` (global CSS import, parameters).
+
+**File placement**: stories live in a `stories/` subfolder inside the same directory as the components they document, not inline next to each component file.
+
+```
+shared/components/ui/
+  Button.tsx
+  Badge.tsx
+  stories/
+    Button.stories.tsx        ← imports from '../Button'
+    Badge.stories.tsx         ← imports from '../Badge'
+```
+
+Why a subfolder over colocation: keeps the component directory's primary listing focused on implementation files; stories are a separate concern (documentation/dev-tooling) grouped together. This applies to every directory that accumulates `.stories.tsx` files, not just `shared/components/ui/` — when `features/<name>/components/` or `shared/components/layout/` grow their own stories, the same `stories/` subfolder pattern applies there too.
+
+**Import path note**: because stories sit one level deeper than their component, imports use `../ComponentName`, not `./ComponentName` — a one-time adjustment from Storybook's own colocation default, easy to miss when copy-pasting a story as a starting template for a new one.

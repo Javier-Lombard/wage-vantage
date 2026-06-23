@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Text } from './Typography';
+import { Text } from '../Typography';
 
 const meta = {
   component: Text,
