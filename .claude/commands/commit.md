@@ -1,5 +1,5 @@
 ---
-description: Stage, write a Conventional Commits message from the real diff, commit (runs the pre-commit hook), then offer to push.
+description: Stage, write a Conventional Commits message from the real diff, commit (runs the pre-commit hook), then push — automatically on feature/* branches, with confirmation on main.
 disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git log:*), Bash(git branch:*)
 ---
@@ -53,14 +53,15 @@ If the commit is **blocked** by tsc/eslint, surface the hook's error output to t
 
 After a successful commit, run `git log --oneline -1` to confirm and show the user the commit that landed.
 
-## 6. Ask before pushing
+## 6. Detect the current branch
 
-Do **not** push automatically. After a successful commit, ask the user whether they want to `git push`.
+Run `git branch --show-current` to determine where this commit just landed.
 
-## 7. Push only if confirmed
+## 7. Push — automatic on feature branches, confirmed on everything else
 
-If the user confirms, run `git push` (use `git push -u origin HEAD` if the current branch has no upstream) and report the result. If they decline, stop — the commit stays local, which is fine.
+- **If the branch name matches `feature/*`:** these are short-lived, single-developer branches per this repo's git workflow — push carries no risk of surprising anyone else, so run `git push` (use `git push -u origin HEAD` if there's no upstream yet) **automatically, without asking**. Report the push result to the user.
+- **If the branch is `main` (or anything else not matching `feature/*`):** keep the original behavior — do **not** push automatically. Ask the user whether they want to `git push`, and only run it if they confirm. If they decline, stop — the commit stays local, which is fine.
 
 ---
 
-**Important:** This command exists so committing is an explicit, user-initiated action. Never run this workflow on your own initiative in the middle of another task — only when the user explicitly invokes `/commit`.
+**Important:** This command exists so committing is an explicit, user-initiated action. Never run this workflow on your own initiative in the middle of another task — only when the user explicitly invokes `/commit`. The automatic push in step 7 is scoped strictly to `feature/*` branches; `main` always requires explicit confirmation before pushing.

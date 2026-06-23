@@ -6,6 +6,8 @@
 - React Router v7 for routing
 - Tailwind CSS v4 for styling (via @tailwindcss/vite plugin, no postcss.config.js)
 - Recharts for data visualization
+- Motion (formerly Framer Motion) for animation — complements Tailwind, no imposed styles; see `docs/architecture.md` §5 for planned uses and phasing
+- Lucide for icons
 - Redux Toolkit + RTK Query for state management
 - Supabase for auth and persistence
 
@@ -75,8 +77,6 @@ Full architecture, folder structure, and design decisions: `docs/architecture.md
   - **6+ files, or any modification to `package.json` / `package-lock.json`**: more insistent reminder (large change, high risk of loss if uncommitted).
 - Claude Code does not need to track this threshold actively turn-by-turn; the hook is the mechanism that triggers the reminder. This section documents the criteria so it's clear why the reminder appears when it does.
 - **Prettier formatting is mandatory before commit.** A `PreToolUse` hook (`.claude/hooks/check-before-commit.js`) gates every `git commit`: it runs `prettier --check .` first, and unlike the `tsc`/`eslint` checks in the same hook (which block the commit on failure), a formatting mismatch is auto-fixed — it runs `prettier --write .`, re-stages the affected files, and lets the commit proceed. `tsc`/`eslint` errors still block the commit with no auto-fix. Run `npm run format` manually any time to format on demand without committing.
-
-
 
 ## State management
 

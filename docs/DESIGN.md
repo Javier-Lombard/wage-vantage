@@ -158,7 +158,25 @@ Minimal shadow usage in both modes — surface color differentiation (`surface` 
 
 ---
 
-## 6. Component Patterns
+## 6. Icons
+
+**Library**: `lucide-react`. Chosen to match the icon style of the TRADE.ly reference material (uniform 2px stroke, rounded line caps, 24x24 base grid) — visible in the platform feature cards, the balance widget (bell, send/receive arrows), and the pricing tables (check-circle, lightning bolt).
+
+**Usage pattern**: icons inherit color via `currentColor` by default — wrap them in a parent with a `text-*` color token (e.g. `text-primary`, `text-muted`) rather than passing a `color` prop, so they stay mode-aware (light/dark) automatically through the same CSS variables as the rest of the design system.
+
+```tsx
+import { Bell } from 'lucide-react';
+
+<Bell className="text-foreground" size={20} strokeWidth={2} />
+```
+
+**Default sizing**: `size={20}` for inline/nav contexts, `size={24}` for standalone feature icons (cards), `strokeWidth={2}` everywhere — matches the reference stroke weight, don't mix with `1.5` or `1.25` variants.
+
+**Reusable wrapper**: exposed through a single `Icon` component (see Architecture §"Construir componentes atómicos") rather than importing `lucide-react` icons directly across feature files, so the stroke width / sizing defaults stay centralized.
+
+---
+
+## 7. Component Patterns
 
 ### Buttons
 
@@ -189,7 +207,7 @@ Background: transparent (inherits page `background`). Grid lines: `border` color
 
 ---
 
-## 7. Dark / Light Mode Strategy
+## 8. Dark / Light Mode Strategy
 
 Both modes are now fully specified (§1). The implementation pattern matters because Tailwind v4's `@theme` block defines **static** values — it cannot hold two resolutions for the same token. The correct pattern is:
 
@@ -205,7 +223,7 @@ Tailwind v4's `@variant dark` (powered by the `.dark` selector) is what makes `d
 
 ---
 
-## 8. Tailwind v4 Configuration
+## 9. Tailwind v4 Configuration
 
 Paste this into `src/index.css` to register all design tokens as Tailwind utilities, with full dark/light support via the `.dark` class.
 
@@ -369,7 +387,7 @@ These examples work unchanged in both light and dark mode — no `dark:` prefixe
 
 ---
 
-## 9. Poppins Font Loading
+## 10. Poppins Font Loading
 
 Load via Google Fonts CSS import (already included in the `@theme` block above). Only the four weights actually used:
 

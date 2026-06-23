@@ -119,3 +119,12 @@ Decisions already made, with reasoning preserved to prevent re-litigation:
 | Theme state       | React Context                                     | Redux                                  | Theme has no cross-feature derived state — Context is simpler and avoids Redux boilerplate for a single boolean |
 | Store persistence | Selective (localStorage/sessionStorage via hooks) | redux-persist                          | Full-store mirroring is overkill; explicit persistence per value is more predictable and debuggable             |
 | Dark/light mode   | CSS variables in :root/.dark + Tailwind @theme    | Tailwind dark: prefix on every utility | Token-driven swap means zero dark: prefixes in component code — single source of truth in index.css             |
+| Animation         | Motion (formerly Framer Motion)                   | CSS transitions/keyframes only         | Declarative `AnimatePresence`/`motion.*` API handles exit animations (step transitions, chart updates) that plain CSS can't express; complements Tailwind v4 rather than replacing it — Motion has no opinion on visual style, it only animates props/layout |
+
+### Planned uses for Motion
+
+Installed ahead of use (`npm install motion`); no component wired up yet. Each use lands in the development phase where its prerequisite already exists:
+
+1. **Multi-step form transitions** (`AnimatePresence` + `motion.div` for step enter/exit) — implemented in the form logic/state phase, once step navigation exists.
+2. **Recharts data-update animation** (chart re-render reacts to each form step) — implemented alongside real Supabase data integration.
+3. **Atomic component microinteractions** (hover states, mount-in for buttons/cards) — can land earlier, as soon as the first real design-system components exist in this same phase.
