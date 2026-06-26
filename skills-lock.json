@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "solid-react": {
+      "source": "fusengine/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/react-expert/skills/solid-react/SKILL.md",
+      "computedHash": "4b104f1a790e90bc89066d1f882a903495bee0c446023da55b60f1155a7704e4"
+    }
+  }
+}

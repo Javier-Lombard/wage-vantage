@@ -4,64 +4,64 @@ disable-model-invocation: true
 allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git add:*), Bash(git commit:*), Bash(git push:*), Bash(git log:*), Bash(git branch:*)
 ---
 
-You are running the `/commit` workflow. Do **only** this — do not start or resume any other task. Follow these steps in order:
+Estás ejecutando el flujo `/commit`. Haz **únicamente** esto — no inicies ni reanudes ninguna otra tarea. Sigue estos pasos en orden:
 
-## 1. Inspect the working tree
+## 1. Inspecciona el árbol de trabajo
 
-Run `git status` and `git diff` (and `git diff --staged` for already-staged changes) to see exactly what changed, both staged and unstaged. Read the actual diff — the commit message must describe what really changed, not a guess.
+Ejecuta `git status` y `git diff` (y `git diff --staged` para los cambios ya en staging) para ver exactamente qué cambió, tanto en staging como sin staging. Lee el diff real — el mensaje de commit debe describir lo que realmente cambió, no una suposición.
 
-## 2. Stop if there is nothing to commit
+## 2. Detente si no hay nada que commitear
 
-If there are no staged or unstaged changes, tell the user there is nothing to commit and **stop**. Do not create an empty commit.
+Si no hay cambios en staging ni sin staging, dile al usuario que no hay nada que commitear y **detente**. No crees un commit vacío.
 
-## 3. Stage the relevant changes
+## 3. Pon en staging los cambios relevantes
 
-- If the relevant changes are already staged, leave them as-is.
-- If there are unstaged changes that clearly belong together as one logical unit, `git add` them.
-- **If the changed files look unrelated to each other** (e.g. a feature change plus an unrelated config tweak plus a docs edit), do **not** `git add .` blindly. List the groups you see and ask the user which files to include in this commit — or whether to split into several commits. Respect their answer.
+- Si los cambios relevantes ya están en staging, déjalos como están.
+- Si hay cambios sin staging que claramente forman una sola unidad lógica, ponlos en staging con `git add`.
+- **Si los archivos modificados parecen no estar relacionados entre sí** (p. ej. un cambio de feature más un ajuste de configuración no relacionado más una edición de docs), **no** hagas `git add .` a ciegas. Enumera los grupos que detectes y pregunta al usuario qué archivos incluir en este commit — o si conviene dividir en varios commits. Respeta su respuesta.
 
-## 4. Write a Conventional Commits message from the real diff
+## 4. Escribe un mensaje de Conventional Commits a partir del diff real
 
-Compose a commit message that follows Conventional Commits, choosing the type from what the diff actually does:
+Compón un mensaje de commit que siga Conventional Commits, eligiendo el tipo según lo que el diff realmente hace:
 
-- `feat:` — a new feature or user-facing capability
-- `fix:` — a bug fix
-- `chore:` — tooling, config, deps, scaffolding (no src behavior change)
-- `docs:` — documentation only
-- `style:` — formatting/whitespace/Prettier-only, no logic change
-- `refactor:` — internal restructuring with no behavior change
-- `test:` — adding or adjusting tests
+- `feat:` — una nueva funcionalidad o capacidad visible para el usuario
+- `fix:` — una corrección de bug
+- `chore:` — tooling, configuración, dependencias, scaffolding (sin cambio de comportamiento en src)
+- `docs:` — solo documentación
+- `style:` — formato/espacios/solo Prettier, sin cambio de lógica
+- `refactor:` — reestructuración interna sin cambio de comportamiento
+- `test:` — añadir o ajustar tests
 
-Rules:
+Reglas:
 
-- Subject line in the imperative mood, lower-case after the type, no trailing period, ≤ ~72 chars.
-- Add a scope when it sharpens meaning (e.g. `feat(salary-calculator): ...`).
-- Add a body (blank line, then bullets) when the change is non-trivial and the "why" isn't obvious from the subject.
-- Base the message on the **real** diff. Never use a generic placeholder like "update files" or "various changes".
-- This repo's product language is English — write the message in English.
+- Línea de asunto en modo imperativo, en minúscula después del tipo, sin punto final, ≤ ~72 caracteres.
+- Añade un scope cuando aclare el significado (p. ej. `feat(salary-calculator): ...`).
+- Añade un cuerpo (línea en blanco, luego bullets) cuando el cambio no sea trivial y el "por qué" no resulte obvio solo con el asunto.
+- Basa el mensaje en el diff **real**. Nunca uses un placeholder genérico como "update files" o "various changes".
+- El mensaje de commit se escribe **siempre en español**, sin excepción. El idioma del producto final (UI, código, identificadores) sigue siendo inglés — eso no cambia —, pero los commits, igual que los commands y la comunicación en estas sesiones, se escriben en español. Los tipos de Conventional Commits (`feat:`, `fix:`, `chore:`, etc.) se mantienen en inglés tal cual, ya que son parte del estándar, no texto descriptivo — solo el subject y el body van en español.
 
-## 5. Commit (the pre-commit hook will gate it)
+## 5. Commitea (el hook de pre-commit lo validará)
 
-Run `git commit` with your message.
+Ejecuta `git commit` con tu mensaje.
 
-A `PreToolUse` hook (`.claude/hooks/check-before-commit.js`) runs automatically on every `git commit`. It:
+Un hook `PreToolUse` (`.claude/hooks/check-before-commit.js`) se ejecuta automáticamente en cada `git commit`. Este hook:
 
-- runs `prettier --check .`, and on a mismatch **auto-fixes** with `prettier --write .`, re-stages the affected files, and lets the commit proceed;
-- runs `tsc --noEmit` and `eslint . --max-warnings=0`, which **block** the commit (exit code 2) if there are type or lint errors.
+- ejecuta `prettier --check .`, y si hay una discordancia la **autocorrige** con `prettier --write .`, vuelve a poner en staging los archivos afectados, y deja que el commit continúe;
+- ejecuta `tsc --noEmit` y `eslint . --max-warnings=0`, que **bloquean** el commit (código de salida 2) si hay errores de tipos o de lint.
 
-If the commit is **blocked** by tsc/eslint, surface the hook's error output to the user, fix the reported errors (or ask the user how to proceed if the fix isn't obvious), and only then retry the commit. Do not try to bypass the hook (no `--no-verify`).
+Si el commit es **bloqueado** por tsc/eslint, muestra al usuario la salida de error del hook, corrige los errores reportados (o pregunta al usuario cómo proceder si la corrección no es obvia), y solo entonces reintenta el commit. No intentes saltarte el hook (sin `--no-verify`).
 
-After a successful commit, run `git log --oneline -1` to confirm and show the user the commit that landed.
+Tras un commit exitoso, ejecuta `git log --oneline -1` para confirmar y muestra al usuario el commit que se creó.
 
-## 6. Detect the current branch
+## 6. Detecta la rama actual
 
-Run `git branch --show-current` to determine where this commit just landed.
+Ejecuta `git branch --show-current` para determinar dónde acaba de aterrizar este commit.
 
-## 7. Push — automatic on feature branches, confirmed on everything else
+## 7. Push — automático en feature branches, confirmado en todo lo demás
 
-- **If the branch name matches `feature/*`:** these are short-lived, single-developer branches per this repo's git workflow — push carries no risk of surprising anyone else, so run `git push` (use `git push -u origin HEAD` if there's no upstream yet) **automatically, without asking**. Report the push result to the user.
-- **If the branch is `main` (or anything else not matching `feature/*`):** keep the original behavior — do **not** push automatically. Ask the user whether they want to `git push`, and only run it if they confirm. If they decline, stop — the commit stays local, which is fine.
+- **Si el nombre de la rama coincide con `feature/*`:** estas son ramas de corta duración, de un solo desarrollador, según el git workflow de este repo — el push no conlleva riesgo de sorprender a nadie más, así que ejecuta `git push` (usa `git push -u origin HEAD` si no hay upstream todavía) **automáticamente, sin preguntar**. Reporta el resultado del push al usuario.
+- **Si la rama es `main` (o cualquier otra que no coincida con `feature/*`):** mantén el comportamiento original — **no** hagas push automáticamente. Pregunta al usuario si quiere hacer `git push`, y solo ejecútalo si confirma. Si declina, detente — el commit se queda local, lo cual está bien.
 
 ---
 
-**Important:** This command exists so committing is an explicit, user-initiated action. Never run this workflow on your own initiative in the middle of another task — only when the user explicitly invokes `/commit`. The automatic push in step 7 is scoped strictly to `feature/*` branches; `main` always requires explicit confirmation before pushing.
+**Importante:** Este comando existe para que commitear sea una acción explícita, iniciada por el usuario. Nunca ejecutes este flujo por iniciativa propia en medio de otra tarea — solo cuando el usuario invoque `/commit` explícitamente. El push automático del paso 7 está limitado estrictamente a ramas `feature/*`; `main` siempre requiere confirmación explícita antes de hacer push.

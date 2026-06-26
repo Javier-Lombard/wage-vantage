@@ -45,7 +45,7 @@ Full design system and Tailwind `@theme` config: `docs/DESIGN.md`
 - Naming: components `PascalCase.tsx`; hooks/utils/slices/api `camelCase.ts`; folders `kebab-case`; module constants `UPPER_SNAKE_CASE`; slices `<name>Slice`, RTK Query APIs `<name>Api`.
 - The `@/` path alias (resolved via `vite-tsconfig-paths`) is configured for imports — use it from 2 levels of nesting onward (`../../`); keep relative imports (`./`) only for direct siblings (1 level away).
 - Import order: external packages → `@/` absolute → relative → type-only last within each group.
-- Comments in English; comment _why_, not _what_. No commented-out code in commits.
+- Comments in Spanish; comment _why_, not _what_. No commented-out code in commits.
 
 Full conventions: `docs/conventions.md`
 
@@ -98,4 +98,4 @@ Full architecture, folder structure, and design decisions: `docs/architecture.md
 
 ## Notes
 
-- Final product language is English (UI text, identifiers, comments).
+- Final product language is English (UI text and identifiers). This does not extend to `.claude/commands/` or commit messages — those are written in Spanish, the language used to communicate with the assistant in these sessions. See `.claude/commands/commit.md` for the commit message language rule.
