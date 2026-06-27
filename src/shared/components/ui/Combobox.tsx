@@ -166,7 +166,7 @@ export function Combobox({
           onFocus={openList}
           onBlur={closeList}
           onKeyDown={handleKeyDown}
-          className={cn(CONTROL_BASE, controlStateClasses(hasError), 'pr-10')}
+          className={cn(CONTROL_BASE, controlStateClasses(hasError), 'cursor-pointer pr-10')}
         />
         <Icon
           icon={ChevronDown}

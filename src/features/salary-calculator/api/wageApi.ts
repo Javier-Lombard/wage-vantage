@@ -2,10 +2,8 @@ import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { supabase } from '@/shared/lib/supabaseClient';
 
-import type { WageFilterColumn, WageFilterParams, WageRow } from './wageApi.types';
+import type { WageFilterColumn, WageFilterParams } from './wageApi.types';
 import type { WageInsightsResult } from '../types';
-
-const TABLE = 'TABLE_0';
 
 interface WageInsightsArgs {
   filters: WageFilterParams;
@@ -14,13 +12,15 @@ interface WageInsightsArgs {
 }
 
 /**
- * One parametric endpoint, reused at every cascade step (architecture.md §4,
- * "single source of truth" data flow): apply the accumulated filters, return
- * the matched rows' wages (for useWageStats to aggregate) plus the next
- * field's distinct values (for the next Combobox's options).
+ * Las dos consultas pasan por funciones RPC de Postgres en vez de leer filas
+ * crudas: el conteo de filas por pais llega a ~5.800, por encima del tope de
+ * 1.000 filas de PostgREST (db-max-rows, global del proyecto). Devolver un
+ * unico array agregado desde SQL esquiva ese tope y, de paso, deduplica las
+ * opciones y filtra nulls en el servidor en lugar de traer miles de filas al
+ * navegador. Ver wage_distinct_options / wage_monthly_wages en las migraciones.
  *
- * baseQuery is fakeBaseQuery() — the actual fetch is a Supabase client call
- * inside queryFn, not an HTTP request RTK Query's normal baseQuery can issue.
+ * baseQuery es fakeBaseQuery(): el fetch real es supabase.rpc() dentro de
+ * queryFn, no una peticion HTTP que el baseQuery normal de RTK Query emita.
  */
 export const wageApi = createApi({
   reducerPath: 'wageApi',
@@ -28,35 +28,32 @@ export const wageApi = createApi({
   endpoints: (builder) => ({
     getCountryOptions: builder.query<string[], void>({
       async queryFn() {
-        const { data, error } = await supabase.from(TABLE).select('Country');
+        const { data, error } = await supabase.rpc('wage_distinct_options', {
+          p_filters: {},
+          p_field: 'Country',
+        });
         if (error) return { error };
 
-        const countries = [
-          ...new Set((data as Pick<WageRow, 'Country'>[]).map((row) => row.Country)),
-        ].sort();
-        return { data: countries };
+        return { data };
       },
     }),
 
     getWageInsights: builder.query<WageInsightsResult, WageInsightsArgs>({
       async queryFn({ filters, nextOptionsField }) {
-        const columns = nextOptionsField ? `Monthly Wage, ${nextOptionsField}` : 'Monthly Wage';
+        const wages = await supabase.rpc('wage_monthly_wages', { p_filters: filters });
+        if (wages.error) return { error: wages.error };
 
-        let query = supabase.from(TABLE).select(columns);
-        for (const [column, value] of Object.entries(filters)) {
-          query = query.eq(column, value);
+        let options: string[] | undefined;
+        if (nextOptionsField) {
+          const distinct = await supabase.rpc('wage_distinct_options', {
+            p_filters: filters,
+            p_field: nextOptionsField,
+          });
+          if (distinct.error) return { error: distinct.error };
+          options = distinct.data;
         }
 
-        const { data, error } = await query;
-        if (error) return { error };
-
-        const rows = data as unknown as Array<Pick<WageRow, 'Monthly Wage'> & Partial<WageRow>>;
-        const monthlyWages = rows.map((row) => row['Monthly Wage']);
-        const options = nextOptionsField
-          ? [...new Set(rows.map((row) => row[nextOptionsField] as string))].sort()
-          : undefined;
-
-        return { data: { monthlyWages, options } };
+        return { data: { monthlyWages: wages.data, options } };
       },
     }),
   }),

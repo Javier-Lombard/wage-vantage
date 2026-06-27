@@ -53,11 +53,9 @@ export function SalaryForm({
           <span />
         )}
 
-        {step < 3 && (
-          <Button disabled={!canAdvance} onClick={onNext}>
-            Next step
-          </Button>
-        )}
+        <Button disabled={!canAdvance} onClick={onNext}>
+          {step < 3 ? 'Next step' : 'Go to comparison sheet'}
+        </Button>
       </div>
     </div>
   );
