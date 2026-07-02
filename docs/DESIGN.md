@@ -132,14 +132,14 @@ Key application guidelines:
 
 ## 4. Border Radius
 
-| Token  | Value          | Usage                         |
-| ------ | -------------- | ----------------------------- |
-| `sm`   | 0.375rem (6px) | Inputs, small badges          |
-| `md`   | 0.5rem (8px)   | Default controls, tags        |
-| `lg`   | 0.75rem (12px) | Cards, modals, dropdowns      |
-| `xl`   | 1rem (16px)    | Large cards, hero sections    |
-| `2xl`  | 1.5rem (24px)  | Feature cards, CTA blocks     |
-| `full` | 9999px         | Buttons (pill shape), avatars |
+| Token  | Value            | Usage                         |
+| ------ | ---------------- | ----------------------------- |
+| `sm`   | 0.1875rem (3px)  | Inputs, small badges          |
+| `md`   | 0.25rem (4px)    | Default controls, tags        |
+| `lg`   | 0.375rem (6px)   | Cards, modals, dropdowns      |
+| `xl`   | 0.5rem (8px)     | Large cards, hero sections    |
+| `2xl`  | 0.75rem (12px)   | Feature cards, CTA blocks     |
+| `full` | 9999px           | Buttons (pill shape), avatars |
 
 Primary CTA buttons use `rounded-full` (pill shape). Cards use `rounded-xl` or `rounded-2xl`.
 
@@ -311,11 +311,11 @@ Paste this into `src/index.css` to register all design tokens as Tailwind utilit
   --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
 
   /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --radius-sm: 0.1875rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem;
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
   --radius-full: 9999px;
 
   /* Shadows */
