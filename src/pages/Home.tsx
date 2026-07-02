@@ -9,10 +9,10 @@ import { Text } from '@/shared/components/ui';
  */
 export function Home() {
   return (
-    <main className="mx-auto h-[calc(100vh-4rem)] max-w-7xl overflow-y-auto px-4 py-16 md:px-8 lg:px-16">
+    <main className="mx-auto max-w-7xl px-4 py-16 md:px-8 lg:px-16">
       <header className="mb-12 max-w-2xl">
-        <Text variant="h1" className="text-foreground">
-          Compare your salary against real market data
+        <Text variant="h3" className="text-center">
+          Compare  your salary
         </Text>
 
       </header>
