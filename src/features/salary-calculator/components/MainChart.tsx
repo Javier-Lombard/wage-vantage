@@ -18,6 +18,11 @@ import type { WageAggregation } from '../types';
 interface MainChartProps {
   aggregation: WageAggregation | null;
   isLoading: boolean;
+  /**
+   * La chart permanece oculta hasta que el usuario elige país por primera vez.
+   * Mientras `false`, se muestra solo el subtítulo invitando a empezar.
+   */
+  hasStarted: boolean;
 }
 
 /**
@@ -91,19 +96,11 @@ function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactEl
  * posterior. Componente puramente presentacional — recibe la agregación ya
  * calculada por useWageStats, nunca consulta ni deriva (architecture.md §4).
  */
-export function MainChart({ aggregation, isLoading }: MainChartProps) {
-  if (isLoading) {
+export function MainChart({ aggregation, isLoading, hasStarted }: MainChartProps) {
+  // Antes de elegir país: la chart no existe en el DOM, solo el subtítulo guía.
+  if (!hasStarted) {
     return (
-      <div
-        className="bg-surface h-80 w-full animate-pulse rounded-xl"
-        aria-label="Loading wage comparison"
-      />
-    );
-  }
-
-  if (!aggregation) {
-    return (
-      <div className="border-border-subtle bg-surface flex h-80 w-full items-center justify-center rounded-xl border p-6 text-center">
+      <div className="flex h-full min-h-20 w-full items-center justify-center p-6 text-center">
         <Text variant="body-sm" className="text-muted">
           Fill in the form to see how your salary compares.
         </Text>
@@ -111,15 +108,24 @@ export function MainChart({ aggregation, isLoading }: MainChartProps) {
     );
   }
 
+  if (isLoading || !aggregation) {
+    return (
+      <div
+        className="bg-surface h-full min-h-80 w-full animate-pulse rounded-xl"
+        aria-label="Loading wage comparison"
+      />
+    );
+  }
+
   const chartData = [toBoxPlotDatum(aggregation)];
 
   return (
-    <figure className="border-border-subtle bg-surface rounded-xl border p-6">
+    <figure className="border-border-subtle bg-surface flex h-full flex-col rounded-xl border p-6">
       <figcaption className="sr-only">
         Salary distribution box plot showing the minimum, first quartile, median, third quartile and
         maximum monthly wage for the current selection.
       </figcaption>
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer width="100%" height="100%" minHeight={320}>
         <BarChart data={chartData} accessibilityLayer>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
           <XAxis
