@@ -8,7 +8,7 @@ import { Button, Icon, Text } from '@/shared/components/ui';
 import { cn } from '@/shared/lib/cn';
 
 /** Closed set of primary nav destinations — extend here as routes are added. */
-const NAV_LINKS = [{ to: '/', label: 'Calculator' }] as const;
+const NAV_LINKS = [{ to: '/about', label: 'About' }, {to:"/plans", label:"Plans"}] as const;
 
 const NAV_LINK_CLASSES = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -23,7 +23,7 @@ const NAV_LINK_CLASSES = ({ isActive }: { isActive: boolean }) =>
  * of fighting Button's fixed padding with overrides.
  */
 const ICON_BUTTON_CLASSES = cn(
-  'inline-flex items-center justify-center rounded-full p-2 text-muted transition-colors',
+  'inline-flex items-center justify-center rounded-full p-2 text-muted transition-colors cursor-pointer',
   'hover:bg-surface-hover hover:text-foreground',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
 );
@@ -75,13 +75,13 @@ export function Navbar() {
           >
             <Icon icon={theme === 'dark' ? Sun : Moon} />
           </button>
-          <Icon icon={UserCircle} size={24} className="text-muted" aria-label="Account" />
+          <Icon icon={UserCircle} size={24} className="cursor-pointer text-muted" aria-label="Account" />
         </div>
       </div>
 
       {/* Mobile collapsed header (below md) */}
       <div className="flex items-center justify-between px-4 py-4 md:hidden">
-        <Icon icon={UserCircle} size={24} className="text-muted" aria-label="Account" />
+        <Icon icon={UserCircle} size={24} className="cursor-pointer text-muted" aria-label="Account" />
         <button
           type="button"
           className={ICON_BUTTON_CLASSES}

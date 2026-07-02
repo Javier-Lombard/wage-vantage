@@ -30,7 +30,7 @@ const DISABLED_CLASSES = 'bg-gray text-muted border-transparent cursor-not-allow
 const BASE_CLASSES = cn(
   'inline-flex items-center justify-center gap-2',
   'px-6 py-3 rounded-full font-semibold',
-  'transition-colors',
+  'transition-colors cursor-pointer',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
 );
 
