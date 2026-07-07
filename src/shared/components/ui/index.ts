@@ -1,7 +1,11 @@
 export { Badge } from './Badge';
 export { Button } from './Button';
+export { Card } from './Card';
+export { FeatureItem } from './FeatureItem';
 export { Icon } from './Icon';
+export { IconBadge } from './IconBadge';
 export { Input } from './Input';
+export { SegmentedControl } from './SegmentedControl';
 export { Select } from './Select';
 export { StepBar } from './StepBar';
 export { Text } from './Typography';
