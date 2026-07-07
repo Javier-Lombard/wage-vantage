@@ -5,8 +5,16 @@ import { Icon } from './Icon';
 
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-/** The four variants defined in DESIGN.md §7 — no additional ones. */
-type ButtonVariant = 'primary' | 'outline' | 'ghost';
+/**
+ * The three variants defined in DESIGN.md §7, plus `destructive-outline` —
+ * same outline shape (border + transparent bg) but on the `error` token
+ * instead of `primary`, for irreversible actions styled as secondary/outline
+ * (e.g. "Cancel Subscription"). Not in §7 by name, but needed because
+ * `cn()` has no Tailwind merge (documented in `shared/lib/cn.ts`): a caller
+ * can't override `outline`'s border-primary/text-primary via className on
+ * the same utility axis, so this is a variant, not a class override.
+ */
+type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'destructive-outline';
 
 /**
  * Per-variant color/border classes. `Disabled` from §7 is a visual STATE, not
@@ -18,6 +26,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-on-primary hover:bg-primary-hover',
   outline: 'border border-primary text-primary hover:bg-primary-muted',
   ghost: 'text-muted hover:bg-surface-hover',
+  'destructive-outline': 'border border-error text-error hover:bg-error/10',
 };
 
 /**

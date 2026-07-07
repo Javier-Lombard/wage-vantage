@@ -1,6 +1,12 @@
 import { cn } from '@/shared/lib/cn';
 
-import type { ElementType, ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react';
+
+interface CardOwnProps {
+  interactive?: boolean;
+  className?: string;
+  children: ReactNode;
+}
 
 /**
  * Superficie elevada genérica (DESIGN.md §7: bg-surface, border-subtle,
@@ -8,20 +14,24 @@ import type { ElementType, ReactNode } from 'react';
  * y secciones de todo el mock. `interactive` añade el hover/focus propio de
  * una card clicable (dashboard, plan cards) sin forzar un <button>/<a>: el
  * elemento real lo decide el caller vía `as`.
+ *
+ * Polimórfico: cualquier prop del elemento elegido (p. ej. `to` de
+ * react-router's `Link`, `onClick` de `button`, `href` de `a`) se reenvía sin
+ * necesidad de declararla aquí una por una.
  */
-interface CardProps {
-  as?: ElementType;
-  interactive?: boolean;
-  className?: string;
-  children: ReactNode;
-}
+type CardProps<T extends ElementType> = CardOwnProps & {
+  as?: T;
+} & Omit<ComponentPropsWithoutRef<T>, keyof CardOwnProps | 'as'>;
 
-export function Card({
-  as: Component = 'div',
+export function Card<T extends ElementType = 'div'>({
+  as,
   interactive = false,
   className,
   children,
-}: CardProps) {
+  ...props
+}: CardProps<T>) {
+  const Component = as ?? 'div';
+
   return (
     <Component
       className={cn(
@@ -30,6 +40,7 @@ export function Card({
           'hover:bg-surface-hover hover:border-border cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         className,
       )}
+      {...props}
     >
       {children}
     </Component>
