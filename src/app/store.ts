@@ -1,7 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 
+import { wageApi } from '@/features/salary-calculator';
+
 export const store = configureStore({
-  reducer: {},
+  reducer: {
+    [wageApi.reducerPath]: wageApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(wageApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

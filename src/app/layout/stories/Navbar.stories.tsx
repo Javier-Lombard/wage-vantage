@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { MemoryRouter } from 'react-router';
 
 import { ThemeProvider } from '@/app/providers/ThemeProvider';
-import { Navbar } from './Navbar';
+import { Navbar } from '../Navbar';
 
 /**
  * Navbar reads routing context (NavLink) and theme context (useTheme), neither
