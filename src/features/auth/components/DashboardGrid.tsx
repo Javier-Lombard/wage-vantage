@@ -21,7 +21,7 @@ export function DashboardGrid({
   planLabel,
 }: DashboardGridProps) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-6 sm:grid-cols-2">
       <DashboardCard
         icon={ArrowLeftRight}
         title="Saved Comparisons"

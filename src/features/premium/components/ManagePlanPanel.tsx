@@ -1,4 +1,5 @@
 import { Badge, Button, Card, Text } from '@/shared/components/ui';
+import { formatCurrency } from '@/shared/lib/formatCurrency';
 import { PLAN_CONFIG } from '../config';
 import { BillingHistory } from './BillingHistory';
 import { PaymentMethodPanel } from './PaymentMethodPanel';
@@ -44,7 +45,7 @@ export function ManagePlanPanel({
           <div className="flex items-baseline gap-2">
             <Text variant="h4">{plan.name}</Text>
             <Text variant="body-sm" className="text-muted">
-              {isPremium ? `${plan.priceMonthly.toFixed(2)} €/month` : '0 €/month'}
+              {isPremium ? `${formatCurrency(plan.priceMonthly)}/month` : '0 €/month'}
             </Text>
           </div>
           <Text variant="body-sm" className="text-muted">
@@ -61,12 +62,12 @@ export function ManagePlanPanel({
           </Text>
           <Text variant="body-sm" className="text-muted mt-1">
             4 countries, unlimited exports & more — from{' '}
-            {PLAN_CONFIG.premium.priceMonthly.toFixed(2)} €/month
+            {formatCurrency(PLAN_CONFIG.premium.priceMonthly)}/month
           </Text>
         </Card>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2">
         <BillingHistory entries={billingEntries} />
         <PaymentMethodPanel card={card} onManage={onManagePayment} />
       </div>

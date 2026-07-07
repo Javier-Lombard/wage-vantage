@@ -1,4 +1,5 @@
 import { Code } from 'lucide-react';
+import { Link } from 'react-router';
 
 import { Icon, Text } from '@/shared/components/ui';
 
@@ -19,9 +20,9 @@ export function Footer() {
         </Text>
 
         <div className="flex items-center gap-6">
-          <a href="/privacy" className={FOOTER_LINK_CLASSES}>
+          <Link to="/privacy" className={FOOTER_LINK_CLASSES}>
             Privacy & Terms
-          </a>
+          </Link>
           <a
             href={GITHUB_URL}
             target="_blank"

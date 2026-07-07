@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react';
+import { CheckCircle2, X } from 'lucide-react';
 
 import { cn } from '@/shared/lib/cn';
 import { Icon } from './Icon';
@@ -20,7 +20,7 @@ interface FeatureItemProps {
 }
 
 export function FeatureItem({ children, included = true, icon, className }: FeatureItemProps) {
-  const ResolvedIcon = icon ?? (included ? Check : X);
+  const ResolvedIcon = icon ?? (included ? CheckCircle2 : X);
 
   return (
     <li className={cn('flex items-center gap-3', className)}>

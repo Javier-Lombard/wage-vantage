@@ -8,6 +8,7 @@ import { Home } from '@/pages/Home';
 import { ManagePlan } from '@/pages/ManagePlan';
 import { MyTemplates } from '@/pages/MyTemplates';
 import { Plans } from '@/pages/Plans';
+import { Privacy } from '@/pages/Privacy';
 import { SavedComparisons } from '@/pages/SavedComparisons';
 import { UserDashboardLayout } from '@/pages/UserDashboardLayout';
 import { UserSettings } from '@/pages/UserSettings';
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'about', element: <About /> },
+      { path: 'privacy', element: <Privacy /> },
       { path: 'plans', element: <Plans /> },
       { path: 'comparison', element: <ComparisonPage /> },
       {

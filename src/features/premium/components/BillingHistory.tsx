@@ -1,4 +1,5 @@
 import { Card, Text } from '@/shared/components/ui';
+import { formatCurrency } from '@/shared/lib/formatCurrency';
 
 export interface BillingHistoryEntry {
   id: string;
@@ -29,7 +30,7 @@ export function BillingHistory({ entries }: BillingHistoryProps) {
                 <Text variant="caption">{entry.description}</Text>
               </div>
               <Text variant="body-sm" className="font-semibold">
-                {entry.amount.toFixed(2)}€
+                {formatCurrency(entry.amount)}
               </Text>
             </li>
           ))}

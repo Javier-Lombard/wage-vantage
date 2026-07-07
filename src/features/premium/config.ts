@@ -66,10 +66,12 @@ export const PLAN_CONFIG: Record<'free' | 'premium', PlanConfig> = {
     priceMonthly: 0,
     priceAnnual: 0,
     features: [
-      { label: '3 salary comparisons per month', included: true },
-      { label: 'Access to 20 countries', included: true },
-      { label: 'Basic cost-of-living index', included: true },
-      { label: 'Email support', included: true },
+      { label: 'Compare up to 2 countries at a time', included: true },
+      { label: 'Save 1 form as a template', included: true },
+      { label: 'Save 1 comparison', included: true },
+      { label: "Can't export comparisons", included: false },
+      { label: 'One chart view per comparison', included: true },
+      { label: 'Limited data on the comparison sheet', included: true },
     ],
   },
   premium: {
@@ -77,12 +79,14 @@ export const PLAN_CONFIG: Record<'free' | 'premium', PlanConfig> = {
     name: 'Premium',
     tagline: 'For anyone negotiating or job hunting',
     priceMonthly: 2.99,
-    priceAnnual: 2.99 * 12 * (2 / 3), // "Save 33%" del mock de billing cycle
+    priceAnnual: 1.99,
     features: [
-      { label: 'Compare up to 4 countries at once', included: true },
-      { label: 'Access to 190+ countries', included: true },
-      { label: 'Full cost-of-living & tax breakdown', included: true },
-      { label: 'Historical trends & export to PDF', included: true },
+      { label: 'Compare up to 3 countries at a time', included: true },
+      { label: 'Save up to 4 templates', included: true },
+      { label: 'Save up to 4 comparisons', included: true },
+      { label: 'Unlimited exports — PDF, CSV, or PNG', included: true },
+      { label: 'Multiple chart views per comparison', included: true },
+      { label: 'Full, accurate data — including wage history trends', included: true },
     ],
   },
 };

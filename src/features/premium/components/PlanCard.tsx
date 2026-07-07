@@ -1,7 +1,8 @@
 import { Zap } from 'lucide-react';
 
-import { Badge, Button, Card, FeatureItem, Icon, Text } from '@/shared/components/ui';
+import { Button, Card, FeatureItem, Icon, Text } from '@/shared/components/ui';
 import { cn } from '@/shared/lib/cn';
+import { formatCurrency } from '@/shared/lib/formatCurrency';
 
 import type { PlanConfig } from '../config';
 
@@ -29,10 +30,10 @@ export function PlanCard({
       )}
     >
       {isRecommended && (
-        <Badge variant="success" className="absolute -top-3 left-1/2 -translate-x-1/2 gap-1.5">
+        <span className="bg-primary text-on-primary absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold">
           <Icon icon={Zap} size={14} />
           Recommended
-        </Badge>
+        </span>
       )}
 
       <div className="flex flex-col gap-1">
@@ -44,7 +45,7 @@ export function PlanCard({
 
       <div className="flex items-baseline gap-1">
         <Text variant="h1" as="span">
-          {price === 0 ? '$0' : `${price.toFixed(2)}€`}
+          {price === 0 ? '$0' : formatCurrency(price)}
         </Text>
         <Text variant="body-sm" className="text-muted">
           /month
