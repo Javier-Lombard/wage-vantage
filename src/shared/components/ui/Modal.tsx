@@ -11,7 +11,10 @@ import type { ReactNode } from 'react';
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  /** Omitido cuando `children` ya compone su propia cabecera (p. ej. ActionDialog). */
+  title?: string;
+  /** Requerido cuando se omite `title`, para que el diálogo siga teniendo un aria-label. */
+  'aria-label'?: string;
   children: ReactNode;
   className?: string;
 }
@@ -23,7 +26,14 @@ interface ModalProps {
  * interno no lo cierre. Se renderiza en un portal a <body> para escapar de
  * cualquier `overflow`/`transform` del árbol de la página.
  */
-export function Modal({ isOpen, onClose, title, children, className }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  'aria-label': ariaLabel,
+  children,
+  className,
+}: ModalProps) {
   // Escape cierra; se registra solo mientras está abierto para no dejar
   // listeners colgando ni interceptar Escape de otros componentes.
   useEffect(() => {
@@ -58,7 +68,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-label={title ?? ariaLabel}
         // El click dentro del panel no debe cerrar el modal.
         onClick={(event) => event.stopPropagation()}
         className={cn(
@@ -66,15 +76,20 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
           className,
         )}
       >
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <Text variant="h5" as="h2">
-            {title}
-          </Text>
+        <div className={cn('flex items-start justify-between gap-4', title && 'mb-6')}>
+          {title && (
+            <Text variant="h5" as="h2">
+              {title}
+            </Text>
+          )}
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="text-muted hover:text-foreground hover:bg-surface-hover -m-1 cursor-pointer rounded-lg p-1 transition-colors"
+            className={cn(
+              'text-muted hover:text-foreground hover:bg-surface-hover -m-1 cursor-pointer rounded-lg p-1 transition-colors',
+              !title && 'absolute top-4 right-4',
+            )}
           >
             <Icon icon={X} size={20} />
           </button>
