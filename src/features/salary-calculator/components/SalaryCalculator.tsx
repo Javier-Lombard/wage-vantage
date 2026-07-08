@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
-import { Button } from '@/shared/components/ui';
+import { AuthPromptDialog } from '@/features/auth';
+import { useDisclosure } from '@/shared/hooks/useDisclosure';
+import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 
 import { useSalaryFormState } from '../hooks/useSalaryFormState';
 import { useWageInsights } from '../hooks/useWageInsights';
@@ -26,6 +28,9 @@ export function SalaryCalculator() {
   const { data, isFetching, nextOptionsField } = useWageInsights(values);
   const aggregation = useWageStats(data?.monthlyWages);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
+  // Auth mockeada (siempre guest): ambos triggers de template abren el mismo
+  // upsell de login. Al conectar Supabase se ramificará por tier (free/premium).
+  const templatePrompt = useDisclosure();
 
   const hasStarted = Boolean(values.country);
 
@@ -33,11 +38,7 @@ export function SalaryCalculator() {
     <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-x-16">
       {/* Columna derecha en desktop / arriba en mobile — order-1 en mobile */}
       <div className="order-1 lg:order-2">
-        <MainChart
-          aggregation={aggregation}
-          isLoading={isFetching}
-          hasStarted={hasStarted}
-        />
+        <MainChart aggregation={aggregation} isLoading={isFetching} hasStarted={hasStarted} />
       </div>
 
       {/* Columna izquierda en desktop / abajo en mobile — order-3 en mobile */}
@@ -52,6 +53,8 @@ export function SalaryCalculator() {
           fetchedOptions={data?.options}
           isFetchingOptions={isFetching}
           nextOptionsField={nextOptionsField}
+          onFastFill={templatePrompt.open}
+          onSaveTemplate={templatePrompt.open}
         />
       </div>
 
@@ -60,16 +63,24 @@ export function SalaryCalculator() {
        * justificado al final; en mobile se intercala entre chart y form (order-2).
        */}
       <div className="flex justify-center order-2 lg:order-3 lg:col-start-2 lg:self-start">
-        <Button
-          variant="outline"
+        <button
+          type="button"
           disabled={!hasStarted}
           onClick={() => setIsCompareOpen(true)}
+          className={outlineButtonClasses(!hasStarted)}
         >
           Compare with another country
-        </Button>
+        </button>
       </div>
 
       <CompareCountryModal isOpen={isCompareOpen} onClose={() => setIsCompareOpen(false)} />
+
+      <AuthPromptDialog
+        isOpen={templatePrompt.isOpen}
+        onClose={templatePrompt.close}
+        variant="log-in-to-save"
+        onLogIn={templatePrompt.close}
+      />
     </div>
   );
 }

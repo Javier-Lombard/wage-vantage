@@ -4,11 +4,17 @@ import { NavLink } from 'react-router';
 import { Menu, Moon, Sun, UserCircle, X } from 'lucide-react';
 
 import { useTheme } from '@/app/providers/useTheme';
-import { Button, Icon, Text } from '@/shared/components/ui';
+import { AuthDialog } from '@/features/auth';
+import { Icon, Text } from '@/shared/components/ui';
+import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { cn } from '@/shared/lib/cn';
+import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 
 /** Closed set of primary nav destinations — extend here as routes are added. */
-const NAV_LINKS = [{ to: '/about', label: 'About' }, {to:"/plans", label:"Plans"}] as const;
+const NAV_LINKS = [
+  { to: '/about', label: 'About' },
+  { to: '/plans', label: 'Plans' },
+] as const;
 
 const NAV_LINK_CLASSES = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -31,8 +37,15 @@ const ICON_BUTTON_CLASSES = cn(
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  // Auth mockeada: el avatar siempre abre el login (logged=false permanente).
+  const authDialog = useDisclosure();
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
+
+  const openAuthDialog = () => {
+    setIsDrawerOpen(false);
+    authDialog.open();
+  };
 
   useEffect(() => {
     if (!isDrawerOpen) return;
@@ -75,13 +88,27 @@ export function Navbar() {
           >
             <Icon icon={theme === 'dark' ? Sun : Moon} />
           </button>
-          <Icon icon={UserCircle} size={24} className="cursor-pointer text-muted" aria-label="Account" />
+          <button
+            type="button"
+            className={ICON_BUTTON_CLASSES}
+            aria-label="Account"
+            onClick={openAuthDialog}
+          >
+            <Icon icon={UserCircle} size={24} />
+          </button>
         </div>
       </div>
 
       {/* Mobile collapsed header (below md) */}
       <div className="flex items-center justify-between px-4 py-4 md:hidden">
-        <Icon icon={UserCircle} size={24} className="cursor-pointer text-muted" aria-label="Account" />
+        <button
+          type="button"
+          className={ICON_BUTTON_CLASSES}
+          aria-label="Account"
+          onClick={openAuthDialog}
+        >
+          <Icon icon={UserCircle} size={24} />
+        </button>
         <button
           type="button"
           className={ICON_BUTTON_CLASSES}
@@ -140,14 +167,26 @@ export function Navbar() {
                 ))}
               </nav>
 
-              <Button variant="outline" onClick={toggleTheme}>
+              {/* Outline con contraste en light (sobre el drawer claro el primary no destaca). */}
+              <button type="button" onClick={toggleTheme} className={outlineButtonClasses()}>
                 <Icon icon={theme === 'dark' ? Sun : Moon} />
                 {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-              </Button>
+              </button>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      {/*
+       * Auth aún mockeada: onSubmit/onForgotPassword son no-ops hasta que se
+       * conecte Supabase; el diálogo solo sirve como entrada visual desde el avatar.
+       */}
+      <AuthDialog
+        isOpen={authDialog.isOpen}
+        onClose={authDialog.close}
+        onSubmit={() => {}}
+        onForgotPassword={() => {}}
+      />
     </header>
   );
 }

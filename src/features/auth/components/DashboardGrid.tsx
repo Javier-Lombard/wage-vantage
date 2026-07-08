@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Bookmark, CreditCard, Shield, SlidersHorizontal } from 'lucide-react';
+import { ArrowLeftRight, Bookmark, CreditCard, Shield } from 'lucide-react';
 
 import { DashboardCard } from './DashboardCard';
 
@@ -10,7 +10,7 @@ interface DashboardGridProps {
 }
 
 /**
- * Las 5 cards del dashboard del mock. Los conteos/labels llegan por props
+ * Las 4 cards del dashboard del mock. Los conteos/labels llegan por props
  * (sin fetch propio) — cuando exista el backend de templates/comparisons/
  * billing, la page que monte este grid es quien pasa los datos reales.
  */
@@ -44,12 +44,6 @@ export function DashboardGrid({
         icon={Shield}
         title="Account Settings"
         subtitle="Email, password, security"
-        to="/dashboard/settings"
-      />
-      <DashboardCard
-        icon={SlidersHorizontal}
-        title="Preferences"
-        subtitle="Currency, language, notifications"
         to="/dashboard/settings"
       />
     </div>

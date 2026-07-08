@@ -18,7 +18,16 @@ interface SalaryFormProps {
   isFetchingOptions: boolean;
   /** Which field `fetchedOptions` actually belongs to — see useWageInsights. */
   nextOptionsField: WageFilterColumn | undefined;
+  /** Abre el flujo de rellenar el form desde una template guardada. */
+  onFastFill: () => void;
+  /** Abre el flujo de guardar el form actual como template (solo en el paso 3). */
+  onSaveTemplate: () => void;
 }
+
+// text-outline-fg: neutro-oscuro en light (primary no contrasta sobre el panel
+// claro), primary en dark. Mismo token que outlineButtonClasses.
+const TEMPLATE_LINK_CLASSES =
+  'text-outline-fg cursor-pointer text-sm font-semibold hover:underline';
 
 export function SalaryForm({
   step,
@@ -30,10 +39,18 @@ export function SalaryForm({
   fetchedOptions,
   isFetchingOptions,
   nextOptionsField,
+  onFastFill,
+  onSaveTemplate,
 }: SalaryFormProps) {
   return (
     <div className="space-y-6">
       <StepBar steps={STEP_LABELS} currentStep={step - 1} />
+
+      <div className="flex justify-end">
+        <button type="button" onClick={onFastFill} className={TEMPLATE_LINK_CLASSES}>
+          Fast fill with a template
+        </button>
+      </div>
 
       <SalaryFormStep
         step={step}
@@ -43,6 +60,14 @@ export function SalaryForm({
         isFetchingOptions={isFetchingOptions}
         nextOptionsField={nextOptionsField}
       />
+
+      {step === 3 && (
+        <div className="flex justify-end">
+          <button type="button" onClick={onSaveTemplate} className={TEMPLATE_LINK_CLASSES}>
+            Save as a template
+          </button>
+        </div>
+      )}
 
       <div className="flex justify-between">
         {step > 1 ? (

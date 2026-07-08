@@ -21,6 +21,12 @@
   --border: #d1d8e4;
   --border-subtle: #e4e8ee;
   --gray: #b8bcc2;
+
+  /* Botón outline legible en ambos modos: neutro en light (primary #dfff88 no
+     contrasta sobre fondos claros), primary en dark. Ver outlineButtonClasses. */
+  --outline-fg: var(--foreground);
+  --outline-border: var(--border);
+  --outline-hover: var(--surface-hover);
 }
 
 /* ── Dark mode — same variable names, dark values ── */
@@ -41,6 +47,11 @@
   --border: #2a3040;
   --border-subtle: #1f2530;
   --gray: #4d4d4d;
+
+  /* En dark el primary sí contrasta: outline vuelve al acento primary. */
+  --outline-fg: var(--primary);
+  --outline-border: var(--primary);
+  --outline-hover: var(--primary-muted);
 }
 
 /* ── Design Tokens — @theme maps to the plain variables above ── */
@@ -62,6 +73,11 @@
   --color-border: var(--border);
   --color-border-subtle: var(--border-subtle);
   --color-gray: var(--gray);
+
+  /* Botón outline mode-aware (neutro en light, primary en dark). */
+  --color-outline-fg: var(--outline-fg);
+  --color-outline-border: var(--outline-border);
+  --color-outline-hover: var(--outline-hover);
 
   /* Colors — Semantic (invariant across modes, literal values) */
   --color-success: #4ade80;
