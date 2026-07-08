@@ -82,7 +82,7 @@ function toBoxPlotDatum(point: WageBoxPlotPoint): BoxPlotDatum {
 
 ## Custom Median Line Shape
 
-The median is not a `Bar` segment — it is a single horizontal line drawn *inside* the box at the median's Y position. Recharts' `shape` prop on `Bar` accepts a function that receives the bar's computed pixel geometry (`x`, `y`, `width`, `height`) plus the original datum, so the median line is drawn relative to that geometry rather than recalculated from scratch:
+The median is not a `Bar` segment — it is a single horizontal line drawn _inside_ the box at the median's Y position. Recharts' `shape` prop on `Bar` accepts a function that receives the bar's computed pixel geometry (`x`, `y`, `width`, `height`) plus the original datum, so the median line is drawn relative to that geometry rather than recalculated from scratch:
 
 ```tsx
 import type { ReactElement } from 'react';
@@ -145,11 +145,11 @@ function WageBoxPlot({ data }: { data: WageBoxPlotPoint[] }) {
 
 Per `docs/DESIGN.md` §1, this project's chart palette is invariant across dark/light mode and exposed as CSS variables via Tailwind v4's `@theme` (`--color-chart-1` through `--color-chart-6`, plus `--color-on-primary`). Use those tokens, not the `#8884d8`-style demo colors used in this skill's other reference files:
 
-| Box plot part | Token | Resolved value | Why |
-| --- | --- | --- | --- |
-| Box (Q1–Q3 range) | `chart-1` | `#DFFF88` | Documented in `DESIGN.md` §1 as "Primary data (accent)" — the box is this chart's primary signal. |
-| Whiskers (min/max) | `chart-2` | `#60A5FA` | "Second series (blue)" — visually distinct from the box without competing with it. |
-| Median line | `on-primary` | `#13161C` | Documented in `DESIGN.md` §1 as the text/icon color for surfaces painted in `primary`/`chart-1` — guarantees contrast against the `chart-1`-filled box underneath it. |
+| Box plot part      | Token        | Resolved value | Why                                                                                                                                                                   |
+| ------------------ | ------------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Box (Q1–Q3 range)  | `chart-1`    | `#DFFF88`      | Documented in `DESIGN.md` §1 as "Primary data (accent)" — the box is this chart's primary signal.                                                                     |
+| Whiskers (min/max) | `chart-2`    | `#60A5FA`      | "Second series (blue)" — visually distinct from the box without competing with it.                                                                                    |
+| Median line        | `on-primary` | `#13161C`      | Documented in `DESIGN.md` §1 as the text/icon color for surfaces painted in `primary`/`chart-1` — guarantees contrast against the `chart-1`-filled box underneath it. |
 
 Reference the CSS variables directly (`var(--color-chart-1)`) rather than hardcoding the hex — that is what keeps a chart consistent if `DESIGN.md`'s token values ever change, per the same token-over-literal rule that governs every other Tailwind v4 color usage in this project.
 

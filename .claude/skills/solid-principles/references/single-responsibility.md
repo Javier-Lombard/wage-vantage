@@ -15,7 +15,7 @@ A reason to change is a real-world axis of variation. In a salary comparison app
 - **Routing / navigation** — what URL maps to what page, what guards apply.
 - **Access tier** — what a free user can do vs. a premium user.
 
-Two of these on the same axis (e.g. "the form has a new visual style and adopts a new color token") are not two reasons — they are one reason ("the design system evolved"). Two on different axes (e.g. "the form has a new step *and* the chart now reads from a new Supabase column") are two reasons. SRP-sensitive code separates the second case; the first case does not need separating.
+Two of these on the same axis (e.g. "the form has a new visual style and adopts a new color token") are not two reasons — they are one reason ("the design system evolved"). Two on different axes (e.g. "the form has a new step _and_ the chart now reads from a new Supabase column") are two reasons. SRP-sensitive code separates the second case; the first case does not need separating.
 
 ## Why this matters more than line counts
 
@@ -63,15 +63,19 @@ export function UserDashboardLayout() {
     <div className="grid grid-cols-[240px_1fr]">
       <nav aria-label="Dashboard sections">
         {tabs.map((t) => (
-          <NavLink key={t.to} to={t.to}
-            className={({ isActive }) => isActive ? 'active' : ''}
+          <NavLink
+            key={t.to}
+            to={t.to}
+            className={({ isActive }) => (isActive ? 'active' : '')}
             aria-disabled={t.requiresPremium && !isPremium}
           >
             {t.label}
           </NavLink>
         ))}
       </nav>
-      <main><Outlet /></main>
+      <main>
+        <Outlet />
+      </main>
     </div>
   );
 }

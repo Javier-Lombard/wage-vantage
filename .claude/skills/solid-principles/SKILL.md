@@ -23,13 +23,13 @@ When this skill and one of those documents disagree on a specific rule, **the do
 
 Each principle has its own reference file in `references/`. Read only the one(s) relevant to the current task — they are not all needed at once.
 
-| Principle | Reference file | Read when |
-|---|---|---|
-| Single Responsibility | `references/single-responsibility.md` | Splitting a component, deciding hook extraction, organizing a feature folder |
-| Open–Closed | `references/open-closed.md` | Designing variant systems (Button, Badge), planning extension points, debating prop flags vs. composition |
-| Liskov Substitution | `references/liskov-substitution.md` | Designing interchangeable components behind a shared interface (FieldShell-wrapped controls, swappable export formats) |
-| Interface Segregation | `references/interface-segregation.md` | Designing component props, splitting Context, slicing RTK selectors |
-| Dependency Inversion | `references/dependency-inversion.md` | Wiring RTK Query, Supabase access, integrating external services, designing testable hooks |
+| Principle             | Reference file                        | Read when                                                                                                              |
+| --------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Single Responsibility | `references/single-responsibility.md` | Splitting a component, deciding hook extraction, organizing a feature folder                                           |
+| Open–Closed           | `references/open-closed.md`           | Designing variant systems (Button, Badge), planning extension points, debating prop flags vs. composition              |
+| Liskov Substitution   | `references/liskov-substitution.md`   | Designing interchangeable components behind a shared interface (FieldShell-wrapped controls, swappable export formats) |
+| Interface Segregation | `references/interface-segregation.md` | Designing component props, splitting Context, slicing RTK selectors                                                    |
+| Dependency Inversion  | `references/dependency-inversion.md`  | Wiring RTK Query, Supabase access, integrating external services, designing testable hooks                             |
 
 ## Hard rules this skill enforces
 
@@ -46,7 +46,7 @@ These come from `docs/conventions.md` and are restated here only because they ar
 These are rules from generic SOLID-for-React material that conflict with this project's documentation:
 
 - ❌ "Files < 100 lines, components < 50, hooks < 30" (hard line limits) — `architecture.md` §3 prefers reversible structural choices over forced fragmentation. Line counts are a smell, not a verdict.
-- ❌ "JSDoc mandatory on every export" — `conventions.md` §6 says comment *why, not what*. JSDoc on trivial exports is noise.
+- ❌ "JSDoc mandatory on every export" — `conventions.md` §6 says comment _why, not what_. JSDoc on trivial exports is noise.
 - ❌ "Interfaces in `src/interfaces/`" — this project keeps prop interfaces inline with their component (`conventions.md` §3) and cross-feature types in `shared/types/` (`architecture.md` §2).
 - ❌ "Ban `any`, enforce strict-type-checked" — `conventions.md` §1 documents the deliberate choice to stay at `recommendedTypeChecked`. `any` is forbidden by convention, not by lint rule, and that distinction is intentional.
 

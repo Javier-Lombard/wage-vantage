@@ -35,13 +35,17 @@ Compare this to the anti-pattern that would break OCP:
 ```tsx
 // Anti-pattern: OCP broken — render body grows for every new variant
 return (
-  <button className={cn(
-    BASE_CLASSES,
-    variant === 'primary' && 'bg-primary text-on-primary',
-    variant === 'outline' && 'border border-primary text-primary',
-    variant === 'ghost' && 'text-muted hover:bg-surface-hover',
-    // ↑ every new variant adds a new line right here, in the same render body
-  )}>{children}</button>
+  <button
+    className={cn(
+      BASE_CLASSES,
+      variant === 'primary' && 'bg-primary text-on-primary',
+      variant === 'outline' && 'border border-primary text-primary',
+      variant === 'ghost' && 'text-muted hover:bg-surface-hover',
+      // ↑ every new variant adds a new line right here, in the same render body
+    )}
+  >
+    {children}
+  </button>
 );
 ```
 
@@ -149,7 +153,7 @@ OCP-aligned: the chart accepts `children` (or named slot props), and callers com
 
 ## When NOT to apply OCP
 
-OCP, like SRP, has a cost: an abstraction (record, registry, configuration array) makes the *first* case slightly more elaborate than just writing the code inline. Indicators that an OCP abstraction is premature:
+OCP, like SRP, has a cost: an abstraction (record, registry, configuration array) makes the _first_ case slightly more elaborate than just writing the code inline. Indicators that an OCP abstraction is premature:
 
 - There is exactly one case today and no concrete plan for a second. `architecture.md` §3's DRY-with-restraint applies here too: don't pre-abstract for cases that may never materialize.
 - The "extension point" you'd carve out is itself complex enough that each new case is a substantial implementation anyway — the registry buys very little if every new exporter is 200 lines of bespoke code.
