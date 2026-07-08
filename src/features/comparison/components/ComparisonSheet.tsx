@@ -1,55 +1,161 @@
-import { Card, Text } from '@/shared/components/ui';
-import { MainChart } from '@/features/salary-calculator';
+import { Lock } from 'lucide-react';
 
-import type { WageAggregation } from '@/features/salary-calculator';
+import { AuthDialog, AuthPromptDialog, useAuth } from '@/features/auth';
+import { ExportButton } from '@/features/export';
+import { PremiumGate } from '@/features/premium';
+import { Button, Card, ErrorBoundary, Icon, Text } from '@/shared/components/ui';
+import { useDisclosure } from '@/shared/hooks/useDisclosure';
+import { cn } from '@/shared/lib/cn';
+
+import { OccupationSalaryBandsChart } from './OccupationSalaryBandsChart';
+import { SalaryDistributionChart } from './SalaryDistributionChart';
+import { SalaryGrowthChart } from './SalaryGrowthChart';
+import { SaveComparisonDialog } from './SaveComparisonDialog';
+import { SectorDistributionChart } from './SectorDistributionChart';
 
 interface ComparisonSheetProps {
-  name: string;
-  countries: string[];
-  aggregation: WageAggregation | null;
-  isLoading: boolean;
-  /** Gatea el detalle numérico exacto (min/Q1/mediana/Q3/max) — free/guest solo ven el gráfico. */
+  countries: [string, string];
+  /** País del usuario (de SalaryFormValues.country vía location.state) — resalta su badge. */
+  primaryCountry?: string;
+  /** De SalaryFormValues.monthlyWage — alimenta la línea "You" de SectorDistributionChart. */
+  userWage?: number;
+  /** Gatea el detalle numérico exacto — free/guest ven un placeholder en vez del chart real. */
   hasAccurateData: boolean;
 }
 
-export function ComparisonSheet({
-  name,
-  countries,
-  aggregation,
-  isLoading,
-  hasAccurateData,
-}: ComparisonSheetProps) {
+interface PremiumChartFallbackProps {
+  title: string;
+}
+
+/** Mismo footprint (título + cuerpo h-[260px]) que un chart real, para no romper el ritmo del grid. */
+function PremiumChartFallback({ title }: PremiumChartFallbackProps) {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <Text variant="h3">{name}</Text>
-        <Text variant="body-sm" className="text-muted">
-          {countries.join(' vs ')}
+    <div className="flex flex-col gap-4">
+      <Text variant="h4">{title}</Text>
+      <div className="bg-surface-hover border-border-subtle flex h-65 flex-col items-center justify-center gap-2 rounded-lg border text-center">
+        <Icon icon={Lock} size={24} className="text-muted" />
+        <Text variant="body-sm" className="text-muted px-6">
+          Upgrade to Premium for detailed data
         </Text>
       </div>
+    </div>
+  );
+}
 
-      <Card>
-        <MainChart aggregation={aggregation} isLoading={isLoading} hasStarted />
-      </Card>
+export function ComparisonSheet({
+  countries,
+  primaryCountry,
+  userWage,
+  hasAccurateData,
+}: ComparisonSheetProps) {
+  const { isAuthenticated } = useAuth();
+  const saveDialog = useDisclosure();
+  const authPrompt = useDisclosure();
+  const authDialog = useDisclosure();
 
-      {hasAccurateData && aggregation && (
-        <Card className="grid grid-cols-2 gap-4 sm:grid-cols-5">
-          {(
-            [
-              ['Min', aggregation.min],
-              ['Q1', aggregation.q1],
-              ['Median', aggregation.median],
-              ['Q3', aggregation.q3],
-              ['Max', aggregation.max],
-            ] as const
-          ).map(([label, value]) => (
-            <div key={label} className="flex flex-col gap-1">
-              <Text variant="caption">{label}</Text>
-              <Text variant="h5">{value.toLocaleString()}</Text>
-            </div>
-          ))}
+  // Auth gate: guest ve el upsell de login (mismo patrón que el save de
+  // templates en SalaryCalculator); logueado va directo al form de guardado.
+  const handleSaveClick = () => {
+    if (isAuthenticated) {
+      saveDialog.open();
+    } else {
+      authPrompt.open();
+    }
+  };
+
+  const openAuthDialog = () => {
+    authPrompt.close();
+    authDialog.open();
+  };
+
+  return (
+    <div className="flex flex-col gap-6">
+      <Text variant="h2">Comparison Sheet</Text>
+
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          {countries.map((country) => {
+            const isPrimary = country === primaryCountry;
+            return (
+              <span
+                key={country}
+                className={cn(
+                  'rounded-full border px-3 py-1 text-sm font-semibold',
+                  isPrimary
+                    ? 'border-primary bg-primary-muted text-primary'
+                    : 'border-border-subtle bg-surface-hover text-foreground',
+                )}
+              >
+                {country}
+              </span>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={handleSaveClick}>
+            Save
+          </Button>
+          <ExportButton onExport={() => {}} />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <Card>
+          <PremiumGate
+            hasAccess={hasAccurateData}
+            fallback={<PremiumChartFallback title="Salary Distribution" />}
+          >
+            <ErrorBoundary>
+              <SalaryDistributionChart countries={countries} />
+            </ErrorBoundary>
+          </PremiumGate>
         </Card>
-      )}
+
+        <Card>
+          <ErrorBoundary>
+            <SalaryGrowthChart countries={countries} />
+          </ErrorBoundary>
+        </Card>
+
+        <Card>
+          <ErrorBoundary>
+            <SectorDistributionChart countries={countries} userWage={userWage} />
+          </ErrorBoundary>
+        </Card>
+
+        <Card>
+          <PremiumGate
+            hasAccess={hasAccurateData}
+            fallback={<PremiumChartFallback title="Occupation Salary Bands" />}
+          >
+            <ErrorBoundary>
+              <OccupationSalaryBandsChart countries={countries} />
+            </ErrorBoundary>
+          </PremiumGate>
+        </Card>
+      </div>
+
+      <SaveComparisonDialog
+        isOpen={saveDialog.isOpen}
+        onClose={saveDialog.close}
+        onSave={() => {}}
+      />
+
+      <AuthPromptDialog
+        isOpen={authPrompt.isOpen}
+        onClose={authPrompt.close}
+        variant="log-in-to-save-comparison"
+        onLogIn={openAuthDialog}
+      />
+
+      {/* Auth aún mockeada: onSubmit/onForgotPassword son no-ops hasta que se conecte Supabase. */}
+      <AuthDialog
+        isOpen={authDialog.isOpen}
+        onClose={authDialog.close}
+        onSubmit={() => {}}
+        onForgotPassword={() => {}}
+      />
     </div>
   );
 }

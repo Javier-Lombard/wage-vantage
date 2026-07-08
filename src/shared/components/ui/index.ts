@@ -4,6 +4,7 @@ export { Badge } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
 export { Combobox } from './Combobox';
+export { ErrorBoundary } from './ErrorBoundary';
 export { FeatureItem } from './FeatureItem';
 export { Icon } from './Icon';
 export { IconBadge } from './IconBadge';
@@ -16,5 +17,6 @@ export { Skeleton } from './Skeleton';
 export { StepBar } from './StepBar';
 export { Text } from './Typography';
 export { Textarea } from './Textarea';
+export { withErrorBoundary } from './withErrorBoundary';
 
 export type { ComboboxOption } from './Combobox';

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 import { AuthDialog, AuthPromptDialog } from '@/features/auth';
+import { ErrorBoundary } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 
@@ -24,18 +26,38 @@ import { SalaryForm } from './SalaryForm';
  * en desktop con `lg:order-*` para no duplicar markup.
  */
 export function SalaryCalculator() {
+  const navigate = useNavigate();
   const { step, values, setFieldValue, goNext, goBack, canAdvance } = useSalaryFormState();
   const { data, isFetching, nextOptionsField } = useWageInsights(values);
   const aggregation = useWageStats(data?.monthlyWages);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
-  // Auth mockeada (siempre guest): ambos triggers de template abren el mismo
-  // upsell de login. Al conectar Supabase se ramificará por tier (free/premium).
+  // Auth mockeada (siempre guest): fast-fill y save-template comparten el
+  // mismo disclosure pero muestran copy distinto (cargar vs guardar una
+  // template) — de ahí el variant en estado en vez de fijo. Al conectar
+  // Supabase se ramificará por tier (free/premium).
+  const [templatePromptVariant, setTemplatePromptVariant] = useState<
+    'log-in-to-load-template' | 'log-in-to-save-template'
+  >('log-in-to-load-template');
   const templatePrompt = useDisclosure();
   const authDialog = useDisclosure();
+
+  const openFastFillPrompt = () => {
+    setTemplatePromptVariant('log-in-to-load-template');
+    templatePrompt.open();
+  };
+
+  const openSaveTemplatePrompt = () => {
+    setTemplatePromptVariant('log-in-to-save-template');
+    templatePrompt.open();
+  };
 
   const openAuthDialog = () => {
     templatePrompt.close();
     authDialog.open();
+  };
+
+  const handleSubmit = () => {
+    void navigate('/comparison', { state: { values } });
   };
 
   const hasStarted = Boolean(values.country);
@@ -44,7 +66,9 @@ export function SalaryCalculator() {
     <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-x-16">
       {/* Columna derecha en desktop / arriba en mobile — order-1 en mobile */}
       <div className="order-1 lg:order-2">
-        <MainChart aggregation={aggregation} isLoading={isFetching} hasStarted={hasStarted} />
+        <ErrorBoundary>
+          <MainChart aggregation={aggregation} isLoading={isFetching} hasStarted={hasStarted} />
+        </ErrorBoundary>
       </div>
 
       {/* Columna izquierda en desktop / abajo en mobile — order-3 en mobile */}
@@ -55,12 +79,13 @@ export function SalaryCalculator() {
           onFieldChange={setFieldValue}
           onNext={goNext}
           onBack={goBack}
+          onSubmit={handleSubmit}
           canAdvance={canAdvance}
           fetchedOptions={data?.options}
           isFetchingOptions={isFetching}
           nextOptionsField={nextOptionsField}
-          onFastFill={templatePrompt.open}
-          onSaveTemplate={templatePrompt.open}
+          onFastFill={openFastFillPrompt}
+          onSaveTemplate={openSaveTemplatePrompt}
         />
       </div>
 
@@ -84,7 +109,7 @@ export function SalaryCalculator() {
       <AuthPromptDialog
         isOpen={templatePrompt.isOpen}
         onClose={templatePrompt.close}
-        variant="log-in-to-save"
+        variant={templatePromptVariant}
         onLogIn={openAuthDialog}
       />
 

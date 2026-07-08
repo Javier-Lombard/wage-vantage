@@ -13,8 +13,11 @@ interface SalaryFormProps {
   step: 1 | 2 | 3;
   values: SalaryFormValues;
   onFieldChange: (id: keyof SalaryFormValues, value: string | number) => void;
+  /** Avanza de paso 1→2 o 2→3. No se usa en el paso 3 — ahí el botón dispara onSubmit. */
   onNext: () => void;
   onBack: () => void;
+  /** Paso 3: "Go to comparison sheet". Separado de onNext porque navega fuera del form, no avanza un paso. */
+  onSubmit: () => void;
   canAdvance: boolean;
   fetchedOptions: string[] | undefined;
   isFetchingOptions: boolean;
@@ -37,6 +40,7 @@ export function SalaryForm({
   onFieldChange,
   onNext,
   onBack,
+  onSubmit,
   canAdvance,
   fetchedOptions,
   isFetchingOptions,
@@ -82,7 +86,7 @@ export function SalaryForm({
           <span />
         )}
 
-        <Button disabled={!canAdvance} onClick={onNext}>
+        <Button disabled={!canAdvance} onClick={step < 3 ? onNext : onSubmit}>
           {step < 3 ? 'Next step' : 'Go to comparison sheet'}
         </Button>
       </div>
