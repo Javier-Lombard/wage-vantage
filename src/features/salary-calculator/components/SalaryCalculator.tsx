@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { AuthPromptDialog } from '@/features/auth';
+import { AuthDialog, AuthPromptDialog } from '@/features/auth';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 
@@ -31,6 +31,12 @@ export function SalaryCalculator() {
   // Auth mockeada (siempre guest): ambos triggers de template abren el mismo
   // upsell de login. Al conectar Supabase se ramificará por tier (free/premium).
   const templatePrompt = useDisclosure();
+  const authDialog = useDisclosure();
+
+  const openAuthDialog = () => {
+    templatePrompt.close();
+    authDialog.open();
+  };
 
   const hasStarted = Boolean(values.country);
 
@@ -79,7 +85,18 @@ export function SalaryCalculator() {
         isOpen={templatePrompt.isOpen}
         onClose={templatePrompt.close}
         variant="log-in-to-save"
-        onLogIn={templatePrompt.close}
+        onLogIn={openAuthDialog}
+      />
+
+      {/*
+       * Auth aún mockeada: onSubmit/onForgotPassword son no-ops hasta que se
+       * conecte Supabase; este diálogo solo continúa el upsell de templates.
+       */}
+      <AuthDialog
+        isOpen={authDialog.isOpen}
+        onClose={authDialog.close}
+        onSubmit={() => {}}
+        onForgotPassword={() => {}}
       />
     </div>
   );

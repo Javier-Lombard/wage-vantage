@@ -1,4 +1,5 @@
 export { ActionDialog } from './ActionDialog';
+export { BackButton } from './BackButton';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';

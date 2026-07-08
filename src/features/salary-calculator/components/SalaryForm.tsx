@@ -1,4 +1,6 @@
-import { Button, StepBar } from '@/shared/components/ui';
+import { Save, Zap } from 'lucide-react';
+
+import { Button, Icon, StepBar } from '@/shared/components/ui';
 
 import { SalaryFormStep } from './SalaryFormStep';
 
@@ -27,7 +29,7 @@ interface SalaryFormProps {
 // text-outline-fg: neutro-oscuro en light (primary no contrasta sobre el panel
 // claro), primary en dark. Mismo token que outlineButtonClasses.
 const TEMPLATE_LINK_CLASSES =
-  'text-outline-fg cursor-pointer text-sm font-semibold hover:underline';
+  'inline-flex items-center gap-1.5 text-outline-fg cursor-pointer text-sm font-semibold hover:underline';
 
 export function SalaryForm({
   step,
@@ -48,6 +50,7 @@ export function SalaryForm({
 
       <div className="flex justify-end">
         <button type="button" onClick={onFastFill} className={TEMPLATE_LINK_CLASSES}>
+          <Icon icon={Zap} size={16} />
           Fast fill with a template
         </button>
       </div>
@@ -64,6 +67,7 @@ export function SalaryForm({
       {step === 3 && (
         <div className="flex justify-end">
           <button type="button" onClick={onSaveTemplate} className={TEMPLATE_LINK_CLASSES}>
+            <Icon icon={Save} size={16} />
             Save as a template
           </button>
         </div>

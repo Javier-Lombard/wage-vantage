@@ -1,9 +1,11 @@
 import { InfoSection } from '@/features/about';
-import { Text } from '@/shared/components/ui';
+import { BackButton, Text } from '@/shared/components/ui';
 
 export function About() {
   return (
     <main className="mx-auto max-w-3xl px-4 py-16 md:px-8 lg:px-16">
+      <BackButton to="/" label="Back to home" />
+
       <header className="mb-12">
         <Text variant="h1">About Wage Comparator</Text>
       </header>

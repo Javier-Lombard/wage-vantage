@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
-import { Text } from '@/shared/components/ui';
+import { BackButton, Text } from '@/shared/components/ui';
 import {
   DeleteComparisonDialog,
   SaveComparisonDialog,
@@ -26,6 +26,8 @@ export function SavedComparisons() {
 
   return (
     <div className="flex flex-col gap-8">
+      <BackButton to="/dashboard" label="Back to dashboard" />
+
       <Text variant="h2">Saved Comparisons</Text>
 
       <SavedComparisonsGrid

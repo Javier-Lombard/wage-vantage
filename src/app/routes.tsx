@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 
+import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { RootLayout } from '@/app/RootLayout';
 import { About } from '@/pages/About';
 import { ComparisonPage } from '@/pages/ComparisonPage';
@@ -25,18 +26,23 @@ export const router = createBrowserRouter([
       { path: 'comparison', element: <ComparisonPage /> },
       {
         path: 'dashboard',
-        element: <UserDashboardLayout />,
+        element: <ProtectedRoute />,
         children: [
-          { index: true, element: <DashboardHome /> },
           {
-            path: 'settings',
+            element: <UserDashboardLayout />,
             children: [
-              { index: true, element: <UserSettings /> },
-              { path: 'manage-plan', element: <ManagePlan /> },
+              { index: true, element: <DashboardHome /> },
+              {
+                path: 'settings',
+                children: [
+                  { index: true, element: <UserSettings /> },
+                  { path: 'manage-plan', element: <ManagePlan /> },
+                ],
+              },
+              { path: 'templates', element: <MyTemplates /> },
+              { path: 'comparisons', element: <SavedComparisons /> },
             ],
           },
-          { path: 'templates', element: <MyTemplates /> },
-          { path: 'comparisons', element: <SavedComparisons /> },
         ],
       },
     ],

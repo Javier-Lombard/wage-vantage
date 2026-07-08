@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router';
 
 import { useAuth } from '@/features/auth';
 import { ManagePlanPanel, useFeatureAccess, type BillingHistoryEntry } from '@/features/premium';
+import { BackButton } from '@/shared/components/ui';
 
 const MOCK_BILLING_ENTRIES: BillingHistoryEntry[] = [
   { id: '1', date: '2026-06-01', description: 'Premium plan — monthly', amount: 2.99 },
@@ -18,14 +19,18 @@ export function ManagePlan() {
   const isPremium = tier === 'premium';
 
   return (
-    <ManagePlanPanel
-      tier={isPremium ? 'premium' : 'free'}
-      renewalDate={isPremium ? '2026-08-01' : undefined}
-      billingEntries={isPremium ? MOCK_BILLING_ENTRIES : []}
-      card={isPremium ? MOCK_CARD : null}
-      onUpgrade={() => void navigate('/plans')}
-      onCancelSubscription={() => setDemoTier('free')}
-      onManagePayment={() => {}}
-    />
+    <>
+      <BackButton to="/dashboard/settings" label="Back to settings" />
+
+      <ManagePlanPanel
+        tier={isPremium ? 'premium' : 'free'}
+        renewalDate={isPremium ? '2026-08-01' : undefined}
+        billingEntries={isPremium ? MOCK_BILLING_ENTRIES : []}
+        card={isPremium ? MOCK_CARD : null}
+        onUpgrade={() => void navigate('/plans')}
+        onCancelSubscription={() => setDemoTier('free')}
+        onManagePayment={() => {}}
+      />
+    </>
   );
 }

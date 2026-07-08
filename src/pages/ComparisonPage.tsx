@@ -1,5 +1,6 @@
 import { ComparisonSheet } from '@/features/comparison';
 import { useFeatureAccess } from '@/features/premium';
+import { BackButton } from '@/shared/components/ui';
 
 import type { WageAggregation } from '@/features/salary-calculator';
 
@@ -16,6 +17,8 @@ export function ComparisonPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-16 md:px-8 lg:px-16">
+      <BackButton to="/" label="Back to home" />
+
       <ComparisonSheet
         name="Spain vs Germany"
         countries={['Spain', 'Germany']}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { DangerZonePanel, UserSettingsPanel } from '@/features/auth';
-import { Text } from '@/shared/components/ui';
+import { BackButton, Text } from '@/shared/components/ui';
 
 export function UserSettings() {
   const [isSaving, setIsSaving] = useState(false);
@@ -9,6 +9,8 @@ export function UserSettings() {
 
   return (
     <div className="flex flex-col gap-8">
+      <BackButton to="/dashboard" label="Back to dashboard" />
+
       <Text variant="h2">Account Settings</Text>
 
       <UserSettingsPanel

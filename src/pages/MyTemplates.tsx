@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
-import { Text } from '@/shared/components/ui';
+import { BackButton, Text } from '@/shared/components/ui';
 import {
   DeleteTemplateDialog,
   SaveTemplateDialog,
@@ -24,6 +24,8 @@ export function MyTemplates() {
 
   return (
     <div className="flex flex-col gap-8">
+      <BackButton to="/dashboard" label="Back to dashboard" />
+
       <Text variant="h2">My Templates</Text>
 
       <TemplatesGrid
