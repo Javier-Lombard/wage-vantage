@@ -11,7 +11,7 @@ import {
 
 import type { ReactElement } from 'react';
 
-import type { WageAggregation } from '@/features/salary-calculator';
+import type { WageAggregation } from '@/features/salary-comparator';
 
 interface SalaryDistributionChartProps {
   countries: [string, string];

@@ -4,7 +4,7 @@ import { ComparisonSheet } from '@/features/comparison';
 import { useFeatureAccess } from '@/features/premium';
 import { BackButton } from '@/shared/components/ui';
 
-import type { SalaryFormValues } from '@/features/salary-calculator';
+import type { SalaryFormValues } from '@/features/salary-comparator';
 
 export function ComparisonPage() {
   const { can } = useFeatureAccess();

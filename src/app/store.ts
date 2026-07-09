@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import { wageApi } from '@/features/salary-calculator';
+import { wageApi } from '@/features/salary-comparator';
 
 export const store = configureStore({
   reducer: {

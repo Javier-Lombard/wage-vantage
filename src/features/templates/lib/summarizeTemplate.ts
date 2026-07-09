@@ -1,4 +1,4 @@
-import type { SalaryFormValues } from '@/features/salary-calculator';
+import type { SalaryFormValues } from '@/features/salary-comparator';
 
 /** "Cooks in Denmark" / "Denmark" / "Template" — degrada con lo que haya disponible. */
 export function summarizeTemplate(values: SalaryFormValues): string {

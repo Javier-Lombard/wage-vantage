@@ -1,4 +1,4 @@
-import { SalaryCalculator } from '@/features/salary-calculator';
+import { SalaryCalculator } from '@/features/salary-comparator';
 import { Text } from '@/shared/components/ui';
 
 /**

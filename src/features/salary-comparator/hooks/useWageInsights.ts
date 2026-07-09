@@ -1,19 +1,17 @@
 import { useGetWageInsightsQuery } from '../api/wageApi';
 import { SALARY_FORM_FIELDS } from '../components/fieldConfig';
+import { buildWageFilters } from './buildWageFilters';
 
-import type { WageFilterParams } from '../api/wageApi.types';
 import type { SalaryFormValues } from '../types';
 
 /**
- * Builds the accumulated Supabase filters from every filled, filterable
- * field (combobox-fetched-options + combobox-static-but-filters) up to the
- * last one the user has actually chosen a value for, and finds the next
- * combobox-fetched-options field after it — that field is the one whose
- * options this fetch should return. Pure derivation, no fetch — kept inline
- * here since useWageInsights is its only consumer (conventions.md §3).
+ * Halla el índice del último campo filtrable con valor, y a partir de ahí el
+ * siguiente campo combobox-fetched-options — ese es el que debe recibir las
+ * opciones de esta fetch. Los filtros en sí los arma buildWageFilters
+ * (compartido con useCountryComparison); esto solo añade la noción de
+ * cascada, propia del form principal.
  */
-function buildCascadeQuery(values: SalaryFormValues) {
-  const filters: WageFilterParams = {};
+function findNextOptionsField(values: SalaryFormValues) {
   let lastFilledIndex = -1;
 
   SALARY_FORM_FIELDS.forEach((field, index) => {
@@ -23,17 +21,21 @@ function buildCascadeQuery(values: SalaryFormValues) {
     const value = values[field.id];
     if (typeof value !== 'string' || value === '') return;
 
-    filters[field.filterColumn] = value;
     lastFilledIndex = index;
   });
 
-  if (lastFilledIndex === -1) return null;
+  if (lastFilledIndex === -1) return undefined;
 
-  const nextField = SALARY_FORM_FIELDS.slice(lastFilledIndex + 1).find(
+  return SALARY_FORM_FIELDS.slice(lastFilledIndex + 1).find(
     (field) => field.kind === 'combobox-fetched-options',
-  );
+  )?.filterColumn;
+}
 
-  return { filters, nextOptionsField: nextField?.filterColumn };
+function buildCascadeQuery(values: SalaryFormValues) {
+  const filters = buildWageFilters(values);
+  if (Object.keys(filters).length === 0) return null;
+
+  return { filters, nextOptionsField: findNextOptionsField(values) };
 }
 
 /**

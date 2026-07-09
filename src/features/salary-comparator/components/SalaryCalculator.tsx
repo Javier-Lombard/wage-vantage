@@ -1,22 +1,26 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import { AuthDialog, AuthPromptDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
+import { UpgradeDialog } from '@/features/premium';
 import { SaveTemplateDialog } from '@/features/templates';
 import { ErrorBoundary } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 import { toast } from '@/shared/lib/toast';
 
+import { buildWageFilters } from '../hooks/buildWageFilters';
+import { useCountryComparison } from '../hooks/useCountryComparison';
 import { useSalaryFormState } from '../hooks/useSalaryFormState';
 import { useWageInsights } from '../hooks/useWageInsights';
 import { useWageStats } from '../hooks/useWageStats';
 
 import { CompareCountryModal } from './CompareCountryModal';
+import { ComparisonCountryQuery } from './ComparisonCountryQuery';
 import { MainChart } from './MainChart';
 import { SalaryForm } from './SalaryForm';
 
-import type { SalaryFormValues } from '../types';
+import type { SalaryFormValues, WageAggregation } from '../types';
 
 /**
  * Contenedor de la feature: cablea los tres hooks (estado del formulario,
@@ -48,6 +52,14 @@ export function SalaryCalculator() {
     useSalaryFormState(initialValues);
   const { data, isFetching, nextOptionsField } = useWageInsights(values);
   const aggregation = useWageStats(data?.monthlyWages);
+  const { extraCountries, addCountry, removeCountry, canAddMore, gateOnLimit } =
+    useCountryComparison();
+  // Agregaciones de los países extra, elevadas por cada ComparisonCountryQuery
+  // vía onResult. El país base no vive aquí — su aggregation ya la calcula
+  // useWageStats arriba; se combinan solo al armar `series` para MainChart.
+  const [comparisonAggregations, setComparisonAggregations] = useState<
+    Map<string, WageAggregation>
+  >(new Map());
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   // fast-fill y save-template comparten el mismo disclosure pero muestran
   // copy distinto (cargar vs guardar una template) — de ahí el variant en
@@ -59,6 +71,8 @@ export function SalaryCalculator() {
   const authDialog = useDisclosure();
   const resetPasswordDialog = useDisclosure();
   const saveTemplateDialog = useDisclosure();
+  const comparePrompt = useDisclosure();
+  const compareUpgrade = useDisclosure();
 
   const openFastFillPrompt = () => {
     if (isAuthenticated) {
@@ -114,14 +128,52 @@ export function SalaryCalculator() {
     void navigate('/comparison', { state: { values } });
   };
 
+  // Memoizado: es dependencia del useEffect de notificación en cada
+  // ComparisonCountryQuery — una referencia inestable lo re-dispararía en
+  // cada render de SalaryCalculator sin que el dato realmente cambiara.
+  const handleComparisonResult = useCallback(
+    (country: string, aggregation: WageAggregation | null) => {
+      setComparisonAggregations((prev) => {
+        const next = new Map(prev);
+        if (aggregation) next.set(country, aggregation);
+        else next.delete(country);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const handleAddCountry = (country: string) => {
+    const gate = addCountry(country);
+    if (gate === 'login') comparePrompt.open();
+    else if (gate === 'upgrade') compareUpgrade.open();
+    // 'none' = se añadió sin bloqueo — cerramos para que el usuario vea el
+    // resultado en MainChart en vez de quedarse en el modal esperando a que
+    // elija otro país (solo tiene sentido seguir eligiendo si es premium y
+    // aún le cabe un país más, lo cual vuelve a abrirse desde el botón).
+    else setIsCompareOpen(false);
+  };
+
   const hasStarted = Boolean(values.country);
+  // Mismos filtros del form para las queries de comparación en paralelo —
+  // cada ComparisonCountryQuery sobrescribe Country con el país que le toca.
+  const baseFilters = buildWageFilters(values);
+  // País base primero, luego los extra en el orden en que se añadieron —
+  // MainChart asigna el color de cada caja por este mismo orden de índice.
+  const series = [
+    ...(values.country ? [{ country: values.country, aggregation }] : []),
+    ...extraCountries.map((country) => ({
+      country,
+      aggregation: comparisonAggregations.get(country) ?? null,
+    })),
+  ];
 
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-x-16">
       {/* Columna derecha en desktop / arriba en mobile — order-1 en mobile */}
       <div className="order-1 lg:order-2">
         <ErrorBoundary>
-          <MainChart aggregation={aggregation} isLoading={isFetching} hasStarted={hasStarted} />
+          <MainChart series={series} isLoading={isFetching} hasStarted={hasStarted} />
         </ErrorBoundary>
       </div>
 
@@ -158,13 +210,48 @@ export function SalaryCalculator() {
         </button>
       </div>
 
-      <CompareCountryModal isOpen={isCompareOpen} onClose={() => setIsCompareOpen(false)} />
+      {extraCountries.map((country) => (
+        <ComparisonCountryQuery
+          key={country}
+          country={country}
+          baseFilters={baseFilters}
+          onResult={handleComparisonResult}
+        />
+      ))}
+
+      <CompareCountryModal
+        isOpen={isCompareOpen}
+        onClose={() => setIsCompareOpen(false)}
+        baseCountry={values.country}
+        extraCountries={extraCountries}
+        onAddCountry={handleAddCountry}
+        onRemoveCountry={removeCountry}
+        isAtHardLimit={!canAddMore && gateOnLimit === 'none'}
+      />
 
       <AuthPromptDialog
         isOpen={templatePrompt.isOpen}
         onClose={templatePrompt.close}
         variant={templatePromptVariant}
         onLogIn={openAuthDialog}
+      />
+
+      <AuthPromptDialog
+        isOpen={comparePrompt.isOpen}
+        onClose={comparePrompt.close}
+        variant="sign-in-to-compare"
+        onLogIn={() => {
+          comparePrompt.close();
+          authDialog.open();
+        }}
+      />
+
+      <UpgradeDialog
+        isOpen={compareUpgrade.isOpen}
+        onClose={compareUpgrade.close}
+        onUpgrade={compareUpgrade.close}
+        title="Upgrade to compare more countries"
+        showFeatureList
       />
 
       <AuthDialog

@@ -1,4 +1,4 @@
-import type { SalaryFormValues, WageAggregation } from '@/features/salary-calculator';
+import type { SalaryFormValues, WageAggregation } from '@/features/salary-comparator';
 import type { BillingHistoryEntry } from '@/features/premium';
 
 /**

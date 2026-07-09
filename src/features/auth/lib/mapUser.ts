@@ -1,5 +1,5 @@
 import type { User } from '@supabase/supabase-js';
-import type { WageAggregation } from '@/features/salary-calculator';
+import type { WageAggregation } from '@/features/salary-comparator';
 import type { BillingHistoryEntry } from '@/features/premium';
 import type { AppUser, CardInfo, SavedComparison, SavedTemplate, UserMetadata } from '../types';
 

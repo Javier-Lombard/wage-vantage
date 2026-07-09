@@ -17,8 +17,16 @@ import type { ReactElement } from 'react';
 
 import type { WageAggregation } from '../types';
 
-interface MainChartProps {
+interface ComparisonSeries {
+  country: string;
   aggregation: WageAggregation | null;
+}
+
+interface MainChartProps {
+  /** País base primero, luego los países de comparación en el orden en que
+   * se añadieron. Cada entrada sin aggregation (fetch aún en curso) se omite
+   * de la chart hasta que resuelve. */
+  series: ComparisonSeries[];
   isLoading: boolean;
   /**
    * La chart permanece oculta hasta que el usuario elige país por primera vez.
@@ -27,14 +35,26 @@ interface MainChartProps {
   hasStarted: boolean;
 }
 
+/** Un color de la paleta chart-1..6 por país, en el mismo orden que `series`
+ * — el país base siempre chart-1 (el acento verde, su color histórico),
+ * igual que SalaryDistributionChart.tsx en el feature comparison. */
+const SERIES_COLORS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+] as const;
+
 /**
  * Recharts no trae un BoxPlot nativo: la caja Q1–Q3 se dibuja con un Bar
  * apilado sobre un Bar base invisible (que lo "levanta" de 0 a Q1), los
  * bigotes min/max con ErrorBar y la mediana con un shape custom encima de la
- * caja. Patrón documentado en .claude/skills/recharts/references/boxplot-pattern.md.
+ * caja. Patrón documentado en .agents/skills/recharts/references/boxplot-pattern.md.
  */
 interface BoxPlotDatum {
   label: string;
+  /** Color por datum — permite un fill distinto por país en la misma serie
+   * de Bars, ver BoxWithMedian. */
+  color: string;
   min: number;
   q1: number;
   median: number;
@@ -48,9 +68,10 @@ interface BoxPlotDatum {
   whiskerRange: [number, number];
 }
 
-function toBoxPlotDatum(aggregation: WageAggregation): BoxPlotDatum {
+function toBoxPlotDatum(aggregation: WageAggregation, label: string, color: string): BoxPlotDatum {
   return {
-    label: 'Your selection',
+    label,
+    color,
     ...aggregation,
     baseOffset: aggregation.q1,
     boxHeight: aggregation.q3 - aggregation.q1,
@@ -69,7 +90,9 @@ interface BoxShapeProps {
 /**
  * Caja con su línea de mediana. El eje Y de Recharts está invertido en píxeles
  * (valor mayor → `y` menor), por eso `medianRatio` se resta de 1 para situar la
- * mediana a la altura correcta dentro de la caja.
+ * mediana a la altura correcta dentro de la caja. El fill viene de
+ * `payload.color` (no fijo) para poder distinguir varios países en la misma
+ * chart.
  */
 function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactElement {
   const range = payload.q3 - payload.q1;
@@ -78,7 +101,7 @@ function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactEl
 
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height} fill="var(--color-chart-1)" rx={2} />
+      <rect x={x} y={y} width={width} height={height} fill={payload.color} rx={2} />
       <line
         x1={x}
         x2={x + width}
@@ -92,13 +115,14 @@ function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactEl
 }
 
 /**
- * Placeholder del box-plot principal: representa la distribución salarial
- * (min/Q1/mediana/Q3/max) del conjunto filtrado que devuelve Supabase. De
- * momento dibuja un único grupo; la comparación multi-país es una fase
- * posterior. Componente puramente presentacional — recibe la agregación ya
- * calculada por useWageStats, nunca consulta ni deriva (architecture.md §4).
+ * Box-plot principal: un cuadro por país en `series` (base + comparación),
+ * cada uno con su color de SERIES_COLORS. Componente puramente presentacional
+ * — recibe las agregaciones ya calculadas por useWageStats, nunca consulta ni
+ * deriva (architecture.md §4). El eje X no muestra nombres de país (evita
+ * duplicar la leyenda); la identificación color↔país vive solo en la leyenda
+ * de chips al pie, que además es la única fuente de esa relación.
  */
-export function MainChart({ aggregation, isLoading, hasStarted }: MainChartProps) {
+export function MainChart({ series, isLoading, hasStarted }: MainChartProps) {
   // Antes de elegir país: la chart no existe en el DOM, solo el subtítulo guía.
   if (!hasStarted) {
     return (
@@ -110,24 +134,33 @@ export function MainChart({ aggregation, isLoading, hasStarted }: MainChartProps
     );
   }
 
-  if (isLoading || !aggregation) {
+  const baseAggregation = series[0]?.aggregation;
+  if (isLoading || !baseAggregation) {
     return <SalaryCalculatorSkeleton />;
   }
 
-  const chartData = [toBoxPlotDatum(aggregation)];
+  // Los países extra cuyo fetch aún no resolvió (aggregation null) se omiten
+  // hasta que llegan — nunca se pasa un datum a medias a Recharts.
+  const chartData = series
+    .map(({ country, aggregation }, index) =>
+      aggregation
+        ? toBoxPlotDatum(aggregation, country, SERIES_COLORS[index % SERIES_COLORS.length])
+        : null,
+    )
+    .filter((datum): datum is BoxPlotDatum => datum !== null);
 
   return (
     <figure className="border-border-subtle bg-surface flex h-full flex-col rounded-xl border p-6">
       <figcaption className="sr-only">
-        Salary distribution box plot showing the minimum, first quartile, median, third quartile and
-        maximum monthly wage for the current selection.
+        Salary distribution box plot comparing the minimum, first quartile, median, third quartile
+        and maximum monthly wage across the selected countries.
       </figcaption>
       <ResponsiveContainer width="100%" height="100%" minHeight={320}>
         <BarChart data={chartData} accessibilityLayer>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
           <XAxis
             dataKey="label"
-            tick={{ fill: 'var(--color-muted)', fontSize: 12 }}
+            tick={false}
             tickLine={false}
             axisLine={{ stroke: 'var(--color-border)' }}
           />
@@ -148,10 +181,31 @@ export function MainChart({ aggregation, isLoading, hasStarted }: MainChartProps
           />
           <Bar dataKey="baseOffset" stackId="box" fill="transparent" isAnimationActive={false} />
           <Bar dataKey="boxHeight" stackId="box" shape={BoxWithMedian}>
-            <ErrorBar dataKey="whiskerRange" stroke="var(--color-chart-2)" strokeWidth={1.5} />
+            <ErrorBar
+              dataKey="whiskerRange"
+              stroke="var(--color-muted-foreground)"
+              strokeWidth={1.5}
+            />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+
+      {chartData.length > 1 && (
+        <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2">
+          {chartData.map((datum) => (
+            <li key={datum.label} className="flex items-center gap-1.5">
+              <span
+                className="h-2.5 w-2.5 rounded-sm"
+                style={{ backgroundColor: datum.color }}
+                aria-hidden="true"
+              />
+              <Text variant="caption" className="text-muted">
+                {datum.label}
+              </Text>
+            </li>
+          ))}
+        </ul>
+      )}
     </figure>
   );
 }

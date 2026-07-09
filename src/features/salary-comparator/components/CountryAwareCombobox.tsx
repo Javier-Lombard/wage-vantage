@@ -11,6 +11,9 @@ interface CountryAwareComboboxProps {
   fetchedOptions: string[] | undefined;
   isFetchingOptions: boolean;
   onChange: (value: string) => void;
+  /** Países a ocultar de la lista (usado por CompareCountryModal para que no
+   * se pueda elegir el país del form ni uno ya añadido a la comparación). */
+  excludeOptions?: string[];
 }
 
 /**
@@ -26,11 +29,15 @@ export function CountryAwareCombobox({
   fetchedOptions,
   isFetchingOptions,
   onChange,
+  excludeOptions,
 }: CountryAwareComboboxProps) {
   const isCountryField = field.id === 'country';
   const countryQuery = useGetCountryOptionsQuery(undefined, { skip: !isCountryField });
 
-  const options = isCountryField ? countryQuery.data : fetchedOptions;
+  const rawOptions = isCountryField ? countryQuery.data : fetchedOptions;
+  const options = excludeOptions?.length
+    ? rawOptions?.filter((option) => !excludeOptions.includes(option))
+    : rawOptions;
   const isLoading = isCountryField ? countryQuery.isLoading : isFetchingOptions;
 
   // Once answered, a field stops receiving live options (see

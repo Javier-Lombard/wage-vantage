@@ -22,7 +22,8 @@ type AuthPromptVariant =
   | 'sign-in-to-continue'
   | 'log-in-to-load-template'
   | 'log-in-to-save-template'
-  | 'log-in-to-save-comparison';
+  | 'log-in-to-save-comparison'
+  | 'sign-in-to-compare';
 
 const VARIANT_COPY: Record<
   AuthPromptVariant,
@@ -52,6 +53,13 @@ const VARIANT_COPY: Record<
     title: 'Log in to save this comparison',
     description:
       'Create a free account to save this comparison sheet and revisit it anytime from your dashboard.',
+    primaryLabel: 'Log In',
+    showCreateAccountFooter: true,
+  },
+  'sign-in-to-compare': {
+    title: 'Log in to compare more countries',
+    description:
+      'Create a free account to keep comparing. Upgrade to Premium to compare up to 3 countries at once.',
     primaryLabel: 'Log In',
     showCreateAccountFooter: true,
   },
