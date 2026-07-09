@@ -7,8 +7,12 @@ export function DashboardHome() {
   const { tier, limits } = useFeatureAccess();
   const { user } = useAuth();
   const planLabel = tier === 'premium' ? PLAN_CONFIG.premium.name : PLAN_CONFIG.free.name;
-  const savedComparisonsCount = user?.metadata.comparisons?.length ?? 0;
+  const comparisons = user?.metadata.comparisons ?? [];
+  const savedComparisonsCount = comparisons.length;
   const savedTemplatesCount = user?.metadata.templates?.length ?? 0;
+  const recentComparisons = [...comparisons].sort(
+    (a, b) => new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime(),
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -23,7 +27,10 @@ export function DashboardHome() {
         planLabel={planLabel}
       />
 
-      <RecentComparisonsPanel savedComparisonsCount={savedComparisonsCount} />
+      <RecentComparisonsPanel
+        savedComparisonsCount={savedComparisonsCount}
+        recentComparisons={recentComparisons}
+      />
     </div>
   );
 }

@@ -40,12 +40,14 @@ export function Navbar() {
   const navigate = useNavigate();
   const {
     isAuthenticated,
+    user,
     signInWithPassword,
     signUp,
     signInWithOAuth,
     signOut,
     resetPasswordForEmail,
   } = useAuth();
+  const avatarUrl = isAuthenticated ? user?.metadata.avatarUrl : undefined;
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
@@ -149,12 +151,20 @@ export function Navbar() {
           <div ref={accountMenuRef} className="relative">
             <button
               type="button"
-              className={ICON_BUTTON_CLASSES}
+              className={avatarUrl ? 'cursor-pointer rounded-full' : ICON_BUTTON_CLASSES}
               aria-label="Account"
               aria-expanded={isAccountMenuOpen}
               onClick={handleAccountClick}
             >
-              <Icon icon={UserCircle} size={24} />
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Account"
+                  className="border-border-subtle h-9 w-9 rounded-full border object-cover"
+                />
+              ) : (
+                <Icon icon={UserCircle} size={24} />
+              )}
             </button>
 
             {isAccountMenuOpen && (
@@ -184,7 +194,7 @@ export function Navbar() {
       <div className="flex items-center justify-between px-4 py-4 md:hidden">
         <button
           type="button"
-          className={ICON_BUTTON_CLASSES}
+          className={avatarUrl ? 'cursor-pointer rounded-full' : ICON_BUTTON_CLASSES}
           aria-label="Account"
           onClick={() => {
             if (isAuthenticated) {
@@ -195,7 +205,15 @@ export function Navbar() {
             }
           }}
         >
-          <Icon icon={UserCircle} size={24} />
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="Account"
+              className="border-border-subtle h-9 w-9 rounded-full border object-cover"
+            />
+          ) : (
+            <Icon icon={UserCircle} size={24} />
+          )}
         </button>
         <button
           type="button"
