@@ -10,7 +10,9 @@ import {
 } from './chartStyles';
 
 interface SalaryGrowthChartProps {
-  countries: [string, string];
+  /** País base primero, luego los extra — 1 a 3 elementos. Solo se usan los
+   * dos primeros (mock de 2 series); sin 2º país se repite el 1º. */
+  countries: string[];
 }
 
 interface GrowthDatum {
@@ -37,6 +39,8 @@ const formatEur = (value: number) =>
   value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 
 export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
+  const [country1, country2 = country1] = countries;
+
   return (
     <div className="flex flex-col gap-1">
       <Text variant="h4">Salary Growth — Last 10 Years</Text>
@@ -63,18 +67,8 @@ export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
           contentStyle={CHART_TOOLTIP_CONTENT_STYLE}
         />
         <Legend wrapperStyle={{ fontSize: 12, color: 'var(--color-muted)' }} />
-        <Bar
-          dataKey="country1"
-          name={countries[0]}
-          fill="var(--color-chart-1)"
-          radius={[4, 4, 0, 0]}
-        />
-        <Bar
-          dataKey="country2"
-          name={countries[1]}
-          fill="var(--color-chart-2)"
-          radius={[4, 4, 0, 0]}
-        />
+        <Bar dataKey="country1" name={country1} fill="var(--color-chart-1)" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="country2" name={country2} fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </div>
   );

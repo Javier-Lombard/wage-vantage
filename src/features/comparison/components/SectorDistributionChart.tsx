@@ -10,7 +10,9 @@ import {
 } from './chartStyles';
 
 interface SectorDistributionChartProps {
-  countries: [string, string];
+  /** País base primero, luego los extra — 1 a 3 elementos. Solo se usan los
+   * dos primeros (mock de 2 curvas); sin 2º país se repite el 1º. */
+  countries: string[];
   userWage?: number;
 }
 
@@ -47,6 +49,8 @@ const WAGE_TICKS = [1000, 2000, 3000, 4000, 5000];
 const formatEurTick = (value: number) => `${value.toLocaleString('es-ES')}€`;
 
 export function SectorDistributionChart({ countries, userWage }: SectorDistributionChartProps) {
+  const [country1, country2 = country1] = countries;
+
   return (
     <div className="flex flex-col gap-4">
       <Text variant="h4">Sector Distribution</Text>
@@ -76,7 +80,7 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
         <Area
           type="natural"
           dataKey="country1"
-          name={countries[0]}
+          name={country1}
           stroke="var(--color-chart-1)"
           fill="var(--color-chart-1)"
           fillOpacity={0.15}
@@ -84,7 +88,7 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
         <Area
           type="natural"
           dataKey="country2"
-          name={countries[1]}
+          name={country2}
           stroke="var(--color-chart-2)"
           fill="var(--color-chart-2)"
           fillOpacity={0.15}
@@ -94,7 +98,7 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
           stroke="var(--color-chart-1)"
           strokeDasharray="4 4"
           label={{
-            value: countries[0],
+            value: country1,
             position: 'top',
             fill: 'var(--color-chart-1)',
             fontSize: 11,
@@ -105,7 +109,7 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
           stroke="var(--color-chart-2)"
           strokeDasharray="4 4"
           label={{
-            value: countries[1],
+            value: country2,
             position: 'top',
             fill: 'var(--color-chart-2)',
             fontSize: 11,

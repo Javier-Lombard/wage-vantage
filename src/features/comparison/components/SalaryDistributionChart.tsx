@@ -1,4 +1,13 @@
-import { Bar, BarChart, CartesianGrid, ErrorBar, Tooltip, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ErrorBar,
+  ReferenceLine,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 import { Text } from '@/shared/components/ui';
 
@@ -13,21 +22,30 @@ import type { ReactElement } from 'react';
 
 import type { WageAggregation } from '@/features/salary-comparator';
 
-interface SalaryDistributionChartProps {
-  countries: [string, string];
+interface ComparisonSeries {
+  country: string;
+  aggregation: WageAggregation | null;
 }
 
-/** Boxplots mockeados — mismo shape que MainChart.tsx, valores realistas. */
-const MOCK_AGGREGATIONS: [WageAggregation, WageAggregation] = [
-  { min: 1200, q1: 1800, median: 2300, q3: 2900, max: 4200 },
-  { min: 2100, q1: 2900, median: 3600, q3: 4400, max: 6800 },
-];
+interface SalaryDistributionChartProps {
+  /** País base primero, luego los extra — 1 a 3 elementos. Entradas cuyo
+   * fetch aún no resolvió (aggregation null) se omiten hasta que llegan. */
+  series: ComparisonSeries[];
+  /** SalaryFormValues.monthlyWage — dibuja la línea de referencia "You". */
+  userWage?: number;
+}
 
-const SERIES_COLORS = ['var(--color-chart-1)', 'var(--color-chart-2)'] as const;
+/** Un color de la paleta chart-1..6 por país, mismo orden y criterio que
+ * MainChart.tsx (feature salary-comparator) — el país base siempre chart-1. */
+const SERIES_COLORS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+] as const;
 
 interface BoxPlotDatum extends WageAggregation {
   label: string;
-  /** Color por datum (a diferencia de MainChart) para distinguir los dos países. */
+  /** Color por datum — permite un fill distinto por país en la misma serie de Bars. */
   color: string;
   /** Bar base invisible — ancla la caja visible en Q1 en vez de en 0. */
   baseOffset: number;
@@ -77,22 +95,28 @@ function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactEl
   );
 }
 
-export function SalaryDistributionChart({ countries }: SalaryDistributionChartProps) {
-  const chartData = MOCK_AGGREGATIONS.map((aggregation, index) =>
-    toBoxPlotDatum(aggregation, countries[index], SERIES_COLORS[index]),
-  );
+/**
+ * Box-plot con datos reales (min/Q1/mediana/Q3/max por país, derivados por
+ * useWageStats vía ComparisonCountryQuery en ComparisonSheet) — ya no mock.
+ * Mismo patrón visual que MainChart.tsx: whisker en muted-foreground (no
+ * chart-2, que ya es el color del 2º país) y leyenda de chips al pie cuando
+ * hay más de un país.
+ */
+export function SalaryDistributionChart({ series, userWage }: SalaryDistributionChartProps) {
+  const chartData = series
+    .map(({ country, aggregation }, index) =>
+      aggregation
+        ? toBoxPlotDatum(aggregation, country, SERIES_COLORS[index % SERIES_COLORS.length])
+        : null,
+    )
+    .filter((datum): datum is BoxPlotDatum => datum !== null);
 
   return (
     <div className="flex flex-col gap-4">
       <Text variant="h4">Salary Distribution</Text>
       <BarChart data={chartData} responsive width="100%" height={260} accessibilityLayer>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
-        <XAxis
-          dataKey="label"
-          tick={CHART_TICK_STYLE}
-          tickLine={false}
-          axisLine={CHART_AXIS_LINE_STYLE}
-        />
+        <XAxis dataKey="label" tick={false} tickLine={false} axisLine={CHART_AXIS_LINE_STYLE} />
         <YAxis tick={CHART_TICK_STYLE} tickLine={false} axisLine={CHART_AXIS_LINE_STYLE} />
         <Tooltip
           cursor={{ fill: 'var(--color-primary-muted)' }}
@@ -106,7 +130,38 @@ export function SalaryDistributionChart({ countries }: SalaryDistributionChartPr
             strokeWidth={1.5}
           />
         </Bar>
+        {userWage !== undefined && (
+          <ReferenceLine
+            y={userWage}
+            stroke="var(--color-error)"
+            strokeWidth={1}
+            strokeDasharray="4 4"
+            label={{
+              value: 'Your monthly wage',
+              position: 'insideTopRight',
+              fill: 'var(--color-error)',
+              fontSize: 11,
+            }}
+          />
+        )}
       </BarChart>
+
+      {chartData.length > 1 && (
+        <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+          {chartData.map((datum) => (
+            <li key={datum.label} className="flex items-center gap-1.5">
+              <span
+                className="h-2.5 w-2.5 rounded-sm"
+                style={{ backgroundColor: datum.color }}
+                aria-hidden="true"
+              />
+              <Text variant="caption" className="text-muted">
+                {datum.label}
+              </Text>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

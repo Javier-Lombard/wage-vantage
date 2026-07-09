@@ -10,7 +10,8 @@ import {
 } from './chartStyles';
 
 interface OccupationSalaryBandsChartProps {
-  countries: [string, string];
+  /** País base primero, luego los extra — 1 a 3 elementos. */
+  countries: string[];
 }
 
 interface OccupationBandDatum {

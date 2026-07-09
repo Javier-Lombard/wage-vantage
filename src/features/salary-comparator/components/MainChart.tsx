@@ -3,6 +3,7 @@ import {
   BarChart,
   CartesianGrid,
   ErrorBar,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -33,6 +34,9 @@ interface MainChartProps {
    * Mientras `false`, se muestra solo el subtítulo invitando a empezar.
    */
   hasStarted: boolean;
+  /** SalaryFormValues.monthlyWage — dibuja la línea de referencia "You" si
+   * el usuario ya lo introdujo (paso 1 del form, opcional). */
+  userWage?: number;
 }
 
 /** Un color de la paleta chart-1..6 por país, en el mismo orden que `series`
@@ -122,7 +126,7 @@ function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactEl
  * duplicar la leyenda); la identificación color↔país vive solo en la leyenda
  * de chips al pie, que además es la única fuente de esa relación.
  */
-export function MainChart({ series, isLoading, hasStarted }: MainChartProps) {
+export function MainChart({ series, isLoading, hasStarted, userWage }: MainChartProps) {
   // Antes de elegir país: la chart no existe en el DOM, solo el subtítulo guía.
   if (!hasStarted) {
     return (
@@ -187,6 +191,20 @@ export function MainChart({ series, isLoading, hasStarted }: MainChartProps) {
               strokeWidth={1.5}
             />
           </Bar>
+          {userWage !== undefined && (
+            <ReferenceLine
+              y={userWage}
+              stroke="var(--color-error)"
+              strokeWidth={1}
+              strokeDasharray="4 4"
+              label={{
+                value: 'Your monthly wage',
+                position: 'insideTopRight',
+                fill: 'var(--color-error)',
+                fontSize: 11,
+              }}
+            />
+          )}
         </BarChart>
       </ResponsiveContainer>
 

@@ -1,8 +1,10 @@
 import { Lock } from 'lucide-react';
+import { useCallback, useState } from 'react';
 
 import { AuthDialog, AuthPromptDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
 import { ExportButton } from '@/features/export';
 import { PremiumGate } from '@/features/premium';
+import { buildWageFilters, ComparisonCountryQuery } from '@/features/salary-comparator';
 import { Button, Card, ErrorBoundary, Icon, Text } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { cn } from '@/shared/lib/cn';
@@ -14,8 +16,11 @@ import { SalaryGrowthChart } from './SalaryGrowthChart';
 import { SaveComparisonDialog } from './SaveComparisonDialog';
 import { SectorDistributionChart } from './SectorDistributionChart';
 
+import type { WageAggregation } from '@/features/salary-comparator';
+
 interface ComparisonSheetProps {
-  countries: [string, string];
+  /** País base primero, luego los extra elegidos en CompareCountryModal — 1 a 3 elementos. */
+  countries: string[];
   /** País del usuario (de SalaryFormValues.country vía location.state) — resalta su badge. */
   primaryCountry?: string;
   /** De SalaryFormValues.monthlyWage — alimenta la línea "You" de SectorDistributionChart. */
@@ -23,6 +28,12 @@ interface ComparisonSheetProps {
   /** Gatea el detalle numérico exacto — free/guest ven un placeholder en vez del chart real. */
   hasAccurateData: boolean;
 }
+
+/** Sin datos del form completo en esta página (solo el nombre del país llega
+ * vía location.state) — wage_monthly_wages devuelve el agregado nacional del
+ * país, sin más filtros. Constante fuera del componente: mismo objeto en
+ * cada render, evita disparar refetches por referencia inestable. */
+const NO_FILTERS = buildWageFilters({});
 
 interface PremiumChartFallbackProps {
   title: string;
@@ -62,6 +73,29 @@ export function ComparisonSheet({
   const authPrompt = useDisclosure();
   const authDialog = useDisclosure();
   const resetPasswordDialog = useDisclosure();
+  // Agregaciones reales por país, elevadas por cada ComparisonCountryQuery vía
+  // onResult — mismo patrón que SalaryCalculator/MainChart en la home.
+  const [aggregations, setAggregations] = useState<Map<string, WageAggregation>>(new Map());
+
+  // Memoizado: es dependencia del useEffect de notificación en cada
+  // ComparisonCountryQuery — una referencia inestable lo re-dispararía en
+  // cada render sin que el dato realmente cambiara.
+  const handleComparisonResult = useCallback(
+    (country: string, aggregation: WageAggregation | null) => {
+      setAggregations((prev) => {
+        const next = new Map(prev);
+        if (aggregation) next.set(country, aggregation);
+        else next.delete(country);
+        return next;
+      });
+    },
+    [],
+  );
+
+  const series = countries.map((country) => ({
+    country,
+    aggregation: aggregations.get(country) ?? null,
+  }));
 
   // Auth gate: guest ve el upsell de login (mismo patrón que el save de
   // templates en SalaryCalculator); logueado va directo al form de guardado.
@@ -147,6 +181,15 @@ export function ComparisonSheet({
         </div>
       </div>
 
+      {countries.map((country) => (
+        <ComparisonCountryQuery
+          key={country}
+          country={country}
+          baseFilters={NO_FILTERS}
+          onResult={handleComparisonResult}
+        />
+      ))}
+
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card>
           <PremiumGate
@@ -154,7 +197,7 @@ export function ComparisonSheet({
             fallback={<PremiumChartFallback title="Salary Distribution" />}
           >
             <ErrorBoundary>
-              <SalaryDistributionChart countries={countries} />
+              <SalaryDistributionChart series={series} userWage={userWage} />
             </ErrorBoundary>
           </PremiumGate>
         </Card>

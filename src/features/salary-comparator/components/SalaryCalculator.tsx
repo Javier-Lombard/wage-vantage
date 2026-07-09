@@ -125,7 +125,7 @@ export function SalaryCalculator() {
   };
 
   const handleSubmit = () => {
-    void navigate('/comparison', { state: { values } });
+    void navigate('/comparison', { state: { values, extraCountries } });
   };
 
   // Memoizado: es dependencia del useEffect de notificación en cada
@@ -173,7 +173,12 @@ export function SalaryCalculator() {
       {/* Columna derecha en desktop / arriba en mobile — order-1 en mobile */}
       <div className="order-1 lg:order-2">
         <ErrorBoundary>
-          <MainChart series={series} isLoading={isFetching} hasStarted={hasStarted} />
+          <MainChart
+            series={series}
+            isLoading={isFetching}
+            hasStarted={hasStarted}
+            userWage={values.monthlyWage}
+          />
         </ErrorBoundary>
       </div>
 
