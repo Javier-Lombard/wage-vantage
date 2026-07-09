@@ -14,6 +14,7 @@ export interface UserSettingsValues {
 interface UserSettingsPanelProps {
   initialName: string;
   initialEmail: string;
+  initialAvatarUrl?: string;
   onSave: (values: UserSettingsValues) => void;
   isLoading?: boolean;
 }
@@ -21,6 +22,7 @@ interface UserSettingsPanelProps {
 export function UserSettingsPanel({
   initialName,
   initialEmail,
+  initialAvatarUrl,
   onSave,
   isLoading = false,
 }: UserSettingsPanelProps) {
@@ -39,7 +41,7 @@ export function UserSettingsPanel({
       </div>
 
       <div className="flex flex-col gap-4">
-        <AvatarField onChange={setAvatarFile} />
+        <AvatarField initialUrl={initialAvatarUrl} onChange={setAvatarFile} />
 
         <Input
           label="Name"

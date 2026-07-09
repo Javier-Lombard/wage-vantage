@@ -3,6 +3,7 @@ import { Lock } from 'lucide-react';
 
 import { ActionDialog, Input, Text } from '@/shared/components/ui';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
+import { toast } from '@/shared/lib/toast';
 
 type AuthMode = 'login' | 'signup';
 
@@ -55,8 +56,19 @@ interface AuthDialogProps {
   onClose: () => void;
   /** Modo inicial al abrir; el usuario puede alternarlo con el link inferior. */
   initialMode?: AuthMode;
-  onSubmit: (credentials: { email: string; password: string }, mode: AuthMode) => void;
+  /**
+   * El caller lanza un Error con message legible si la autenticación falla;
+   * el diálogo lo captura y muestra el toast. En signup, devolver
+   * `{ needsEmailConfirmation: true }` cuando Supabase exige confirmar el
+   * email antes de crear sesión — cambia el copy del toast de éxito.
+   */
+  onSubmit: (
+    credentials: { email: string; password: string },
+    mode: AuthMode,
+  ) => Promise<{ needsEmailConfirmation?: boolean } | void>;
   onForgotPassword: () => void;
+  /** Ausente = botón oculto/deshabilitado (p. ej. GitHub hasta confirmar el provider en el dashboard). */
+  onOAuth?: (provider: 'google' | 'github') => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -66,13 +78,47 @@ export function AuthDialog({
   initialMode = 'login',
   onSubmit,
   onForgotPassword,
+  onOAuth,
   isLoading = false,
 }: AuthDialogProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPending, setIsPending] = useState(false);
 
   const otherMode: AuthMode = mode === 'login' ? 'signup' : 'login';
+
+  const handleSubmit = async () => {
+    setIsPending(true);
+    try {
+      const result = await onSubmit({ email, password }, mode);
+      if (mode === 'signup' && result?.needsEmailConfirmation) {
+        toast.info('Check your email to confirm your account');
+      } else {
+        toast.success(mode === 'login' ? 'Welcome back!' : 'Account created. Welcome!');
+      }
+      onClose();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Authentication failed. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsPending(false);
+      setEmail('');
+      setPassword('');
+    }
+  };
+
+  const handleOAuth = async (provider: 'google' | 'github') => {
+    if (!onOAuth) return;
+    try {
+      await onOAuth(provider);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Authentication failed. Please try again.';
+      toast.error(message);
+    }
+  };
 
   return (
     <ActionDialog
@@ -83,8 +129,8 @@ export function AuthDialog({
       secondaryAction={{ label: 'Cancel', onClick: onClose }}
       primaryAction={{
         label: MODE_COPY[mode].primaryLabel,
-        onClick: () => onSubmit({ email, password }, mode),
-        isLoading,
+        onClick: () => void handleSubmit(),
+        isLoading: isLoading || isPending,
       }}
       footer={
         <div className="flex flex-col gap-2">
@@ -110,13 +156,18 @@ export function AuthDialog({
         </div>
       }
     >
-      {/* OAuth pendiente de implementar: por ahora solo entradas visuales (no-op). */}
+      {/* GitHub deshabilitado hasta confirmar el provider en el dashboard de Supabase. */}
       <div className="flex flex-col gap-3">
-        <button type="button" onClick={() => {}} className={outlineButtonClasses()}>
+        <button
+          type="button"
+          onClick={() => void handleOAuth('google')}
+          disabled={!onOAuth}
+          className={outlineButtonClasses(!onOAuth)}
+        >
           <GoogleIcon />
           Continue with Google
         </button>
-        <button type="button" onClick={() => {}} className={outlineButtonClasses()}>
+        <button type="button" disabled className={outlineButtonClasses(true)}>
           <GitHubIcon />
           Continue with GitHub
         </button>

@@ -4,5 +4,6 @@ export { DeleteComparisonDialog } from './components/DeleteComparisonDialog';
 export { RecentComparisonsPanel } from './components/RecentComparisonsPanel';
 export { SaveComparisonDialog } from './components/SaveComparisonDialog';
 export { SavedComparisonsGrid } from './components/SavedComparisonsGrid';
+export { summarizeComparison } from './lib/summarizeComparison';
 
 export type { ComparisonSummary } from './components/SavedComparisonsGrid';

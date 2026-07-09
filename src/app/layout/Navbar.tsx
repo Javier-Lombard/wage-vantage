@@ -1,14 +1,15 @@
 import { AnimatePresence, motion } from 'motion/react';
-import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router';
-import { Menu, Moon, Sun, UserCircle, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { NavLink, useNavigate } from 'react-router';
+import { LogOut, Menu, Moon, Sun, UserCircle, X } from 'lucide-react';
 
 import { useTheme } from '@/app/providers/useTheme';
-import { AuthDialog } from '@/features/auth';
+import { AuthDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
 import { Icon, Text } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { cn } from '@/shared/lib/cn';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
+import { toast } from '@/shared/lib/toast';
 
 /** Closed set of primary nav destinations — extend here as routes are added. */
 const NAV_LINKS = [
@@ -36,15 +37,59 @@ const ICON_BUTTON_CLASSES = cn(
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  const {
+    isAuthenticated,
+    signInWithPassword,
+    signUp,
+    signInWithOAuth,
+    signOut,
+    resetPasswordForEmail,
+  } = useAuth();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  // Auth mockeada: el avatar siempre abre el login (logged=false permanente).
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
   const authDialog = useDisclosure();
+  const resetPasswordDialog = useDisclosure();
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   const openAuthDialog = () => {
     setIsDrawerOpen(false);
     authDialog.open();
+  };
+
+  const handleAccountClick = () => {
+    if (isAuthenticated) {
+      setIsAccountMenuOpen((prev) => !prev);
+    } else {
+      openAuthDialog();
+    }
+  };
+
+  const handleSignOut = async () => {
+    setIsAccountMenuOpen(false);
+    try {
+      await signOut();
+      toast.success('Signed out');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not sign out.');
+    }
+  };
+
+  const openForgotPassword = () => {
+    authDialog.close();
+    resetPasswordDialog.open();
+  };
+
+  const handleResetPassword = async (email: string) => {
+    try {
+      await resetPasswordForEmail(email);
+      toast.success('Check your email for a reset link');
+      resetPasswordDialog.close();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not send reset link.');
+    }
   };
 
   useEffect(() => {
@@ -62,6 +107,19 @@ export function Navbar() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isDrawerOpen]);
+
+  useEffect(() => {
+    if (!isAccountMenuOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isAccountMenuOpen]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-border-subtle bg-background">
@@ -88,14 +146,37 @@ export function Navbar() {
           >
             <Icon icon={theme === 'dark' ? Sun : Moon} />
           </button>
-          <button
-            type="button"
-            className={ICON_BUTTON_CLASSES}
-            aria-label="Account"
-            onClick={openAuthDialog}
-          >
-            <Icon icon={UserCircle} size={24} />
-          </button>
+          <div ref={accountMenuRef} className="relative">
+            <button
+              type="button"
+              className={ICON_BUTTON_CLASSES}
+              aria-label="Account"
+              aria-expanded={isAccountMenuOpen}
+              onClick={handleAccountClick}
+            >
+              <Icon icon={UserCircle} size={24} />
+            </button>
+
+            {isAccountMenuOpen && (
+              <div className="border-border-subtle bg-surface absolute right-0 top-full z-10 mt-2 flex w-44 flex-col gap-1 rounded-lg border p-2 shadow-lg">
+                <NavLink
+                  to="/dashboard"
+                  onClick={() => setIsAccountMenuOpen(false)}
+                  className="hover:bg-surface-hover text-foreground rounded-md px-3 py-2 text-sm font-semibold transition-colors"
+                >
+                  Dashboard
+                </NavLink>
+                <button
+                  type="button"
+                  onClick={() => void handleSignOut()}
+                  className="hover:bg-surface-hover text-error flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-semibold transition-colors"
+                >
+                  <Icon icon={LogOut} size={16} />
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -105,7 +186,14 @@ export function Navbar() {
           type="button"
           className={ICON_BUTTON_CLASSES}
           aria-label="Account"
-          onClick={openAuthDialog}
+          onClick={() => {
+            if (isAuthenticated) {
+              setIsDrawerOpen(false);
+              void navigate('/dashboard');
+            } else {
+              openAuthDialog();
+            }
+          }}
         >
           <Icon icon={UserCircle} size={24} />
         </button>
@@ -172,20 +260,39 @@ export function Navbar() {
                 <Icon icon={theme === 'dark' ? Sun : Moon} />
                 {theme === 'dark' ? 'Light mode' : 'Dark mode'}
               </button>
+
+              {isAuthenticated && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDrawerOpen(false);
+                    void handleSignOut();
+                  }}
+                  className={outlineButtonClasses()}
+                >
+                  <Icon icon={LogOut} />
+                  Sign out
+                </button>
+              )}
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/*
-       * Auth aún mockeada: onSubmit/onForgotPassword son no-ops hasta que se
-       * conecte Supabase; el diálogo solo sirve como entrada visual desde el avatar.
-       */}
       <AuthDialog
         isOpen={authDialog.isOpen}
         onClose={authDialog.close}
-        onSubmit={() => {}}
-        onForgotPassword={() => {}}
+        onSubmit={({ email, password }, mode) =>
+          mode === 'login' ? signInWithPassword({ email, password }) : signUp({ email, password })
+        }
+        onForgotPassword={openForgotPassword}
+        onOAuth={(provider) => signInWithOAuth(provider)}
+      />
+
+      <ResetPasswordDialog
+        isOpen={resetPasswordDialog.isOpen}
+        onClose={resetPasswordDialog.close}
+        onSubmit={(email) => void handleResetPassword(email)}
       />
     </header>
   );

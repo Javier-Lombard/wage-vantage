@@ -10,6 +10,7 @@ import {
   MyTemplates,
   Plans,
   Privacy,
+  ResetPassword,
   SavedComparisons,
   UserSettings,
 } from '@/app/lazyPages';
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
       { path: 'privacy', element: withSuspense(<Privacy />) },
       { path: 'plans', element: withSuspense(<Plans />) },
       { path: 'comparison', element: withSuspense(<ComparisonPage />) },
+      { path: 'reset-password', element: withSuspense(<ResetPassword />) },
       {
         path: 'dashboard',
         element: <ProtectedRoute />,

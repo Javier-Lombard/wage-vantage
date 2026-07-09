@@ -22,6 +22,9 @@ export const Plans = lazy(() =>
 export const Privacy = lazy(() =>
   import('@/pages/Privacy').then((module) => ({ default: module.Privacy })),
 );
+export const ResetPassword = lazy(() =>
+  import('@/pages/ResetPassword').then((module) => ({ default: module.ResetPassword })),
+);
 export const SavedComparisons = lazy(() =>
   import('@/pages/SavedComparisons').then((module) => ({ default: module.SavedComparisons })),
 );

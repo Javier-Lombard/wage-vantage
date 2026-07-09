@@ -1,11 +1,12 @@
 import { Lock } from 'lucide-react';
 
-import { AuthDialog, AuthPromptDialog, useAuth } from '@/features/auth';
+import { AuthDialog, AuthPromptDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
 import { ExportButton } from '@/features/export';
 import { PremiumGate } from '@/features/premium';
 import { Button, Card, ErrorBoundary, Icon, Text } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { cn } from '@/shared/lib/cn';
+import { toast } from '@/shared/lib/toast';
 
 import { OccupationSalaryBandsChart } from './OccupationSalaryBandsChart';
 import { SalaryDistributionChart } from './SalaryDistributionChart';
@@ -48,10 +49,19 @@ export function ComparisonSheet({
   userWage,
   hasAccurateData,
 }: ComparisonSheetProps) {
-  const { isAuthenticated } = useAuth();
+  const {
+    isAuthenticated,
+    user,
+    signInWithPassword,
+    signUp,
+    signInWithOAuth,
+    resetPasswordForEmail,
+    updateProfile,
+  } = useAuth();
   const saveDialog = useDisclosure();
   const authPrompt = useDisclosure();
   const authDialog = useDisclosure();
+  const resetPasswordDialog = useDisclosure();
 
   // Auth gate: guest ve el upsell de login (mismo patrón que el save de
   // templates en SalaryCalculator); logueado va directo al form de guardado.
@@ -63,9 +73,46 @@ export function ComparisonSheet({
     }
   };
 
+  const handleSaveComparison = async (name: string) => {
+    if (!user) return;
+    try {
+      const newComparison = {
+        id: crypto.randomUUID(),
+        name,
+        savedAt: new Date().toISOString(),
+        selectedCountries: countries,
+        primaryCountry,
+        userWage,
+        values: { country: primaryCountry, monthlyWage: userWage },
+      };
+      await updateProfile({
+        comparisons: [...(user.metadata.comparisons ?? []), newComparison],
+      });
+      toast.success('Comparison saved');
+      saveDialog.close();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not save comparison.');
+    }
+  };
+
   const openAuthDialog = () => {
     authPrompt.close();
     authDialog.open();
+  };
+
+  const openForgotPassword = () => {
+    authDialog.close();
+    resetPasswordDialog.open();
+  };
+
+  const handleResetPassword = async (email: string) => {
+    try {
+      await resetPasswordForEmail(email);
+      toast.success('Check your email for a reset link');
+      resetPasswordDialog.close();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not send reset link.');
+    }
   };
 
   return (
@@ -139,7 +186,7 @@ export function ComparisonSheet({
       <SaveComparisonDialog
         isOpen={saveDialog.isOpen}
         onClose={saveDialog.close}
-        onSave={() => {}}
+        onSave={(name) => void handleSaveComparison(name)}
       />
 
       <AuthPromptDialog
@@ -149,12 +196,20 @@ export function ComparisonSheet({
         onLogIn={openAuthDialog}
       />
 
-      {/* Auth aún mockeada: onSubmit/onForgotPassword son no-ops hasta que se conecte Supabase. */}
       <AuthDialog
         isOpen={authDialog.isOpen}
         onClose={authDialog.close}
-        onSubmit={() => {}}
-        onForgotPassword={() => {}}
+        onSubmit={({ email, password }, mode) =>
+          mode === 'login' ? signInWithPassword({ email, password }) : signUp({ email, password })
+        }
+        onForgotPassword={openForgotPassword}
+        onOAuth={(provider) => signInWithOAuth(provider)}
+      />
+
+      <ResetPasswordDialog
+        isOpen={resetPasswordDialog.isOpen}
+        onClose={resetPasswordDialog.close}
+        onSubmit={(email) => void handleResetPassword(email)}
       />
     </div>
   );

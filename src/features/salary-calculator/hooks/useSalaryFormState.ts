@@ -17,9 +17,9 @@ function isStepComplete(step: 1 | 2 | 3, values: SalaryFormValues): boolean {
  * chart component can read the same `values` via useWageInsights without
  * SalaryForm reaching upward through a render-body callback.
  */
-export function useSalaryFormState() {
+export function useSalaryFormState(initialValues: SalaryFormValues = {}) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [values, setValues] = useState<SalaryFormValues>({});
+  const [values, setValues] = useState<SalaryFormValues>(initialValues);
 
   function setFieldValue(id: keyof SalaryFormValues, value: string | number) {
     setValues((current) => ({ ...current, [id]: value }));

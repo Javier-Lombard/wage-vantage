@@ -1,14 +1,14 @@
-import { DashboardGrid } from '@/features/auth';
+import { DashboardGrid, useAuth } from '@/features/auth';
 import { RecentComparisonsPanel } from '@/features/comparison';
 import { PLAN_CONFIG, useFeatureAccess } from '@/features/premium';
 import { BackButton, Text } from '@/shared/components/ui';
 
-const MOCK_SAVED_COMPARISONS_COUNT = 0;
-const MOCK_SAVED_TEMPLATES_COUNT = 0;
-
 export function DashboardHome() {
   const { tier, limits } = useFeatureAccess();
+  const { user } = useAuth();
   const planLabel = tier === 'premium' ? PLAN_CONFIG.premium.name : PLAN_CONFIG.free.name;
+  const savedComparisonsCount = user?.metadata.comparisons?.length ?? 0;
+  const savedTemplatesCount = user?.metadata.templates?.length ?? 0;
 
   return (
     <div className="flex flex-col gap-8">
@@ -17,13 +17,13 @@ export function DashboardHome() {
       <Text variant="h2">Dashboard</Text>
 
       <DashboardGrid
-        savedComparisonsCount={MOCK_SAVED_COMPARISONS_COUNT}
-        savedTemplatesCount={MOCK_SAVED_TEMPLATES_COUNT}
+        savedComparisonsCount={savedComparisonsCount}
+        savedTemplatesCount={savedTemplatesCount}
         maxTemplates={limits.maxTemplates}
         planLabel={planLabel}
       />
 
-      <RecentComparisonsPanel savedComparisonsCount={MOCK_SAVED_COMPARISONS_COUNT} />
+      <RecentComparisonsPanel savedComparisonsCount={savedComparisonsCount} />
     </div>
   );
 }

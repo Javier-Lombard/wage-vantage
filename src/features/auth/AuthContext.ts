@@ -1,18 +1,37 @@
 import { createContext } from 'react';
 
+import type { AppUser, UserMetadata } from './types';
+
+export interface AuthCredentials {
+  email: string;
+  password: string;
+}
+
+export type OAuthProvider = 'google' | 'github';
+
+export interface SignUpResult {
+  /** true si Supabase exige confirmar el email antes de crear sesión (signUp no autentica de inmediato). */
+  needsEmailConfirmation: boolean;
+}
+
 /**
  * Guest/free/premium de la matriz de acceso son dos ejes combinados, no un
  * enum de tres valores: premium implica autenticado, pero autenticado no
  * implica premium (usuario free). `isPremium` con `isAuthenticated=false` no
- * es un estado válido — `setDemoTier` es el único punto que los cambia juntos.
+ * es un estado válido — deriva siempre de `user`, nunca se setea aparte.
  */
 export type AuthContextValue = {
-  user: null;
+  user: AppUser | null;
   loading: boolean;
   isAuthenticated: boolean;
   isPremium: boolean;
-  /** Solo para desarrollo: alterna entre los tres estados de la matriz de acceso mientras no existe login real. */
-  setDemoTier: (tier: 'guest' | 'free' | 'premium') => void;
+  signInWithPassword: (credentials: AuthCredentials) => Promise<void>;
+  signUp: (credentials: AuthCredentials) => Promise<SignUpResult>;
+  signInWithOAuth: (provider: OAuthProvider) => Promise<void>;
+  signOut: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<void>;
+  /** Merge shallow (top-level) sobre user_metadata vía supabase.auth.updateUser. */
+  updateProfile: (patch: Partial<UserMetadata>) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

@@ -10,8 +10,9 @@ interface DangerZonePanelProps {
 
 /**
  * Panel separado del de settings: agrupa acciones irreversibles (por ahora solo
- * eliminar la cuenta) con su propia confirmación destructiva. La eliminación
- * está mockeada hasta que se conecte Supabase.
+ * eliminar la cuenta) con su propia confirmación destructiva. El borrado real
+ * requiere service_role (no se puede desde el cliente) — onDeleteAccount hoy
+ * hace signOut como stub hasta implementar la Edge Function correspondiente.
  */
 export function DangerZonePanel({ onDeleteAccount, isLoading = false }: DangerZonePanelProps) {
   const confirmDialog = useDisclosure();

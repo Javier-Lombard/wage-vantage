@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 
-import { AuthDialog, AuthPromptDialog } from '@/features/auth';
+import { AuthDialog, AuthPromptDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
+import { SaveTemplateDialog } from '@/features/templates';
 import { ErrorBoundary } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
+import { toast } from '@/shared/lib/toast';
 
 import { useSalaryFormState } from '../hooks/useSalaryFormState';
 import { useWageInsights } from '../hooks/useWageInsights';
@@ -13,6 +15,8 @@ import { useWageStats } from '../hooks/useWageStats';
 import { CompareCountryModal } from './CompareCountryModal';
 import { MainChart } from './MainChart';
 import { SalaryForm } from './SalaryForm';
+
+import type { SalaryFormValues } from '../types';
 
 /**
  * Contenedor de la feature: cablea los tres hooks (estado del formulario,
@@ -27,33 +31,83 @@ import { SalaryForm } from './SalaryForm';
  */
 export function SalaryCalculator() {
   const navigate = useNavigate();
-  const { step, values, setFieldValue, goNext, goBack, canAdvance } = useSalaryFormState();
+  const location = useLocation();
+  const {
+    isAuthenticated,
+    user,
+    signInWithPassword,
+    signUp,
+    signInWithOAuth,
+    resetPasswordForEmail,
+    updateProfile,
+  } = useAuth();
+  // Prefill desde MyTemplates.onLoad (navigate('/', { state: { fastFillValues } })).
+  const initialValues = (location.state as { fastFillValues?: SalaryFormValues } | null)
+    ?.fastFillValues;
+  const { step, values, setFieldValue, goNext, goBack, canAdvance } =
+    useSalaryFormState(initialValues);
   const { data, isFetching, nextOptionsField } = useWageInsights(values);
   const aggregation = useWageStats(data?.monthlyWages);
   const [isCompareOpen, setIsCompareOpen] = useState(false);
-  // Auth mockeada (siempre guest): fast-fill y save-template comparten el
-  // mismo disclosure pero muestran copy distinto (cargar vs guardar una
-  // template) — de ahí el variant en estado en vez de fijo. Al conectar
-  // Supabase se ramificará por tier (free/premium).
+  // fast-fill y save-template comparten el mismo disclosure pero muestran
+  // copy distinto (cargar vs guardar una template) — de ahí el variant en
+  // estado en vez de fijo.
   const [templatePromptVariant, setTemplatePromptVariant] = useState<
     'log-in-to-load-template' | 'log-in-to-save-template'
   >('log-in-to-load-template');
   const templatePrompt = useDisclosure();
   const authDialog = useDisclosure();
+  const resetPasswordDialog = useDisclosure();
+  const saveTemplateDialog = useDisclosure();
 
   const openFastFillPrompt = () => {
+    if (isAuthenticated) {
+      void navigate('/dashboard/templates');
+      return;
+    }
     setTemplatePromptVariant('log-in-to-load-template');
     templatePrompt.open();
   };
 
   const openSaveTemplatePrompt = () => {
+    if (isAuthenticated) {
+      saveTemplateDialog.open();
+      return;
+    }
     setTemplatePromptVariant('log-in-to-save-template');
     templatePrompt.open();
+  };
+
+  const handleSaveTemplate = async (name: string) => {
+    if (!user) return;
+    try {
+      const newTemplate = { id: crypto.randomUUID(), name, values };
+      await updateProfile({ templates: [...(user.metadata.templates ?? []), newTemplate] });
+      toast.success('Template saved');
+      saveTemplateDialog.close();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not save template.');
+    }
   };
 
   const openAuthDialog = () => {
     templatePrompt.close();
     authDialog.open();
+  };
+
+  const openForgotPassword = () => {
+    authDialog.close();
+    resetPasswordDialog.open();
+  };
+
+  const handleResetPassword = async (email: string) => {
+    try {
+      await resetPasswordForEmail(email);
+      toast.success('Check your email for a reset link');
+      resetPasswordDialog.close();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not send reset link.');
+    }
   };
 
   const handleSubmit = () => {
@@ -113,15 +167,26 @@ export function SalaryCalculator() {
         onLogIn={openAuthDialog}
       />
 
-      {/*
-       * Auth aún mockeada: onSubmit/onForgotPassword son no-ops hasta que se
-       * conecte Supabase; este diálogo solo continúa el upsell de templates.
-       */}
       <AuthDialog
         isOpen={authDialog.isOpen}
         onClose={authDialog.close}
-        onSubmit={() => {}}
-        onForgotPassword={() => {}}
+        onSubmit={({ email, password }, mode) =>
+          mode === 'login' ? signInWithPassword({ email, password }) : signUp({ email, password })
+        }
+        onForgotPassword={openForgotPassword}
+        onOAuth={(provider) => signInWithOAuth(provider)}
+      />
+
+      <ResetPasswordDialog
+        isOpen={resetPasswordDialog.isOpen}
+        onClose={resetPasswordDialog.close}
+        onSubmit={(email) => void handleResetPassword(email)}
+      />
+
+      <SaveTemplateDialog
+        isOpen={saveTemplateDialog.isOpen}
+        onClose={saveTemplateDialog.close}
+        onSave={(name) => void handleSaveTemplate(name)}
       />
     </div>
   );

@@ -8,5 +8,6 @@ export { DashboardGrid } from './components/DashboardGrid';
 export { ResetPasswordDialog } from './components/ResetPasswordDialog';
 export { UserSettingsPanel } from './components/UserSettingsPanel';
 
-export type { AuthContextValue } from './AuthContext';
+export type { AuthContextValue, AuthCredentials, OAuthProvider } from './AuthContext';
 export type { UserSettingsValues } from './components/UserSettingsPanel';
+export type { AppUser, SavedComparison, SavedTemplate, UserMetadata } from './types';

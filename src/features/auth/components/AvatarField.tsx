@@ -4,39 +4,44 @@ import { Trash2, Upload, UserCircle } from 'lucide-react';
 import { Button, Icon, Text } from '@/shared/components/ui';
 
 interface AvatarFieldProps {
-  /** Se emite con el File elegido, o null al eliminar. Persistencia aún mockeada. */
+  /** avatarUrl actual del usuario (user_metadata), si ya tiene uno guardado. */
+  initialUrl?: string;
+  /** Se emite con el File elegido, o null al eliminar. La subida a Storage la hace el caller. */
   onChange: (file: File | null) => void;
 }
 
 /**
  * Selección de foto de perfil sin librería: input file nativo + preview local
- * vía URL.createObjectURL. No sube nada todavía (Supabase Storage pendiente);
- * revoca la object URL al reemplazar/desmontar para no filtrar memoria.
+ * vía URL.createObjectURL hasta que el caller sube el file y confirma
+ * avatarUrl; revoca la object URL al reemplazar/desmontar para no filtrar memoria.
  */
-export function AvatarField({ onChange }: AvatarFieldProps) {
+export function AvatarField({ initialUrl, onChange }: AvatarFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initialUrl ?? null);
+  // Solo los object URLs propios (creados por este componente) se revocan —
+  // initialUrl es una URL http de Storage, revocarla sería un no-op inofensivo
+  // pero incorrecto conceptualmente: no la creamos, no nos toca liberarla.
+  const objectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     };
-  }, [previewUrl]);
+  }, []);
 
   const handleFile = (file: File | undefined) => {
     if (!file) return;
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return URL.createObjectURL(file);
-    });
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    const nextUrl = URL.createObjectURL(file);
+    objectUrlRef.current = nextUrl;
+    setPreviewUrl(nextUrl);
     onChange(file);
   };
 
   const handleRemove = () => {
-    setPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return null;
-    });
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    objectUrlRef.current = null;
+    setPreviewUrl(null);
     if (inputRef.current) inputRef.current.value = '';
     onChange(null);
   };

@@ -1,26 +1,44 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
+import { useAuth } from '@/features/auth';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { BackButton, Text } from '@/shared/components/ui';
-import {
-  DeleteTemplateDialog,
-  SaveTemplateDialog,
-  TemplatesGrid,
-  type TemplateSummary,
-} from '@/features/templates';
+import { toast } from '@/shared/lib/toast';
+import { DeleteTemplateDialog, TemplatesGrid, summarizeTemplate } from '@/features/templates';
 import { useFeatureAccess } from '@/features/premium';
-
-const INITIAL_TEMPLATES: TemplateSummary[] = [
-  { id: '1', name: 'Senior SWE - London vs Berlin', summary: 'Spain, Germany · 2 countries' },
-];
 
 export function MyTemplates() {
   const { limits } = useFeatureAccess();
-  const [templates, setTemplates] = useState(INITIAL_TEMPLATES);
+  const { user, updateProfile } = useAuth();
+  const navigate = useNavigate();
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
-  const saveDialog = useDisclosure();
   const deleteDialog = useDisclosure();
+
+  const templates = user?.metadata.templates ?? [];
+  const templateSummaries = templates.map((template) => ({
+    id: template.id,
+    name: template.name,
+    summary: summarizeTemplate(template.values),
+  }));
+
+  const handleDelete = async () => {
+    try {
+      await updateProfile({
+        templates: templates.filter((template) => template.id !== pendingDeleteId),
+      });
+      deleteDialog.close();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not delete template.');
+    }
+  };
+
+  const handleLoad = (id: string) => {
+    const template = templates.find((t) => t.id === id);
+    if (!template) return;
+    void navigate('/', { state: { fastFillValues: template.values } });
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -29,32 +47,20 @@ export function MyTemplates() {
       <Text variant="h2">My Templates</Text>
 
       <TemplatesGrid
-        templates={templates}
+        templates={templateSummaries}
         maxTemplates={limits.maxTemplates}
-        onLoad={() => {}}
+        onLoad={handleLoad}
         onDelete={(id) => {
           setPendingDeleteId(id);
           deleteDialog.open();
         }}
-        onAddNew={limits.maxTemplates > 0 ? saveDialog.open : undefined}
-      />
-
-      <SaveTemplateDialog
-        isOpen={saveDialog.isOpen}
-        onClose={saveDialog.close}
-        onSave={(name) => {
-          setTemplates((prev) => [...prev, { id: crypto.randomUUID(), name, summary: '' }]);
-          saveDialog.close();
-        }}
+        onAddNew={limits.maxTemplates > templates.length ? () => void navigate('/') : undefined}
       />
 
       <DeleteTemplateDialog
         isOpen={deleteDialog.isOpen}
         onClose={deleteDialog.close}
-        onDelete={() => {
-          setTemplates((prev) => prev.filter((template) => template.id !== pendingDeleteId));
-          deleteDialog.close();
-        }}
+        onDelete={() => void handleDelete()}
       />
     </div>
   );
