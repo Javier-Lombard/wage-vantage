@@ -27,13 +27,13 @@ This is not an abstract concern. Three concrete failure modes show up repeatedly
 
 ## The three cardinal locations: deciding where a file goes
 
-`architecture.md` §2 already defines three locations. The recurring judgement call is not "do these locations exist" but "which one does *this specific file* belong in." Concrete criteria, not generic ones:
+`architecture.md` §2 already defines three locations. The recurring judgement call is not "do these locations exist" but "which one does _this specific file_ belong in." Concrete criteria, not generic ones:
 
-| Location | Decide it belongs here when... | Reference |
-|---|---|---|
-| `src/features/<name>/` | The code embeds domain knowledge specific to one business domain — it reads or shapes data tied to salary calculation, comparison, auth, premium tiers, export, or templates. Default starting point for anything new. | `architecture.md` §2, §4 |
-| `src/shared/` | A **second, unrelated feature** already needs the exact same code with zero domain-specific branching. Not "might need" — needs, today. | `architecture.md` §2: "Promotion to `shared/`... only when a second, unrelated feature needs the same thing" |
-| `src/app/providers/` | The code is global application infrastructure that every feature depends on implicitly (auth session, theme) rather than something any one feature owns — and it follows the three-file Context split. | `architecture.md` §2; `conventions.md` §3 |
+| Location               | Decide it belongs here when...                                                                                                                                                                                         | Reference                                                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `src/features/<name>/` | The code embeds domain knowledge specific to one business domain — it reads or shapes data tied to salary calculation, comparison, auth, premium tiers, export, or templates. Default starting point for anything new. | `architecture.md` §2, §4                                                                                     |
+| `src/shared/`          | A **second, unrelated feature** already needs the exact same code with zero domain-specific branching. Not "might need" — needs, today.                                                                                | `architecture.md` §2: "Promotion to `shared/`... only when a second, unrelated feature needs the same thing" |
+| `src/app/providers/`   | The code is global application infrastructure that every feature depends on implicitly (auth session, theme) rather than something any one feature owns — and it follows the three-file Context split.                 | `architecture.md` §2; `conventions.md` §3                                                                    |
 
 The default direction of travel is **feature → shared**, never the reverse as a starting guess. If you are creating a new file and unsure, put it inside the feature that needs it first. Moving it to `shared/` later is cheap (it's a relocation + barrel update); guessing `shared/` upfront and being wrong creates an abstraction nobody asked for.
 
@@ -53,7 +53,7 @@ This pins down three separable concerns and where each lives:
 - **Derivation/computation** — hooks in `features/<name>/hooks/`. Statistical derivations (mean, Q1, Q3, min, max) live here, not in the component and not in a Redux selector. Selectors stay simple (pick a slice); hooks compose and transform.
 - **Presentation** — the component itself: JSX, ARIA, event wiring, passing already-computed props to Recharts or to a form field shell. A component should not recompute a statistic inline just because the raw query data was already in scope.
 
-This is a SoC seam, distinct from the SOLID question of whether the component itself is internally well-structured (that's `solid-principles`' `single-responsibility.md`). SoC asks "is this logic in the right *kind* of file"; SOLID asks "is this *one file* doing one job."
+This is a SoC seam, distinct from the SOLID question of whether the component itself is internally well-structured (that's `solid-principles`' `single-responsibility.md`). SoC asks "is this logic in the right _kind_ of file"; SOLID asks "is this _one file_ doing one job."
 
 ## Visual/logic/data separation in this stack specifically
 
@@ -62,7 +62,7 @@ Because styling here is Tailwind v4 CSS-first (no `tailwind.config.js`, tokens d
 - **Does this value encode a design decision that must stay consistent across dark/light and across the whole app** (a brand color, a spacing step, a type-scale size)? → It is a **token** in `index.css`, consumed as a Tailwind utility class (`bg-surface`, `text-muted`, `p-4`). Never hardcode the underlying hex or px value in a component.
 - **Is this a one-off layout decision specific to this component's structure** (a grid-template-columns value for this exact layout, a max-width for this exact card)? → It can be a Tailwind utility directly in JSX, because it's not a reusable design decision — it's local layout logic.
 
-The same separation applies to animation: Motion is installed specifically because it has "no opinion on visual style, it only animates props/layout" (`architecture.md` §5 ADR) — Motion code describes *behavior* (when something enters/exits, how it transitions), Tailwind classes describe *appearance* (color, spacing, typography). A component mixing the two concerns in one undifferentiated blob of conditional class strings and inline animation values is harder to evolve than one where `motion.div`'s `variants`/`transition` props own timing/movement and `className` owns static appearance.
+The same separation applies to animation: Motion is installed specifically because it has "no opinion on visual style, it only animates props/layout" (`architecture.md` §5 ADR) — Motion code describes _behavior_ (when something enters/exits, how it transitions), Tailwind classes describe _appearance_ (color, spacing, typography). A component mixing the two concerns in one undifferentiated blob of conditional class strings and inline animation values is harder to evolve than one where `motion.div`'s `variants`/`transition` props own timing/movement and `className` owns static appearance.
 
 ## Worked example: a page mixing all three concerns
 
@@ -74,7 +74,10 @@ export function MainForm() {
   // Data access inlined — should be features/salary-calculator/api/wageApi.ts
   const [records, setRecords] = useState<WageRecord[]>([]);
   useEffect(() => {
-    supabase.from('wages').select('*').then(({ data }) => setRecords(data ?? []));
+    supabase
+      .from('wages')
+      .select('*')
+      .then(({ data }) => setRecords(data ?? []));
   }, []);
 
   // Derivation inlined — should be features/salary-calculator/hooks/useWageStats.ts
@@ -103,7 +106,7 @@ Three separable concerns collapsed into one file, each belonging to a different 
 SoC, like SOLID, can be over-applied. `architecture.md` §3 explicitly prefers the smaller, more reversible structural choice over a forced split. Signals that a separation is premature:
 
 - Splitting a 15-line component into a hook + a component when the "logic" being extracted is a single derived boolean used nowhere else. That's indirection, not separation.
-- Promoting something to `shared/` on the *first* use "in case another feature needs it later" — `architecture.md` §2 is explicit that promotion happens on the second real, unrelated usage, not speculatively.
+- Promoting something to `shared/` on the _first_ use "in case another feature needs it later" — `architecture.md` §2 is explicit that promotion happens on the second real, unrelated usage, not speculatively.
 - Creating a new `app/providers/` entry for state that's actually scoped to one feature's flow. Global infrastructure and feature-scoped session state are not the same thing even if both feel "contextual."
 - Extracting a Tailwind utility's underlying value into a one-off CSS variable because "it might need theming later," when no second mode or second usage exists yet. Tokens already cover the design system's variable parts (`DESIGN.md` §1) — don't invent parallel ad hoc tokens for things Tailwind utilities already express plainly.
 
@@ -113,7 +116,7 @@ When in doubt, leave the code where it is and revisit after a second real case a
 
 - It does not re-litigate which folders exist — `architecture.md` §2 is the source of truth for the folder tree itself.
 - It does not define new design tokens or propose changes to the palette — that's `DESIGN.md`'s job.
-- It does not cover internal structuring of a single component/hook/slice once its layer is decided — that is `solid-principles` (see its `single-responsibility.md` in particular for the data-access/derivation/presentation split *within* an already-feature-scoped unit).
+- It does not cover internal structuring of a single component/hook/slice once its layer is decided — that is `solid-principles` (see its `single-responsibility.md` in particular for the data-access/derivation/presentation split _within_ an already-feature-scoped unit).
 - It does not require a dedicated hook for every derived value — `conventions.md` §3's extraction threshold (two+ consumers, or render-body clutter) still governs whether something becomes its own hook file at all.
 - It does not mandate `eslint-plugin-boundaries` or any tooling enforcement — feature isolation here is convention-based by design (`architecture.md` §2), and that is documented as a deliberate, revisitable choice, not a gap to silently "fix."
 

@@ -132,14 +132,14 @@ Key application guidelines:
 
 ## 4. Border Radius
 
-| Token  | Value            | Usage                         |
-| ------ | ---------------- | ----------------------------- |
-| `sm`   | 0.1875rem (3px)  | Inputs, small badges          |
-| `md`   | 0.25rem (4px)    | Default controls, tags        |
-| `lg`   | 0.375rem (6px)   | Cards, modals, dropdowns      |
-| `xl`   | 0.5rem (8px)     | Large cards, hero sections    |
-| `2xl`  | 0.75rem (12px)   | Feature cards, CTA blocks     |
-| `full` | 9999px           | Buttons (pill shape), avatars |
+| Token  | Value           | Usage                         |
+| ------ | --------------- | ----------------------------- |
+| `sm`   | 0.1875rem (3px) | Inputs, small badges          |
+| `md`   | 0.25rem (4px)   | Default controls, tags        |
+| `lg`   | 0.375rem (6px)  | Cards, modals, dropdowns      |
+| `xl`   | 0.5rem (8px)    | Large cards, hero sections    |
+| `2xl`  | 0.75rem (12px)  | Feature cards, CTA blocks     |
+| `full` | 9999px          | Buttons (pill shape), avatars |
 
 Primary CTA buttons use `rounded-full` (pill shape). Cards use `rounded-xl` or `rounded-2xl`.
 
@@ -167,7 +167,7 @@ Minimal shadow usage in both modes — surface color differentiation (`surface` 
 ```tsx
 import { Bell } from 'lucide-react';
 
-<Bell className="text-foreground" size={20} strokeWidth={2} />
+<Bell className="text-foreground" size={20} strokeWidth={2} />;
 ```
 
 **Default sizing**: `size={20}` for inline/nav contexts, `size={24}` for standalone feature icons (cards), `strokeWidth={2}` everywhere — matches the reference stroke weight, don't mix with `1.5` or `1.25` variants.

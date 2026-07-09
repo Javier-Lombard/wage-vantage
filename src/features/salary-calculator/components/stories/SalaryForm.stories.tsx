@@ -31,6 +31,8 @@ function InteractiveSalaryForm() {
       fetchedOptions={data?.options}
       isFetchingOptions={isFetching}
       nextOptionsField={nextOptionsField}
+      onFastFill={() => {}}
+      onSaveTemplate={() => {}}
     />
   );
 }
@@ -60,6 +62,8 @@ export const Default: Story = {
     fetchedOptions: undefined,
     isFetchingOptions: false,
     nextOptionsField: undefined,
+    onFastFill: () => {},
+    onSaveTemplate: () => {},
   },
   render: () => <InteractiveSalaryForm />,
 };

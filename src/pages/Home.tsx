@@ -12,9 +12,8 @@ export function Home() {
     <main className="mx-auto max-w-7xl px-4 py-16 md:px-8 lg:px-16">
       <header className="mb-12 max-w-2xl">
         <Text variant="h3" className="text-center">
-          Compare  your salary
+          Compare your salary
         </Text>
-
       </header>
 
       <section aria-label="Salary comparison calculator">

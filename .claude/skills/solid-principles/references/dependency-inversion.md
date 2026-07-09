@@ -4,9 +4,9 @@
 
 ## Why DIP looks different in React
 
-Most SOLID material describes DIP in terms patterns React does not use: constructor injection, dependency containers, `@Inject` decorators, service registries. None of that applies here. In a hooks-based React codebase, DIP is achieved by ensuring that high-level units (pages, feature components) depend on *stable hook contracts* rather than on the concrete clients those hooks wrap.
+Most SOLID material describes DIP in terms patterns React does not use: constructor injection, dependency containers, `@Inject` decorators, service registries. None of that applies here. In a hooks-based React codebase, DIP is achieved by ensuring that high-level units (pages, feature components) depend on _stable hook contracts_ rather than on the concrete clients those hooks wrap.
 
-The principle still holds — components do not import `supabaseClient` directly, they consume `useGetWagesQuery` — but the *vocabulary* of inversion is different. The "interface" being depended on is the hook signature; the "implementation" is the RTK Query endpoint that owns the actual Supabase call. Swapping Supabase for another backend means rewriting the endpoint file; the components keep working without modification.
+The principle still holds — components do not import `supabaseClient` directly, they consume `useGetWagesQuery` — but the _vocabulary_ of inversion is different. The "interface" being depended on is the hook signature; the "implementation" is the RTK Query endpoint that owns the actual Supabase call. Swapping Supabase for another backend means rewriting the endpoint file; the components keep working without modification.
 
 ## DIP in this project, by example
 
@@ -84,18 +84,18 @@ The component is now coupled to the Supabase types file at the type level. If th
 This is the principle most prone to over-application. Not every import is a "dependency" worth inverting:
 
 - A component importing `cn()` from `shared/lib/cn` is not violating DIP. `cn` is a pure function with no policy and no replaceable implementation. It is a utility, not a service.
-- A component importing `Button` from `shared/components/ui/` is not violating DIP. `Button` is a shared primitive, not a backend or an external service. Components depend on it because it *is* the abstraction they need.
+- A component importing `Button` from `shared/components/ui/` is not violating DIP. `Button` is a shared primitive, not a backend or an external service. Components depend on it because it _is_ the abstraction they need.
 - A hook importing `useDispatch` from `react-redux` is not violating DIP. The Redux store is the abstraction; bypassing `useDispatch` would mean reaching into the store directly, which is the actual violation.
 
-The rule of thumb: DIP applies to dependencies that *could realistically change* and where the high-level unit *should not have to change with them*. Utilities, design-system primitives, and framework hooks do not meet that bar. External services, backends, and concrete clients do.
+The rule of thumb: DIP applies to dependencies that _could realistically change_ and where the high-level unit _should not have to change with them_. Utilities, design-system primitives, and framework hooks do not meet that bar. External services, backends, and concrete clients do.
 
 ## Testability is a consequence, not the goal
 
 A common mistake in DIP-for-React material is framing the principle as "depend on abstractions so you can mock them in tests." That framing is wrong because it inverts cause and effect.
 
-DIP is about **contract stability**: high-level code should not break when low-level implementation changes. Testability falls out naturally — code that depends on a stable hook contract is easy to test because you can mock the hook — but the *reason* to apply DIP is not "to enable tests." If a hook's contract is unstable, no amount of mocking saves the components that depend on it; they still break when the contract changes.
+DIP is about **contract stability**: high-level code should not break when low-level implementation changes. Testability falls out naturally — code that depends on a stable hook contract is easy to test because you can mock the hook — but the _reason_ to apply DIP is not "to enable tests." If a hook's contract is unstable, no amount of mocking saves the components that depend on it; they still break when the contract changes.
 
-When deciding whether a hook needs to be inverted further, ask: *can this hook's implementation change without breaking the components that depend on it?* If yes, the inversion is in place. If no, the contract is too coupled to the implementation, and that is the actual problem — testability concerns are a symptom of it, not the disease.
+When deciding whether a hook needs to be inverted further, ask: _can this hook's implementation change without breaking the components that depend on it?_ If yes, the inversion is in place. If no, the contract is too coupled to the implementation, and that is the actual problem — testability concerns are a symptom of it, not the disease.
 
 ## When NOT to invert
 

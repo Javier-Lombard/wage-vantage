@@ -22,7 +22,7 @@ If you ever find yourself tempted to "just put it all in one provider for conven
 
 `FieldShell` exposes only the fields every labeled form control genuinely needs: `label`, `helperText`, `error`, `id`, and the `children` (the actual control). It does not bake in placeholder, value, onChange, or anything else that some controls use and others do not. Each control (`Input`, `Textarea`, `Select`) owns its own value-handling props independently.
 
-This is ISP in interface design: the *common* contract is small and shared; the *specific* contract of each control is its own. A future control with a value shape that does not fit `Input`/`Textarea`/`Select` (e.g. a date picker with separate day/month/year values) can still use `FieldShell` for its label-and-error envelope without distorting the shell's interface.
+This is ISP in interface design: the _common_ contract is small and shared; the _specific_ contract of each control is its own. A future control with a value shape that does not fit `Input`/`Textarea`/`Select` (e.g. a date picker with separate day/month/year values) can still use `FieldShell` for its label-and-error envelope without distorting the shell's interface.
 
 ## Where ISP needs care next
 

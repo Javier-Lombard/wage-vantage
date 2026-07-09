@@ -5,17 +5,17 @@ description: Rule-of-three duplication discipline for this feature-based React/R
 
 # DRY with Restraint for wage-comparator
 
-This skill applies "Don't Repeat Yourself" under the specific restraint this project has already chosen: the **rule of three** (`architecture.md` §3) — don't abstract on the first duplication, and often not on the second either. It governs the decision of *when* to collapse duplicated logic into a shared component, hook, util, or endpoint, and — just as often — when to leave the duplication alone.
+This skill applies "Don't Repeat Yourself" under the specific restraint this project has already chosen: the **rule of three** (`architecture.md` §3) — don't abstract on the first duplication, and often not on the second either. It governs the decision of _when_ to collapse duplicated logic into a shared component, hook, util, or endpoint, and — just as often — when to leave the duplication alone.
 
 It does **not** restate generic DRY theory. Generic DRY advice optimizes for zero repetition; this project deliberately does not, because premature abstraction has a worse failure mode here than duplication does (see "Why restraint, not just DRY" below).
 
 ## Authoritative source
 
-`architecture.md` §3 states the rule directly: *"DRY with restraint (rule of three — don't abstract on first duplication)"*, and frames it alongside SOLID and Separation of Concerns as one of three design principles deliberately kept out of the architecture doc's body and pushed into dedicated skills, "so they stay current and don't bloat this file's context cost every session."
+`architecture.md` §3 states the rule directly: _"DRY with restraint (rule of three — don't abstract on first duplication)"_, and frames it alongside SOLID and Separation of Concerns as one of three design principles deliberately kept out of the architecture doc's body and pushed into dedicated skills, "so they stay current and don't bloat this file's context cost every session."
 
-`conventions.md` reinforces the same restraint at the hook level (§3): *"Hooks: extract when logic is reused OR when a component's render body gets crowded... Don't extract a hook just to have a hook."* And at the folder level (§4): *"If something is only used by one feature today, it starts inside that feature, not in `shared/`. Promote to `shared/` only when a second feature needs it."*
+`conventions.md` reinforces the same restraint at the hook level (§3): _"Hooks: extract when logic is reused OR when a component's render body gets crowded... Don't extract a hook just to have a hook."_ And at the folder level (§4): _"If something is only used by one feature today, it starts inside that feature, not in `shared/`. Promote to `shared/` only when a second feature needs it."_
 
-Note the asymmetry between these two sources: `conventions.md` §3's hook-extraction threshold is **two** occurrences ("two+ components need the same stateful logic"); `architecture.md` §3's rule of three is **three**. These are not in conflict — they answer different questions. "Should this become its own hook *at all*" (extraction within a feature) tolerates two. "Should this become a *cross-feature, shared* abstraction" (promotion to `shared/`) waits for three. When in doubt about which threshold applies, ask whether the candidate abstraction stays inside one feature (two is enough) or crosses into `shared/` (wait for three).
+Note the asymmetry between these two sources: `conventions.md` §3's hook-extraction threshold is **two** occurrences ("two+ components need the same stateful logic"); `architecture.md` §3's rule of three is **three**. These are not in conflict — they answer different questions. "Should this become its own hook _at all_" (extraction within a feature) tolerates two. "Should this become a _cross-feature, shared_ abstraction" (promotion to `shared/`) waits for three. When in doubt about which threshold applies, ask whether the candidate abstraction stays inside one feature (two is enough) or crosses into `shared/` (wait for three).
 
 ## Why restraint, not just DRY
 
@@ -57,7 +57,7 @@ The rule-of-three-compliant move: leave `useWageStats` inside `features/salary-c
 
 Restraint is not an excuse to never abstract. Signals that duplication has outlived its restraint budget and should now be collapsed:
 
-- **A third real occurrence has appeared**, with no feature-specific divergence between the three — at this point, *not* abstracting is the violation, not the caution.
+- **A third real occurrence has appeared**, with no feature-specific divergence between the three — at this point, _not_ abstracting is the violation, not the caution.
 - **A bug fix had to be applied in more than one place** because the same logic was copied, and the copies have already drifted in a way that caused (or nearly caused) an inconsistency bug. That is the rule of three's underlying risk materializing, not a hypothetical.
 - **The duplicated block is large enough that "is this still the same logic" is itself hard to verify by eye** — at that size, the cost of carrying the duplication (review burden, risk of silent drift) can exceed the cost of a shared abstraction even before three occurrences, per `architecture.md` §3's own framing of preferring the more reversible choice, which sometimes is the abstraction, not the duplication.
 

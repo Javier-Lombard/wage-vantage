@@ -6,7 +6,7 @@ This file explains how LSP applies in a React + TypeScript codebase that uses no
 
 ## Why LSP needs care in a no-inheritance codebase
 
-LSP is the SOLID principle most often dismissed in React advice as "not applicable, we don't use classes." That dismissal is wrong. The principle applies any time two pieces of code share a contract — explicit (a TypeScript interface, a hook return shape, an RTK Query endpoint signature) or implicit (the conventions a wrapping component is assumed to honor). What changes in React/TS is the *vocabulary*: instead of "subclass must honor base class contract", read "wrapping component must honor wrapped component contract", or "variant must honor variant family contract", or "alternate implementation must honor endpoint contract".
+LSP is the SOLID principle most often dismissed in React advice as "not applicable, we don't use classes." That dismissal is wrong. The principle applies any time two pieces of code share a contract — explicit (a TypeScript interface, a hook return shape, an RTK Query endpoint signature) or implicit (the conventions a wrapping component is assumed to honor). What changes in React/TS is the _vocabulary_: instead of "subclass must honor base class contract", read "wrapping component must honor wrapped component contract", or "variant must honor variant family contract", or "alternate implementation must honor endpoint contract".
 
 The reason LSP earns its place in this project is that almost every shared primitive will eventually be wrapped, specialized, or replaced. A LSP-broken wrapper is silently lethal: it compiles, it looks fine in isolation, and it breaks callers in ways that only surface when a caller actually tries to substitute it.
 
@@ -14,7 +14,7 @@ The reason LSP earns its place in this project is that almost every shared primi
 
 ### Field controls wrapped in `FieldShell`
 
-`Input`, `Textarea`, and `Select` all share `FieldShell` as their visual envelope. The contract they collectively expose is: *render a labeled form control with optional helper text, error message, and disabled state, where the label, helper, and error are visually positioned the same way and connected to the control via `aria-describedby`/`aria-invalid`*.
+`Input`, `Textarea`, and `Select` all share `FieldShell` as their visual envelope. The contract they collectively expose is: _render a labeled form control with optional helper text, error message, and disabled state, where the label, helper, and error are visually positioned the same way and connected to the control via `aria-describedby`/`aria-invalid`_.
 
 LSP holds when a caller can swap one for another within the limits of "this field accepts a single string" vs. "this field accepts multi-line text" vs. "this field accepts a closed list of options" without:
 
@@ -27,7 +27,7 @@ The structural reason this works in practice is that the three controls delegate
 
 ### Premium-gated features
 
-`useFeatureAccess` returns a flat object of capabilities (`canSaveTemplates`, `canExportPDF`, etc., from the OCP file). The hook itself does not have a Liskov problem — it has one implementation. The LSP-relevant pattern is what happens when premium-gated components (e.g. `SaveTemplateButton`, `ExportPDFButton`) all share a contract: "*render disabled-with-upgrade-prompt when access is denied, render functional when access is granted*."
+`useFeatureAccess` returns a flat object of capabilities (`canSaveTemplates`, `canExportPDF`, etc., from the OCP file). The hook itself does not have a Liskov problem — it has one implementation. The LSP-relevant pattern is what happens when premium-gated components (e.g. `SaveTemplateButton`, `ExportPDFButton`) all share a contract: "_render disabled-with-upgrade-prompt when access is denied, render functional when access is granted_."
 
 A premium-gated component that, when denied, silently renders `null` instead of an upgrade prompt breaks LSP relative to its peers. Callers that compose multiple gated components into a row expect consistent visual treatment when access is denied — one of them disappearing entirely is a substitution violation even though no error is thrown.
 
@@ -52,9 +52,17 @@ type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'link';
 export function Button({ variant, onClick, href, ...props }: ButtonProps) {
   if (variant === 'link') {
     // ↑ now this "Button" sometimes is an <a>
-    return <a href={href} {...props}>{props.children}</a>;
+    return (
+      <a href={href} {...props}>
+        {props.children}
+      </a>
+    );
   }
-  return <button onClick={onClick} {...props}>{props.children}</button>;
+  return (
+    <button onClick={onClick} {...props}>
+      {props.children}
+    </button>
+  );
 }
 ```
 
@@ -66,7 +74,7 @@ The type union claims `link` is a fourth variant of Button. In reality, the `lin
 
 A caller that wrote `<Button variant={isExternal ? 'link' : 'primary'}>` thinking they were substituting one variant for another has a LSP violation waiting — the link-variant doesn't honor the button contract. The right shape is a separate component (`LinkAsButton`, or simply use `<a className="...">`), not a variant.
 
-`Button.tsx` in this project deliberately does *not* fall into this trap: the three real variants (`primary`, `outline`, `ghost`) are all `<button>` elements with identical DOM semantics, differing only in CSS classes. They are genuinely substitutable.
+`Button.tsx` in this project deliberately does _not_ fall into this trap: the three real variants (`primary`, `outline`, `ghost`) are all `<button>` elements with identical DOM semantics, differing only in CSS classes. They are genuinely substitutable.
 
 ## A pattern to watch for: feature-side wrappers that strip props
 
@@ -84,19 +92,23 @@ interface SalaryStepSelectProps {
 export function SalaryStepSelect({ options, value, onChange }: SalaryStepSelectProps) {
   return (
     <Select value={value} onChange={(e) => onChange(e.target.value)}>
-      {options.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+      {options.map((o) => (
+        <option key={o.id} value={o.id}>
+          {o.label}
+        </option>
+      ))}
     </Select>
   );
 }
 ```
 
-This is *fine* if `SalaryStepSelect` is a deliberate feature-side component with its own identity — its name signals it is not a `Select`, it is a salary-step-specific composition. LSP is not violated because no one is substituting it for a generic `Select`.
+This is _fine_ if `SalaryStepSelect` is a deliberate feature-side component with its own identity — its name signals it is not a `Select`, it is a salary-step-specific composition. LSP is not violated because no one is substituting it for a generic `Select`.
 
-LSP breaks when the wrapper *pretends* to be the same as the original — e.g. `SalaryStepSelect` is exposed from `shared/` as if it were interchangeable with the generic `Select`, or it is named `Select` in the feature folder so callers cannot tell which one they imported. The principle is honesty about whether two components are the same contract or different contracts.
+LSP breaks when the wrapper _pretends_ to be the same as the original — e.g. `SalaryStepSelect` is exposed from `shared/` as if it were interchangeable with the generic `Select`, or it is named `Select` in the feature folder so callers cannot tell which one they imported. The principle is honesty about whether two components are the same contract or different contracts.
 
 ## When LSP is genuinely not a concern
 
-Not every pair of components needs to be substitutable. Two components that happen to share two prop names (e.g. both accept `className`) are not in a shared contract — they have a shared *attribute*. LSP only applies when callers genuinely depend on interchangeability, which happens in three places in this project:
+Not every pair of components needs to be substitutable. Two components that happen to share two prop names (e.g. both accept `className`) are not in a shared contract — they have a shared _attribute_. LSP only applies when callers genuinely depend on interchangeability, which happens in three places in this project:
 
 - Behind the `FieldShell` interface (the three form controls).
 - Behind the `Exporter` interface (the registered export formats).

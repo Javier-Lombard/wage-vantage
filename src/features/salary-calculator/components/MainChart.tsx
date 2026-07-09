@@ -11,6 +11,8 @@ import {
 
 import { Text } from '@/shared/components/ui';
 
+import { SalaryCalculatorSkeleton } from './SalaryCalculatorSkeleton';
+
 import type { ReactElement } from 'react';
 
 import type { WageAggregation } from '../types';
@@ -109,12 +111,7 @@ export function MainChart({ aggregation, isLoading, hasStarted }: MainChartProps
   }
 
   if (isLoading || !aggregation) {
-    return (
-      <div
-        className="bg-surface h-full min-h-80 w-full animate-pulse rounded-xl"
-        aria-label="Loading wage comparison"
-      />
-    );
+    return <SalaryCalculatorSkeleton />;
   }
 
   const chartData = [toBoxPlotDatum(aggregation)];
