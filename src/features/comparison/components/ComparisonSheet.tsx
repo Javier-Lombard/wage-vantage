@@ -1,7 +1,7 @@
 import { Lock } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
-import { AuthDialog, AuthPromptDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
+import { AuthFlowDialogs, AuthPromptDialog, useAuth } from '@/features/auth';
 import { ExportButton } from '@/features/export';
 import { PremiumGate } from '@/features/premium';
 import { buildWageFilters, ComparisonCountryQuery } from '@/features/salary-comparator';
@@ -27,6 +27,16 @@ interface ComparisonSheetProps {
   userWage?: number;
   /** Gatea el detalle numérico exacto — free/guest ven un placeholder en vez del chart real. */
   hasAccurateData: boolean;
+  /**
+   * Agregaciones ya calculadas de una comparación guardada (SavedComparison.
+   * computedStats), en el mismo orden que `countries`. Si viene poblado, el
+   * modo es "replay": se usa directamente como estado inicial y NO se monta
+   * ningún ComparisonCountryQuery — los datos quedan congelados al momento
+   * del guardado, sin refetch. Si es undefined (llegada desde el form), el
+   * modo es "fetch en vivo", igual que antes. `null` en una posición marca un
+   * país cuyo fetch no había resuelto al guardar.
+   */
+  initialAggregations?: (WageAggregation | null)[];
 }
 
 /** Sin datos del form completo en esta página (solo el nombre del país llega
@@ -59,23 +69,32 @@ export function ComparisonSheet({
   primaryCountry,
   userWage,
   hasAccurateData,
+  initialAggregations,
 }: ComparisonSheetProps) {
-  const {
-    isAuthenticated,
-    user,
-    signInWithPassword,
-    signUp,
-    signInWithOAuth,
-    resetPasswordForEmail,
-    updateProfile,
-  } = useAuth();
+  const { isAuthenticated, user, updateProfile } = useAuth();
   const saveDialog = useDisclosure();
   const authPrompt = useDisclosure();
   const authDialog = useDisclosure();
-  const resetPasswordDialog = useDisclosure();
-  // Agregaciones reales por país, elevadas por cada ComparisonCountryQuery vía
-  // onResult — mismo patrón que SalaryCalculator/MainChart en la home.
-  const [aggregations, setAggregations] = useState<Map<string, WageAggregation>>(new Map());
+  // Modo "replay" (comparación guardada reabierta) vs "fetch en vivo" (llegada
+  // desde el form) — decide si se montan los ComparisonCountryQuery más abajo.
+  // Se fija en el primer render: si el usuario reabre esta misma URL/estado no
+  // cambia de modo a mitad de sesión.
+  const isReplayMode = initialAggregations !== undefined;
+  // Agregaciones reales por país. En modo replay se inicializan una sola vez
+  // desde initialAggregations (zip posicional con `countries`, mismo orden en
+  // que se guardaron) y no vuelven a tocarse. En modo fetch arrancan vacías y
+  // cada ComparisonCountryQuery las va rellenando vía onResult — mismo patrón
+  // que SalaryCalculator/MainChart en la home.
+  const [aggregations, setAggregations] = useState<Map<string, WageAggregation>>(() => {
+    if (!initialAggregations) return new Map();
+    const entries = countries
+      .map((country, index): [string, WageAggregation | null | undefined] => [
+        country,
+        initialAggregations[index],
+      ])
+      .filter((entry): entry is [string, WageAggregation] => entry[1] != null);
+    return new Map(entries);
+  });
 
   // Memoizado: es dependencia del useEffect de notificación en cada
   // ComparisonCountryQuery — una referencia inestable lo re-dispararía en
@@ -118,6 +137,11 @@ export function ComparisonSheet({
         primaryCountry,
         userWage,
         values: { country: primaryCountry, monthlyWage: userWage },
+        // Mismo orden posicional que selectedCountries, SIN filtrar — así
+        // ComparisonSheet puede hacer zip(countries, computedStats) por
+        // índice al reabrir. `null` (no undefined, ver auth/types.ts) marca
+        // un país que no había resuelto su fetch al guardar.
+        computedStats: countries.map((country) => aggregations.get(country) ?? null),
       };
       await updateProfile({
         comparisons: [...(user.metadata.comparisons ?? []), newComparison],
@@ -132,21 +156,6 @@ export function ComparisonSheet({
   const openAuthDialog = () => {
     authPrompt.close();
     authDialog.open();
-  };
-
-  const openForgotPassword = () => {
-    authDialog.close();
-    resetPasswordDialog.open();
-  };
-
-  const handleResetPassword = async (email: string) => {
-    try {
-      await resetPasswordForEmail(email);
-      toast.success('Check your email for a reset link');
-      resetPasswordDialog.close();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not send reset link.');
-    }
   };
 
   return (
@@ -181,14 +190,16 @@ export function ComparisonSheet({
         </div>
       </div>
 
-      {countries.map((country) => (
-        <ComparisonCountryQuery
-          key={country}
-          country={country}
-          baseFilters={NO_FILTERS}
-          onResult={handleComparisonResult}
-        />
-      ))}
+      {/* Modo replay: los datos ya vienen de computedStats, no se refetchea. */}
+      {!isReplayMode &&
+        countries.map((country) => (
+          <ComparisonCountryQuery
+            key={country}
+            country={country}
+            baseFilters={NO_FILTERS}
+            onResult={handleComparisonResult}
+          />
+        ))}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card>
@@ -239,21 +250,7 @@ export function ComparisonSheet({
         onLogIn={openAuthDialog}
       />
 
-      <AuthDialog
-        isOpen={authDialog.isOpen}
-        onClose={authDialog.close}
-        onSubmit={({ email, password }, mode) =>
-          mode === 'login' ? signInWithPassword({ email, password }) : signUp({ email, password })
-        }
-        onForgotPassword={openForgotPassword}
-        onOAuth={(provider) => signInWithOAuth(provider)}
-      />
-
-      <ResetPasswordDialog
-        isOpen={resetPasswordDialog.isOpen}
-        onClose={resetPasswordDialog.close}
-        onSubmit={(email) => void handleResetPassword(email)}
-      />
+      <AuthFlowDialogs isOpen={authDialog.isOpen} onClose={authDialog.close} />
     </div>
   );
 }

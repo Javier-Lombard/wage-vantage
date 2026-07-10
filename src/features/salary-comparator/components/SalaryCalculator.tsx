@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
-import { AuthDialog, AuthPromptDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
+import { AuthFlowDialogs, AuthPromptDialog, useAuth } from '@/features/auth';
 import { UpgradeDialog } from '@/features/premium';
 import { SaveTemplateDialog } from '@/features/templates';
 import { ErrorBoundary } from '@/shared/components/ui';
@@ -36,15 +36,7 @@ import type { SalaryFormValues, WageAggregation } from '../types';
 export function SalaryCalculator() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    isAuthenticated,
-    user,
-    signInWithPassword,
-    signUp,
-    signInWithOAuth,
-    resetPasswordForEmail,
-    updateProfile,
-  } = useAuth();
+  const { isAuthenticated, user, updateProfile } = useAuth();
   // Prefill desde MyTemplates.onLoad (navigate('/', { state: { fastFillValues } })).
   const initialValues = (location.state as { fastFillValues?: SalaryFormValues } | null)
     ?.fastFillValues;
@@ -69,7 +61,6 @@ export function SalaryCalculator() {
   >('log-in-to-load-template');
   const templatePrompt = useDisclosure();
   const authDialog = useDisclosure();
-  const resetPasswordDialog = useDisclosure();
   const saveTemplateDialog = useDisclosure();
   const comparePrompt = useDisclosure();
   const compareUpgrade = useDisclosure();
@@ -107,21 +98,6 @@ export function SalaryCalculator() {
   const openAuthDialog = () => {
     templatePrompt.close();
     authDialog.open();
-  };
-
-  const openForgotPassword = () => {
-    authDialog.close();
-    resetPasswordDialog.open();
-  };
-
-  const handleResetPassword = async (email: string) => {
-    try {
-      await resetPasswordForEmail(email);
-      toast.success('Check your email for a reset link');
-      resetPasswordDialog.close();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not send reset link.');
-    }
   };
 
   const handleSubmit = () => {
@@ -259,21 +235,7 @@ export function SalaryCalculator() {
         showFeatureList
       />
 
-      <AuthDialog
-        isOpen={authDialog.isOpen}
-        onClose={authDialog.close}
-        onSubmit={({ email, password }, mode) =>
-          mode === 'login' ? signInWithPassword({ email, password }) : signUp({ email, password })
-        }
-        onForgotPassword={openForgotPassword}
-        onOAuth={(provider) => signInWithOAuth(provider)}
-      />
-
-      <ResetPasswordDialog
-        isOpen={resetPasswordDialog.isOpen}
-        onClose={resetPasswordDialog.close}
-        onSubmit={(email) => void handleResetPassword(email)}
-      />
+      <AuthFlowDialogs isOpen={authDialog.isOpen} onClose={authDialog.close} />
 
       <SaveTemplateDialog
         isOpen={saveTemplateDialog.isOpen}

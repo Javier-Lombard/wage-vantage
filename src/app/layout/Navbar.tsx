@@ -4,7 +4,7 @@ import { NavLink, useNavigate } from 'react-router';
 import { LogOut, Menu, Moon, Sun, UserCircle, X } from 'lucide-react';
 
 import { useTheme } from '@/app/providers/useTheme';
-import { AuthDialog, ResetPasswordDialog, useAuth } from '@/features/auth';
+import { AuthFlowDialogs, useAuth } from '@/features/auth';
 import { Icon, Text } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { cn } from '@/shared/lib/cn';
@@ -38,21 +38,12 @@ const ICON_BUTTON_CLASSES = cn(
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
-  const {
-    isAuthenticated,
-    user,
-    signInWithPassword,
-    signUp,
-    signInWithOAuth,
-    signOut,
-    resetPasswordForEmail,
-  } = useAuth();
+  const { isAuthenticated, user, signOut } = useAuth();
   const avatarUrl = isAuthenticated ? user?.metadata.avatarUrl : undefined;
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const authDialog = useDisclosure();
-  const resetPasswordDialog = useDisclosure();
 
   const toggleTheme = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
@@ -76,21 +67,6 @@ export function Navbar() {
       toast.success('Signed out');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Could not sign out.');
-    }
-  };
-
-  const openForgotPassword = () => {
-    authDialog.close();
-    resetPasswordDialog.open();
-  };
-
-  const handleResetPassword = async (email: string) => {
-    try {
-      await resetPasswordForEmail(email);
-      toast.success('Check your email for a reset link');
-      resetPasswordDialog.close();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not send reset link.');
     }
   };
 
@@ -297,21 +273,7 @@ export function Navbar() {
         )}
       </AnimatePresence>
 
-      <AuthDialog
-        isOpen={authDialog.isOpen}
-        onClose={authDialog.close}
-        onSubmit={({ email, password }, mode) =>
-          mode === 'login' ? signInWithPassword({ email, password }) : signUp({ email, password })
-        }
-        onForgotPassword={openForgotPassword}
-        onOAuth={(provider) => signInWithOAuth(provider)}
-      />
-
-      <ResetPasswordDialog
-        isOpen={resetPasswordDialog.isOpen}
-        onClose={resetPasswordDialog.close}
-        onSubmit={(email) => void handleResetPassword(email)}
-      />
+      <AuthFlowDialogs isOpen={authDialog.isOpen} onClose={authDialog.close} />
     </header>
   );
 }

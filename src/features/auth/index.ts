@@ -1,6 +1,7 @@
 export { AuthProvider } from './AuthProvider';
 export { useAuth } from './useAuth';
 export { AuthDialog } from './components/AuthDialog';
+export { AuthFlowDialogs } from './components/AuthFlowDialogs';
 export { AuthPromptDialog } from './components/AuthPromptDialog';
 export { DangerZonePanel } from './components/DangerZonePanel';
 export { DashboardCard } from './components/DashboardCard';
