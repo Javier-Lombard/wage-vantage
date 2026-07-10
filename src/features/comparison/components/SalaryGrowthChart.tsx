@@ -10,36 +10,70 @@ import {
 } from './chartStyles';
 
 interface SalaryGrowthChartProps {
-  /** País base primero, luego los extra — 1 a 3 elementos. Solo se usan los
-   * dos primeros (mock de 2 series); sin 2º país se repite el 1º. */
+  /** País base primero, luego los extra — 1 a 3 elementos. Una barra por
+   * país, mismo orden y color que SalaryDistributionChart/MainChart. */
   countries: string[];
+}
+
+const YEARS = [
+  '2015',
+  '2016',
+  '2017',
+  '2018',
+  '2019',
+  '2020',
+  '2021',
+  '2022',
+  '2023',
+  '2024',
+] as const;
+
+/** Un color de la paleta chart-1..6 por país, mismo orden y criterio que
+ * SalaryDistributionChart.tsx / MainChart.tsx — el país base siempre chart-1. */
+const SERIES_COLORS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+] as const;
+
+/**
+ * Progresión mensual estimada mockeada — no lineal, con un salario base y una
+ * tasa de crecimiento anual distintos por índice de país (no por país en sí:
+ * no hay serie temporal real por país en los datos de Supabase, así que el
+ * mock solo necesita variar visualmente entre las hasta 3 series posibles).
+ */
+const BASE_WAGE_BY_INDEX = [1620, 2450, 1950] as const;
+const GROWTH_RATE_BY_INDEX = [0.038, 0.042, 0.035] as const;
+
+function buildGrowthValue(index: number, yearIndex: number): number {
+  const base = BASE_WAGE_BY_INDEX[index % BASE_WAGE_BY_INDEX.length];
+  const rate = GROWTH_RATE_BY_INDEX[index % GROWTH_RATE_BY_INDEX.length];
+  // 2020 (yearIndex 5) rompe la curva suave, igual que el mock original
+  // (una ligera bajada), para que no se vea como una exponencial perfecta.
+  const dip = yearIndex === 5 ? 0.99 : 1;
+  return Math.round(base * (1 + rate) ** yearIndex * dip);
 }
 
 interface GrowthDatum {
   year: string;
-  country1: number;
-  country2: number;
+  [countryKey: `country${number}`]: string | number;
 }
 
-/** Mediana mensual estimada — progresión realista (no lineal), 2015-2024. */
-const GROWTH_DATA: GrowthDatum[] = [
-  { year: '2015', country1: 1620, country2: 2450 },
-  { year: '2016', country1: 1680, country2: 2520 },
-  { year: '2017', country1: 1750, country2: 2610 },
-  { year: '2018', country1: 1840, country2: 2700 },
-  { year: '2019', country1: 1950, country2: 2830 },
-  { year: '2020', country1: 1930, country2: 2860 },
-  { year: '2021', country1: 2020, country2: 2980 },
-  { year: '2022', country1: 2180, country2: 3160 },
-  { year: '2023', country1: 2340, country2: 3420 },
-  { year: '2024', country1: 2480, country2: 3620 },
-];
+function buildGrowthData(countryCount: number): GrowthDatum[] {
+  return YEARS.map((year, yearIndex) => {
+    const datum: GrowthDatum = { year };
+    for (let index = 0; index < countryCount; index += 1) {
+      datum[`country${index}`] = buildGrowthValue(index, yearIndex);
+    }
+    return datum;
+  });
+}
 
 const formatEur = (value: number) =>
   value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 
 export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
-  const [country1, country2 = country1] = countries;
+  const growthData = buildGrowthData(countries.length);
 
   return (
     <div className="flex flex-col gap-1">
@@ -47,7 +81,7 @@ export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
       <Text variant="caption" className="text-muted mb-3">
         Estimated monthly median wage · provisional data
       </Text>
-      <BarChart data={GROWTH_DATA} responsive width="100%" height={260} accessibilityLayer>
+      <BarChart data={growthData} responsive width="100%" height={260} accessibilityLayer>
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
         <XAxis
           dataKey="year"
@@ -67,8 +101,15 @@ export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
           contentStyle={CHART_TOOLTIP_CONTENT_STYLE}
         />
         <Legend wrapperStyle={{ fontSize: 12, color: 'var(--color-muted)' }} />
-        <Bar dataKey="country1" name={country1} fill="var(--color-chart-1)" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="country2" name={country2} fill="var(--color-chart-2)" radius={[4, 4, 0, 0]} />
+        {countries.map((country, index) => (
+          <Bar
+            key={country}
+            dataKey={`country${index}`}
+            name={country}
+            fill={SERIES_COLORS[index % SERIES_COLORS.length]}
+            radius={[4, 4, 0, 0]}
+          />
+        ))}
       </BarChart>
     </div>
   );

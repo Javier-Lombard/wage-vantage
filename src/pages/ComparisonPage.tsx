@@ -4,17 +4,19 @@ import { ComparisonSheet } from '@/features/comparison';
 import { useFeatureAccess } from '@/features/premium';
 import { BackButton } from '@/shared/components/ui';
 
-import type { SalaryFormValues } from '@/features/salary-comparator';
+import type { SalaryFormValues, WageAggregation } from '@/features/salary-comparator';
 
 export function ComparisonPage() {
   const { can } = useFeatureAccess();
   const location = useLocation();
   // location.state llega como `any` desde react-router — el shape solo lo garantiza
-  // el navigate() de SalaryCalculator.handleSubmit, no el sistema de tipos. Acceso
-  // directo a /comparison (sin pasar por el form) deja state en null.
+  // los dos orígenes posibles: SalaryCalculator.handleSubmit (fetch en vivo, sin
+  // computedStats) y SavedComparisons.handleView (replay, con computedStats). Acceso
+  // directo a /comparison (sin pasar por ninguno) deja state en null.
   const state = location.state as {
     values?: SalaryFormValues;
     extraCountries?: string[];
+    computedStats?: (WageAggregation | null)[];
   } | null;
 
   const primaryCountry = state?.values?.country;
@@ -34,6 +36,7 @@ export function ComparisonPage() {
         primaryCountry={primaryCountry}
         userWage={userWage}
         hasAccurateData={can('accurateData')}
+        initialAggregations={state?.computedStats}
       />
     </main>
   );

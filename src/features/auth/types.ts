@@ -27,7 +27,11 @@ export interface SavedComparison {
   primaryCountry?: string;
   userWage?: number;
   values: SalaryFormValues;
-  computedStats?: WageAggregation[];
+  /** Mismo orden e índice que selectedCountries (zip posicional al reabrir).
+   * `null` en una posición cuyo fetch no había resuelto al guardar — `null`
+   * y no `undefined` porque el array pasa por JSON en Supabase's
+   * raw_user_meta_data, que no preserva huecos `undefined`. */
+  computedStats?: (WageAggregation | null)[];
 }
 
 export interface UserMetadata {

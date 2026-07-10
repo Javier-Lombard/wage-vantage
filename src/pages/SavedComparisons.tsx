@@ -41,7 +41,16 @@ export function SavedComparisons() {
   const handleView = (id: string) => {
     const comparison = comparisons.find((c) => c.id === id);
     if (!comparison) return;
-    void navigate('/comparison', { state: { values: comparison.values } });
+    // selectedCountries guarda [primaryCountry, ...extras] en ese orden (ver
+    // ComparisonSheet.handleSaveComparison) — el primero ya llega vía
+    // values.country, aquí solo hacen falta los extra.
+    void navigate('/comparison', {
+      state: {
+        values: comparison.values,
+        extraCountries: comparison.selectedCountries.slice(1),
+        computedStats: comparison.computedStats,
+      },
+    });
   };
 
   return (
