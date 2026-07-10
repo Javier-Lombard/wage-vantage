@@ -3,13 +3,12 @@ import { useState } from 'react';
 import { DangerZonePanel, UserSettingsPanel, useAuth } from '@/features/auth';
 import { uploadAvatar } from '@/features/auth/lib/uploadAvatar';
 import { BackButton, Text } from '@/shared/components/ui';
-import { supabase } from '@/shared/lib/supabaseClient';
 import { toast } from '@/shared/lib/toast';
 
 import type { UserSettingsValues } from '@/features/auth';
 
 export function UserSettings() {
-  const { user, updateProfile, signOut } = useAuth();
+  const { user, updateProfile, updateCredentials, signOut } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -27,10 +26,7 @@ export function UserSettings() {
       const authUpdate: { email?: string; password?: string } = {};
       if (email !== user.email) authUpdate.email = email;
       if (password) authUpdate.password = password;
-      if (Object.keys(authUpdate).length > 0) {
-        const { error } = await supabase.auth.updateUser(authUpdate);
-        if (error) throw error;
-      }
+      if (Object.keys(authUpdate).length > 0) await updateCredentials(authUpdate);
 
       toast.success('Settings saved');
     } catch (err) {

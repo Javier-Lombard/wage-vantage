@@ -16,6 +16,7 @@ import {
   CHART_GRID_STROKE,
   CHART_TICK_STYLE,
   CHART_TOOLTIP_CONTENT_STYLE,
+  SERIES_COLORS,
 } from './chartStyles';
 
 import type { ReactElement } from 'react';
@@ -34,14 +35,6 @@ interface SalaryDistributionChartProps {
   /** SalaryFormValues.monthlyWage — dibuja la línea de referencia "You". */
   userWage?: number;
 }
-
-/** Un color de la paleta chart-1..6 por país, mismo orden y criterio que
- * MainChart.tsx (feature salary-comparator) — el país base siempre chart-1. */
-const SERIES_COLORS = [
-  'var(--color-chart-1)',
-  'var(--color-chart-2)',
-  'var(--color-chart-3)',
-] as const;
 
 interface BoxPlotDatum extends WageAggregation {
   label: string;

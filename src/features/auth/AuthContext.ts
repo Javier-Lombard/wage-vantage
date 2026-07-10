@@ -25,6 +25,9 @@ export type AuthContextValue = {
   loading: boolean;
   isAuthenticated: boolean;
   isPremium: boolean;
+  /** true entre el evento PASSWORD_RECOVERY de Supabase y la próxima navegación —
+   * habilita el form de "nueva contraseña" en /reset-password. */
+  isPasswordRecovery: boolean;
   signInWithPassword: (credentials: AuthCredentials) => Promise<void>;
   signUp: (credentials: AuthCredentials) => Promise<SignUpResult>;
   signInWithOAuth: (provider: OAuthProvider) => Promise<void>;
@@ -32,6 +35,9 @@ export type AuthContextValue = {
   resetPasswordForEmail: (email: string) => Promise<void>;
   /** Merge shallow (top-level) sobre user_metadata vía supabase.auth.updateUser. */
   updateProfile: (patch: Partial<UserMetadata>) => Promise<void>;
+  /** Actualiza email y/o password nativos de auth.users (no user_metadata — para
+   * eso está updateProfile). Patch parcial: solo se envían los campos presentes. */
+  updateCredentials: (patch: { email?: string; password?: string }) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

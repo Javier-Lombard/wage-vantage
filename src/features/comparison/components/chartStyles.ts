@@ -12,3 +12,22 @@ export const CHART_TOOLTIP_CONTENT_STYLE = {
   borderRadius: 'var(--radius-lg)',
   color: 'var(--color-foreground)',
 };
+
+/** Un color de la paleta chart-1..6 por país — el país base siempre chart-1.
+ * Repetido en 2 charts de esta feature (SalaryDistributionChart, SalaryGrowthChart)
+ * antes de esta extracción — mismo criterio que el resto de este archivo. */
+export const SERIES_COLORS = [
+  'var(--color-chart-1)',
+  'var(--color-chart-2)',
+  'var(--color-chart-3)',
+] as const;
+
+/** Salario mensual en €, formato único para los charts de esta feature (Intl,
+ * separador de miles) — antes divergía entre formatEur y formatEurTick. */
+export function formatEur(value: number): string {
+  return value.toLocaleString('es-ES', {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  });
+}

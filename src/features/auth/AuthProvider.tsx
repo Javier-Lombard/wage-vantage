@@ -14,6 +14,7 @@ function errorMessage(error: unknown, fallback: string): string {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -21,9 +22,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session ? mapUser(session.user) : null);
       setLoading(false);
+      if (event === 'PASSWORD_RECOVERY') setIsPasswordRecovery(true);
     });
 
     return () => subscription.subscription.unsubscribe();
@@ -66,28 +68,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(mapUser(data.user));
   }, []);
 
+  const updateCredentials = useCallback(
+    async (patch: { email?: string; password?: string }) => {
+      const { data, error } = await supabase.auth.updateUser(patch);
+      if (error) {
+        throw new Error(errorMessage(error, 'Could not update credentials. Please try again.'));
+      }
+      setUser(mapUser(data.user));
+    },
+    [],
+  );
+
   const value = useMemo(
     () => ({
       user,
       loading,
       isAuthenticated: user !== null,
       isPremium: user?.metadata.premium === true,
+      isPasswordRecovery,
       signInWithPassword,
       signUp,
       signInWithOAuth,
       signOut,
       resetPasswordForEmail,
       updateProfile,
+      updateCredentials,
     }),
     [
       user,
       loading,
+      isPasswordRecovery,
       signInWithPassword,
       signUp,
       signInWithOAuth,
       signOut,
       resetPasswordForEmail,
       updateProfile,
+      updateCredentials,
     ],
   );
 

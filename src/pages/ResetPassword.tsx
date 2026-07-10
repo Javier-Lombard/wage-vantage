@@ -1,35 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Lock } from 'lucide-react';
 
+import { useAuth } from '@/features/auth';
 import { Button, Card, Icon, Input, Text } from '@/shared/components/ui';
-import { supabase } from '@/shared/lib/supabaseClient';
 import { toast } from '@/shared/lib/toast';
 
 /**
  * Destino del link de reset (redirectTo en resetPasswordForEmail). Supabase
  * detecta el token del hash de la URL (detectSessionInUrl) y emite
- * PASSWORD_RECOVERY antes de que este componente pueda leer la sesión, así
- * que escuchamos el evento en vez de asumir sesión ya presente en mount.
+ * PASSWORD_RECOVERY antes de que este componente pueda leer la sesión —
+ * AuthProvider ya escucha ese evento globalmente y expone isPasswordRecovery,
+ * así que aquí no hace falta una suscripción propia.
  */
 export function ResetPassword() {
   const navigate = useNavigate();
-  const [isReady, setIsReady] = useState(false);
+  const { isPasswordRecovery, updateCredentials } = useAuth();
   const [password, setPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-
-  useEffect(() => {
-    const { data: subscription } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setIsReady(true);
-    });
-    return () => subscription.subscription.unsubscribe();
-  }, []);
 
   const handleSubmit = async () => {
     setIsSaving(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
+      await updateCredentials({ password });
       toast.success('Password updated');
       void navigate('/');
     } catch (err) {
@@ -46,7 +39,7 @@ export function ResetPassword() {
           <Icon icon={Lock} size={32} className="text-primary" />
           <Text variant="h3">Set a new password</Text>
           <Text variant="body-sm" className="text-muted">
-            {isReady ? 'Enter your new password below.' : 'Waiting to confirm your reset link...'}
+            {isPasswordRecovery ? 'Enter your new password below.' : 'Waiting to confirm your reset link...'}
           </Text>
         </div>
 
@@ -56,10 +49,10 @@ export function ResetPassword() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="••••••••"
-          disabled={!isReady}
+          disabled={!isPasswordRecovery}
         />
 
-        <Button onClick={() => void handleSubmit()} isLoading={isSaving} disabled={!isReady}>
+        <Button onClick={() => void handleSubmit()} isLoading={isSaving} disabled={!isPasswordRecovery}>
           Update password
         </Button>
       </Card>

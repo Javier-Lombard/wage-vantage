@@ -7,6 +7,8 @@ import {
   CHART_GRID_STROKE,
   CHART_TICK_STYLE,
   CHART_TOOLTIP_CONTENT_STYLE,
+  formatEur,
+  SERIES_COLORS,
 } from './chartStyles';
 
 interface SalaryGrowthChartProps {
@@ -26,14 +28,6 @@ const YEARS = [
   '2022',
   '2023',
   '2024',
-] as const;
-
-/** Un color de la paleta chart-1..6 por país, mismo orden y criterio que
- * SalaryDistributionChart.tsx / MainChart.tsx — el país base siempre chart-1. */
-const SERIES_COLORS = [
-  'var(--color-chart-1)',
-  'var(--color-chart-2)',
-  'var(--color-chart-3)',
 ] as const;
 
 /**
@@ -68,9 +62,6 @@ function buildGrowthData(countryCount: number): GrowthDatum[] {
     return datum;
   });
 }
-
-const formatEur = (value: number) =>
-  value.toLocaleString('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 
 export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
   const growthData = buildGrowthData(countries.length);

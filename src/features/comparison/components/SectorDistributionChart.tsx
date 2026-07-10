@@ -7,6 +7,7 @@ import {
   CHART_GRID_STROKE,
   CHART_TICK_STYLE,
   CHART_TOOLTIP_CONTENT_STYLE,
+  formatEur,
 } from './chartStyles';
 
 interface SectorDistributionChartProps {
@@ -46,7 +47,6 @@ const SECTOR_DISTRIBUTION_DATA: SectorDistributionDatum[] = Array.from(
 );
 
 const WAGE_TICKS = [1000, 2000, 3000, 4000, 5000];
-const formatEurTick = (value: number) => `${value.toLocaleString('es-ES')}€`;
 
 export function SectorDistributionChart({ countries, userWage }: SectorDistributionChartProps) {
   const [country1, country2 = country1] = countries;
@@ -67,7 +67,7 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
           type="number"
           domain={[WAGE_MIN, WAGE_MAX]}
           ticks={WAGE_TICKS}
-          tickFormatter={formatEurTick}
+          tickFormatter={formatEur}
           tick={CHART_TICK_STYLE}
           tickLine={false}
           axisLine={CHART_AXIS_LINE_STYLE}
