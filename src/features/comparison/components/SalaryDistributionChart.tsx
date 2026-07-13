@@ -55,7 +55,11 @@ function toBoxPlotDatum(aggregation: WageAggregation, label: string, color: stri
     color,
     baseOffset: aggregation.q1,
     boxHeight: aggregation.q3 - aggregation.q1,
-    whiskerRange: [aggregation.q1 - aggregation.min, aggregation.max - aggregation.q3],
+    // ErrorBar sobre un Bar apilado toma como referencia el valor acumulado
+    // MÁS ALTO del stack (baseOffset + boxHeight = q3), no q1 — así lo
+    // documenta Recharts. El extremo inferior se calcula desde ESE mismo
+    // punto (q3 - min), o el bigote queda descuadrado respecto a la caja.
+    whiskerRange: [aggregation.q3 - aggregation.min, aggregation.max - aggregation.q3],
   };
 }
 

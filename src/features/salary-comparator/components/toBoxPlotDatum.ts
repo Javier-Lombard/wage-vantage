@@ -50,6 +50,13 @@ export function toBoxPlotDatum(
     ...aggregation,
     baseOffset: aggregation.q1,
     boxHeight: aggregation.q3 - aggregation.q1,
-    whiskerRange: [aggregation.q1 - aggregation.min, aggregation.max - aggregation.q3],
+    // ErrorBar sobre un Bar apilado usa como referencia el valor acumulado
+    // MÁS ALTO del stack en ese punto (baseOffset + boxHeight = q3), no q1 —
+    // así lo documenta el propio Recharts ("In stacked or ranged Bar charts,
+    // ErrorBar will use the higher data value as the reference point"). Por
+    // eso el extremo inferior no es `q1 - min`: hay que restar desde ESE
+    // mismo punto de referencia (q3), o el bigote queda descuadrado respecto
+    // a la caja (se detiene en q3-q1+min en vez de en min).
+    whiskerRange: [aggregation.q3 - aggregation.min, aggregation.max - aggregation.q3],
   };
 }
