@@ -50,6 +50,10 @@ export const wageApi = createApi({
 
         return { data };
       },
+      // Lista estática (los 11 países de TABLE_0 no cambian en caliente) y
+      // sin coste — se cachea de forma permanente, sin purgar, mientras dure
+      // la pestaña: cero refetches de esta RPC durante toda la sesión.
+      keepUnusedDataFor: Infinity,
     }),
 
     getWageInsights: builder.query<WageInsightsResult, WageInsightsArgs>({
@@ -89,6 +93,14 @@ export const wageApi = createApi({
 
         return { data: { monthlyWages: wages.data, options } };
       },
+      // Este endpoint puede haber invocado la Edge Function enrich-salary-data
+      // (Gemini) cuando la muestra es escasa, pero cachea por args igual que
+      // el caso "solo RPC" — no hay forma de distinguir el coste real desde
+      // la clave de caché. 5 min se fija pensando en el peor caso (con
+      // Gemini): cubre avanzar/retroceder pasos del form o añadir/quitar
+      // países de comparación sin re-invocar la IA para los mismos filtros,
+      // sin cachear indefinidamente un dato que podría quedar obsoleto.
+      keepUnusedDataFor: 300,
     }),
   }),
 });
