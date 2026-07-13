@@ -112,6 +112,18 @@ function BoxPlotTooltip({ active, payload }: TooltipContentProps): ReactElement 
       </div>
       <dl className="grid grid-cols-[auto_auto] gap-x-3 text-sm">
         <Text as="dt" variant="body-sm" className="text-muted">
+          Max
+        </Text>
+        <Text as="dd" variant="body-sm" className="text-foreground text-right">
+          {formatEur(datum.max)}
+        </Text>
+        <Text as="dt" variant="body-sm" className="text-muted">
+          Q3
+        </Text>
+        <Text as="dd" variant="body-sm" className="text-foreground text-right">
+          {formatEur(datum.q3)}
+        </Text>
+        <Text as="dt" variant="body-sm" className="text-muted">
           Median
         </Text>
         <Text as="dd" variant="body-sm" className="text-foreground text-right">
@@ -124,10 +136,10 @@ function BoxPlotTooltip({ active, payload }: TooltipContentProps): ReactElement 
           {formatEur(datum.q1)}
         </Text>
         <Text as="dt" variant="body-sm" className="text-muted">
-          Q3
+          Min
         </Text>
         <Text as="dd" variant="body-sm" className="text-foreground text-right">
-          {formatEur(datum.q3)}
+          {formatEur(datum.min)}
         </Text>
       </dl>
     </div>
@@ -176,7 +188,17 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
         and maximum monthly wage across the selected countries.
       </figcaption>
       <ResponsiveContainer width="100%" height="100%" minHeight={320}>
-        <BarChart data={chartData} accessibilityLayer>
+        <BarChart
+          data={chartData}
+          accessibilityLayer
+          // Con 1 solo país la barra ocuparía toda la categoría del eje X
+          // (ver captura del bug): barCategoryGap es el hueco entre
+          // categorías como % del ancho de categoría, así que un 25% de
+          // hueco dobla como "la barra ocupa el 75% restante". Con 2-3
+          // países no se toca — el gap por defecto de Recharts ya separa
+          // bien las cajas de comparación.
+          barCategoryGap={chartData.length === 1 ? '25%' : undefined}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" />
           <XAxis
             dataKey="label"
