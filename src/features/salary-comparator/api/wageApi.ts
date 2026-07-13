@@ -2,13 +2,27 @@ import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { supabase } from '@/shared/lib/supabaseClient';
 
+import { aggregateWages, plausibleWages } from '../hooks/aggregateWages';
+import { mergeAggregations } from '../hooks/mergeAggregations';
+import { invokeEnrichSalaryData } from './enrichSalaryData';
+
 import type { WageFilterColumn, WageFilterParams } from './wageApi.types';
 import type { WageInsightsResult } from '../types';
+
+/**
+ * Por debajo de este número de salarios plausibles (tras descartar outliers,
+ * ver aggregateWages.ts), la muestra de TABLE_0 es demasiado pequeña para ser
+ * estadísticamente significativa y se dispara el fallback de enriquecimiento
+ * con Gemini (Edge Function enrich-salary-data).
+ */
+const MIN_SAMPLE_SIZE = 8;
 
 interface WageInsightsArgs {
   filters: WageFilterParams;
   /** Column to return distinct values for; omitted past the last cascade step (Education Level). */
   nextOptionsField?: WageFilterColumn;
+  /** Perfil de 8 campos para el prompt de enrich-salary-data — ver buildEnrichmentProfile. */
+  enrichmentProfile?: Record<string, string>;
 }
 
 /**
@@ -39,7 +53,7 @@ export const wageApi = createApi({
     }),
 
     getWageInsights: builder.query<WageInsightsResult, WageInsightsArgs>({
-      async queryFn({ filters, nextOptionsField }) {
+      async queryFn({ filters, nextOptionsField, enrichmentProfile }) {
         const wages = await supabase.rpc('wage_monthly_wages', { p_filters: filters });
         if (wages.error) return { error: wages.error };
 
@@ -51,6 +65,26 @@ export const wageApi = createApi({
           });
           if (distinct.error) return { error: distinct.error };
           options = distinct.data;
+        }
+
+        // El umbral se mide sobre el conteo YA truncado (aggregateWages.ts):
+        // los outliers de TABLE_0 no deben rellenar la muestra ni ocultar
+        // que hay pocos datos reales.
+        const country = filters.Country;
+        const validCount = plausibleWages(wages.data).length;
+
+        if (country && validCount < MIN_SAMPLE_SIZE) {
+          let estimate;
+          try {
+            estimate = await invokeEnrichSalaryData(country, enrichmentProfile ?? {});
+          } catch (err) {
+            return { error: err instanceof Error ? err : new Error('Enrichment request failed') };
+          }
+
+          const real = aggregateWages(wages.data);
+          const aggregation = real === null ? estimate : mergeAggregations(real, estimate);
+
+          return { data: { monthlyWages: wages.data, options, aggregation } };
         }
 
         return { data: { monthlyWages: wages.data, options } };

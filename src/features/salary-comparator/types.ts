@@ -22,6 +22,14 @@ export interface WageInsightsResult {
   monthlyWages: number[];
   /** Distinct values for the next field in the cascade — absent past the last step (Education Level). */
   options?: string[];
+  /**
+   * Presente solo cuando la muestra de `monthlyWages` es demasiado pequeña
+   * y el endpoint disparó el fallback de enriquecimiento con Gemini. Ya es
+   * la agregación final (real fusionada con la estimación, o la estimación
+   * pura si no había ningún salario real) — los consumidores deben usarla
+   * tal cual, sin recalcular con aggregateWages/useWageStats.
+   */
+  aggregation?: WageAggregation;
 }
 
 /** Closed set of genders the form offers — static, hardcoded options (see fieldConfig.ts). */

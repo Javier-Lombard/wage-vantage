@@ -1,5 +1,6 @@
 import { useGetWageInsightsQuery } from '../api/wageApi';
 import { SALARY_FORM_FIELDS } from '../components/fieldConfig';
+import { buildEnrichmentProfile } from './buildEnrichmentProfile';
 import { buildWageFilters } from './buildWageFilters';
 
 import type { SalaryFormValues } from '../types';
@@ -35,7 +36,11 @@ function buildCascadeQuery(values: SalaryFormValues) {
   const filters = buildWageFilters(values);
   if (Object.keys(filters).length === 0) return null;
 
-  return { filters, nextOptionsField: findNextOptionsField(values) };
+  return {
+    filters,
+    nextOptionsField: findNextOptionsField(values),
+    enrichmentProfile: buildEnrichmentProfile(values),
+  };
 }
 
 /**

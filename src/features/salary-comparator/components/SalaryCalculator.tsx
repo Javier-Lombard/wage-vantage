@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import { AuthFlowDialogs, AuthPromptDialog, useAuth } from '@/features/auth';
@@ -9,11 +9,12 @@ import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 import { toast } from '@/shared/lib/toast';
 
+import { buildEnrichmentProfile } from '../hooks/buildEnrichmentProfile';
 import { buildWageFilters } from '../hooks/buildWageFilters';
 import { useCountryComparison } from '../hooks/useCountryComparison';
+import { useResolvedAggregation } from '../hooks/useResolvedAggregation';
 import { useSalaryFormState } from '../hooks/useSalaryFormState';
 import { useWageInsights } from '../hooks/useWageInsights';
-import { useWageStats } from '../hooks/useWageStats';
 
 import { CompareCountryModal } from './CompareCountryModal';
 import { ComparisonCountryQuery } from './ComparisonCountryQuery';
@@ -43,7 +44,7 @@ export function SalaryCalculator() {
   const { step, values, setFieldValue, goNext, goBack, canAdvance } =
     useSalaryFormState(initialValues);
   const { data, isFetching, nextOptionsField } = useWageInsights(values);
-  const aggregation = useWageStats(data?.monthlyWages);
+  const aggregation = useResolvedAggregation(data);
   const { extraCountries, addCountry, removeCountry, canAddMore, gateOnLimit } =
     useCountryComparison();
   // Agregaciones de los países extra, elevadas por cada ComparisonCountryQuery
@@ -134,6 +135,11 @@ export function SalaryCalculator() {
   // Mismos filtros del form para las queries de comparación en paralelo —
   // cada ComparisonCountryQuery sobrescribe Country con el país que le toca.
   const baseFilters = buildWageFilters(values);
+  // Mismo perfil para el fallback de Gemini de cada país de comparación —
+  // memoizado porque es dependencia de args de useGetWageInsightsQuery en
+  // cada ComparisonCountryQuery (una referencia inestable dispararía un
+  // refetch en cada render de SalaryCalculator).
+  const enrichmentProfile = useMemo(() => buildEnrichmentProfile(values), [values]);
   // País base primero, luego los extra en el orden en que se añadieron —
   // MainChart asigna el color de cada caja por este mismo orden de índice.
   const series = [
@@ -196,6 +202,7 @@ export function SalaryCalculator() {
           key={country}
           country={country}
           baseFilters={baseFilters}
+          enrichmentProfile={enrichmentProfile}
           onResult={handleComparisonResult}
         />
       ))}

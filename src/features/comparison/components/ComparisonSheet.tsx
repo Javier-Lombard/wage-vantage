@@ -4,7 +4,11 @@ import { useCallback, useState } from 'react';
 import { AuthFlowDialogs, AuthPromptDialog, useAuth } from '@/features/auth';
 import { ExportButton } from '@/features/export';
 import { PremiumGate } from '@/features/premium';
-import { buildWageFilters, ComparisonCountryQuery } from '@/features/salary-comparator';
+import {
+  buildEnrichmentProfile,
+  buildWageFilters,
+  ComparisonCountryQuery,
+} from '@/features/salary-comparator';
 import { Button, Card, ErrorBoundary, Icon, Text } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { cn } from '@/shared/lib/cn';
@@ -44,6 +48,10 @@ interface ComparisonSheetProps {
  * país, sin más filtros. Constante fuera del componente: mismo objeto en
  * cada render, evita disparar refetches por referencia inestable. */
 const NO_FILTERS = buildWageFilters({});
+
+/** Igual que NO_FILTERS: sin perfil de form que enviar al fallback de Gemini
+ * en esta página — el enriquecimiento, si se dispara, describe solo el país. */
+const NO_ENRICHMENT_PROFILE = buildEnrichmentProfile({});
 
 interface PremiumChartFallbackProps {
   title: string;
@@ -197,6 +205,7 @@ export function ComparisonSheet({
             key={country}
             country={country}
             baseFilters={NO_FILTERS}
+            enrichmentProfile={NO_ENRICHMENT_PROFILE}
             onResult={handleComparisonResult}
           />
         ))}

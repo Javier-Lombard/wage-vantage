@@ -26,3 +26,17 @@ export interface WageRow {
   'Education Level': string;
   'Monthly Wage': number;
 }
+
+/**
+ * Shape crudo de la Edge Function enrich-salary-data (fallback Gemini para
+ * muestras pequeñas). `category` es el nombre del país devuelto por la
+ * función; se descarta al mapear a WageAggregation, que no lo necesita.
+ */
+export interface EnrichSalaryResponse {
+  category: string;
+  min: number;
+  q1: number;
+  median: number;
+  q3: number;
+  max: number;
+}

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useGetWageInsightsQuery } from '../api/wageApi';
-import { useWageStats } from '../hooks/useWageStats';
+import { useResolvedAggregation } from '../hooks/useResolvedAggregation';
 
 import type { WageFilterParams } from '../api/wageApi.types';
 import type { WageAggregation } from '../types';
@@ -9,6 +9,8 @@ import type { WageAggregation } from '../types';
 interface ComparisonCountryQueryProps {
   country: string;
   baseFilters: WageFilterParams;
+  /** Perfil de 8 campos para el fallback de Gemini si la muestra de este país es pequeña — ver buildEnrichmentProfile. */
+  enrichmentProfile: Record<string, string>;
   onResult: (country: string, aggregation: WageAggregation | null) => void;
 }
 
@@ -28,10 +30,14 @@ interface ComparisonCountryQueryProps {
 export function ComparisonCountryQuery({
   country,
   baseFilters,
+  enrichmentProfile,
   onResult,
 }: ComparisonCountryQueryProps) {
-  const { data } = useGetWageInsightsQuery({ filters: { ...baseFilters, Country: country } });
-  const aggregation = useWageStats(data?.monthlyWages);
+  const { data } = useGetWageInsightsQuery({
+    filters: { ...baseFilters, Country: country },
+    enrichmentProfile,
+  });
+  const aggregation = useResolvedAggregation(data);
 
   // Notifica el resultado en cada cambio (sin cleanup aquí: un cleanup atado
   // a `aggregation` dispararía onResult(country, null) en cada recálculo, no
