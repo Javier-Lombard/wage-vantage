@@ -36,7 +36,7 @@ export function RecentComparisonsPanel({
         </div>
         <Link
           to="/dashboard/comparisons"
-          className="text-primary text-sm font-semibold hover:underline"
+          className="text-accent-fg text-sm font-semibold hover:underline"
         >
           View all →
         </Link>

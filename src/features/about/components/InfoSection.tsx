@@ -20,7 +20,7 @@ export function InfoSection({ title, icon, children }: InfoSectionProps) {
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        {icon && <Icon icon={icon} size={20} className="text-primary" />}
+        {icon && <Icon icon={icon} size={20} className="text-accent-fg" />}
         <Text variant="h4">{title}</Text>
       </div>
       <div className="text-muted flex flex-col gap-2 text-sm">{children}</div>

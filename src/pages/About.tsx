@@ -114,7 +114,7 @@ export function About() {
 
         <InfoSection title="Contact Support" icon={Mail}>
           <p>Have a question or need help? We're here for you.</p>
-          <a href="mailto:support@wagecomparator.eu" className="text-primary font-semibold">
+          <a href="mailto:support@wagecomparator.eu" className="text-accent-fg font-semibold">
             support@wagecomparator.eu
           </a>
         </InfoSection>

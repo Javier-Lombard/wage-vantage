@@ -31,7 +31,7 @@ Approved palette. Not a brutalist invert (white↔black) — preserves the same 
 
 | Token              | Hex         | Role                                          | Relationship to dark value                                                                         |
 | ------------------ | ----------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `primary`          | `#DFFF88`   | Brand accent, CTAs, active states, highlights | Unchanged — sufficiently saturated to work on light backgrounds                                    |
+| `primary`          | `#DFFF88`   | Brand accent, CTAs, active states, highlights | Unchanged as a **fill** (paired with `on-primary` ink). As a foreground (text/icon/border) on a neutral surface it fails AA (1.12:1 on white) — use the `accent-*` family below instead |
 | `primary-hover`    | `#C8E67A`   | Primary on hover/pressed                      | Unchanged                                                                                          |
 | `primary-muted`    | `#DFFF8833` | Primary at 20% opacity — subtle backgrounds   | Unchanged                                                                                          |
 | `background`       | `#F5F6F8`   | Main page background                          | Cool light gray, not pure white — keeps the same blue-tinted neutrality as `#13161C`               |
@@ -61,13 +61,26 @@ These already have valid contrast against both light and dark surfaces, so they 
 | ------------ | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | `on-primary` | `#13161C` | Text/icons on primary-colored surfaces. Same in both modes — `primary` itself doesn't change, so the text on top of it doesn't need to either. |
 
+### Accent Foreground (mode-aware — text/icons/borders using the accent on a neutral surface)
+
+`primary` (`#DFFF88`) only has contrast when paired with `on-primary` as a **fill**. When the accent needs to be the foreground itself — link text, active nav label, icon, border — on a `background`/`surface` (not on a `primary` fill), use this family instead. Same mode-aware pattern as `outline-*` (§8): neutral-adjacent hue in light, `primary` in dark.
+
+| Token             | Light Hex | Dark Hex  | Role                                                        |
+| ------------------ | --------- | --------- | ------------------------------------------------------------ |
+| `accent-fg`         | `#527018` | `#DFFF88` | Accent text/icon/border on a neutral surface. 5.69:1 on white, 5.26:1 on `#F5F6F8` |
+| `accent-fg-hover`   | `#456312` | `#C8E67A` | `accent-fg` on hover/active. 6.89:1 on white, 6.37:1 on `#F5F6F8` |
+| `accent-surface`    | `#EEF7D6` | `#DFFF8833` | Tinted background for active chips/rows/radios — `accent-fg` text on top stays ≥5.9:1 |
+
+Decision rule: a **neutral-bordered control** (e.g. an outline button, secondary/OAuth buttons) uses `outline-*` — neutral in light, primary in dark. An **on-brand accent foreground** (links, active nav, eyebrows, accent icons) uses `accent-*` — stays in the lime hue family, just darkened for contrast in light. They resolve to the same dark-mode value but intentionally differ in light.
+
 ### Chart Palette (for Recharts — multi-country comparison, invariant)
 
-Designed to be distinguishable on both `#13161C` (dark bg) and `#F5F6F8` (light bg), and accessible in combination. Kept identical across modes so a chart screenshotted in either theme reads consistently.
+Designed to be distinguishable on both `#13161C` (dark bg) and `#F5F6F8` (light bg), and accessible in combination. Kept identical across modes so a chart screenshotted in either theme reads consistently — including as a **fill** (e.g. the base-country box-plot fill with `on-primary` ink on top, which already has contrast in light).
 
 | Token     | Hex       | Usage                   |
 | --------- | --------- | ----------------------- |
-| `chart-1` | `#DFFF88` | Primary data (accent)   |
+| `chart-1` | `#DFFF88` | Primary data (accent) — as a **fill** (box plots, tooltip swatch background) |
+| `chart-1-line` | `#527018` light / `#DFFF88` dark | `chart-1` as a **line/point on transparent** (legend dots, area strokes, reference lines) — mode-aware, same criterion as `accent-fg` |
 | `chart-2` | `#60A5FA` | Second series (blue)    |
 | `chart-3` | `#F472B6` | Third series (pink)     |
 | `chart-4` | `#34D399` | Fourth series (emerald) |
@@ -183,9 +196,11 @@ import { Bell } from 'lucide-react';
 | Variant  | Background  | Text         | Border    | Radius        |
 | -------- | ----------- | ------------ | --------- | ------------- |
 | Primary  | `primary`   | `on-primary` | none      | `full` (pill) |
-| Outline  | transparent | `primary`    | `primary` | `full` (pill) |
+| Outline  | transparent | `outline-fg` (mode-aware) | `outline-border` (mode-aware) | `full` (pill) |
 | Ghost    | transparent | `muted`      | none      | `full`        |
 | Disabled | `gray`      | `muted`      | none      | `full`        |
+
+`Button`'s `outline` variant and `outlineButtonClasses.ts` both resolve through the same `outline-*` tokens (§8) — kept as separate code (different components/callers) but a single color source.
 
 Font weight: SemiBold (600). Padding: `px-6 py-3`. Transition on hover for background/border color.
 
@@ -199,7 +214,7 @@ Background: `surface` or `background`. Border: 1px `border`. Radius: `rounded-sm
 
 ### Navigation
 
-Background: `background` with slight opacity or solid. Text: `muted` default, `foreground` on hover, `primary` for active. CTA button in nav: Outline variant.
+Background: `background` with slight opacity or solid. Text: `muted` default, `foreground` on hover, `accent-fg` for active (mode-aware — see Accent Foreground above). CTA button in nav: Outline variant.
 
 ### Charts (Recharts)
 
@@ -219,7 +234,7 @@ This way, `bg-background` always resolves correctly regardless of which mode is 
 
 **Default mode**: light is the CSS default (`:root`), since that's the conventional baseline, but the _product_ default behavior (which mode loads on first visit) is an app-level decision for `ThemeProvider`/`localStorage`, not a CSS one — don't conflate the two.
 
-Tailwind v4's `@variant dark` (powered by the `.dark` selector) is what makes `dark:` prefixed utilities work for one-off overrides, but for token-driven values like `bg-background` or `text-muted`, you don't need `dark:` prefixes at all — the variable swap handles it automatically.
+**Never use the `dark:` prefix in this project.** By default, Tailwind v4's `dark:` variant follows the OS `prefers-color-scheme` media query, not the app's `.dark` class — since this project has no `@custom-variant dark` override, a `dark:`-prefixed utility renders based on the user's OS setting, independent of the in-app theme toggle (confirmed: an element in a light-mode app on a dark-OS machine still renders its `dark:` styles). For token-driven values like `bg-background` or `text-muted`, you don't need any prefix at all — the variable swap (`:root`/`.dark` + `@theme`) handles it automatically and correctly tracks `ThemeProvider`'s `.dark` class on `<html>`.
 
 ---
 

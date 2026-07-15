@@ -13,7 +13,7 @@ type IconBadgeTone = 'default' | 'primary' | 'destructive' | 'warning';
  */
 const TONE_CLASSES: Record<IconBadgeTone, string> = {
   default: 'bg-surface-hover text-muted',
-  primary: 'bg-primary-muted text-primary',
+  primary: 'bg-accent-surface text-accent-fg',
   destructive: 'bg-error/15 text-error',
   warning: 'bg-warning/15 text-warning',
 };

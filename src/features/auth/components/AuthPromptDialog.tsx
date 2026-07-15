@@ -87,7 +87,7 @@ export function AuthPromptDialog({ isOpen, onClose, variant, onLogIn }: AuthProm
       footer={
         copy.showCreateAccountFooter && (
           <Text variant="body-sm" className="text-muted">
-            New here? <span className="text-primary font-semibold">Create an account</span>
+            New here? <span className="text-accent-fg font-semibold">Create an account</span>
           </Text>
         )
       }

@@ -24,7 +24,11 @@ export function FeatureItem({ children, included = true, icon, className }: Feat
 
   return (
     <li className={cn('flex items-center gap-3', className)}>
-      <Icon icon={ResolvedIcon} size={20} className={included ? 'text-primary' : 'text-muted'} />
+      <Icon
+        icon={ResolvedIcon}
+        size={20}
+        className={included ? 'text-accent-fg' : 'text-muted'}
+      />
       <span className={included ? 'text-foreground' : 'text-muted'}>{children}</span>
     </li>
   );

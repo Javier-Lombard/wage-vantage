@@ -20,7 +20,7 @@ export function DashboardCard({ icon, title, subtitle, to }: DashboardCardProps)
         <div
           className={cn(
             'flex shrink-0 items-center justify-center rounded-full',
-            'bg-surface-hover text-muted dark:bg-primary-muted dark:text-primary',
+            'bg-accent-surface text-accent-fg',
             'w-12 h-12',
           )}
         >

@@ -190,7 +190,7 @@ export function Combobox({
                   aria-selected={option.value === value}
                   className={cn(
                     'cursor-pointer px-4 py-2 text-sm text-foreground',
-                    index === activeIndex ? 'bg-primary-muted' : 'hover:bg-surface-hover',
+                    index === activeIndex ? 'bg-accent-surface' : 'hover:bg-surface-hover',
                   )}
                   // mousedown (not click) fires before the input's blur, so the
                   // selection registers before closeList() would otherwise win.

@@ -56,8 +56,8 @@ export function ManagePlanPanel({
       </Card>
 
       {!isPremium && (
-        <Card interactive as="button" onClick={onUpgrade} className="border-primary text-left">
-          <Text variant="h5" className="text-primary">
+        <Card interactive as="button" onClick={onUpgrade} className="border-accent-fg text-left">
+          <Text variant="h5" className="text-accent-fg">
             Upgrade to Premium
           </Text>
           <Text variant="body-sm" className="text-muted mt-1">

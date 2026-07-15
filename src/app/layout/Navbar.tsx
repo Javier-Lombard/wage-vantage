@@ -20,7 +20,7 @@ const NAV_LINKS = [
 const NAV_LINK_CLASSES = ({ isActive }: { isActive: boolean }) =>
   cn(
     'text-sm font-semibold transition-colors hover:text-foreground',
-    isActive ? 'text-primary' : 'text-muted',
+    isActive ? 'text-accent-fg' : 'text-muted',
   );
 
 /**

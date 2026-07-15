@@ -81,7 +81,7 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
           type="natural"
           dataKey="country1"
           name={country1}
-          stroke="var(--color-chart-1)"
+          stroke="var(--color-chart-1-line)"
           fill="var(--color-chart-1)"
           fillOpacity={0.15}
         />
@@ -95,12 +95,12 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
         />
         <ReferenceLine
           x={COUNTRY_1_PEAK}
-          stroke="var(--color-chart-1)"
+          stroke="var(--color-chart-1-line)"
           strokeDasharray="4 4"
           label={{
             value: country1,
             position: 'top',
-            fill: 'var(--color-chart-1)',
+            fill: 'var(--color-chart-1-line)',
             fontSize: 11,
           }}
         />
@@ -118,9 +118,9 @@ export function SectorDistributionChart({ countries, userWage }: SectorDistribut
         {userWage !== undefined && (
           <ReferenceLine
             x={userWage}
-            stroke="var(--color-primary)"
+            stroke="var(--color-accent-fg)"
             strokeDasharray="4 4"
-            label={{ value: 'You', position: 'top', fill: 'var(--color-primary)', fontSize: 11 }}
+            label={{ value: 'You', position: 'top', fill: 'var(--color-accent-fg)', fontSize: 11 }}
           />
         )}
       </ComposedChart>

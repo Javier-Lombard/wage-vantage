@@ -145,11 +145,13 @@ export function SalaryDistributionChart({ series, userWage }: SalaryDistribution
 
       {chartData.length > 1 && (
         <ul className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-          {chartData.map((datum) => (
+          {chartData.map((datum, index) => (
             <li key={datum.label} className="flex items-center gap-1.5">
               <span
                 className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: datum.color }}
+                // País base (chart-1): el punto usa chart-1-line, legible en
+                // light — el relleno de caja sigue en chart-1 sin cambios.
+                style={{ backgroundColor: index === 0 ? 'var(--color-chart-1-line)' : datum.color }}
                 aria-hidden="true"
               />
               <Text variant="caption" className="text-muted">

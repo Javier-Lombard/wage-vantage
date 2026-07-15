@@ -180,7 +180,7 @@ export function ComparisonSheet({
                 className={cn(
                   'rounded-full border px-3 py-1 text-sm font-semibold',
                   isPrimary
-                    ? 'border-primary bg-primary-muted text-primary'
+                    ? 'border-accent-fg bg-accent-surface text-accent-fg'
                     : 'border-border-subtle bg-surface-hover text-foreground',
                 )}
               >

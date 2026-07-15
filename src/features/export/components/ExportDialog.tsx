@@ -46,7 +46,7 @@ export function ExportDialog({ isOpen, onClose, onExport, isLoading = false }: E
               className={cn(
                 'flex-1 cursor-pointer rounded-lg border px-4 py-3 text-sm font-semibold transition-colors',
                 isActive
-                  ? 'border-primary bg-primary-muted text-primary'
+                  ? 'border-accent-fg bg-accent-surface text-accent-fg'
                   : 'border-border text-muted hover:text-foreground',
               )}
             >

@@ -36,7 +36,7 @@ export function ResetPassword() {
     <main className="mx-auto flex max-w-md flex-col items-center gap-8 px-4 py-24 md:px-8">
       <Card className="flex w-full flex-col gap-6">
         <div className="flex flex-col items-center gap-2 text-center">
-          <Icon icon={Lock} size={32} className="text-primary" />
+          <Icon icon={Lock} size={32} className="text-accent-fg" />
           <Text variant="h3">Set a new password</Text>
           <Text variant="body-sm" className="text-muted">
             {isPasswordRecovery ? 'Enter your new password below.' : 'Waiting to confirm your reset link...'}

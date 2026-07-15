@@ -27,6 +27,22 @@
   --outline-fg: var(--foreground);
   --outline-border: var(--border);
   --outline-hover: var(--surface-hover);
+
+  /* Acento como PRIMER PLANO legible en light: #dfff88 no contrasta sobre
+     superficies claras (1.12:1 en blanco), así que texto/iconos/bordes de
+     acento usan un verde-lima oscurecido que mantiene el matiz. En dark
+     vuelven al primary (#dfff88). Mismo criterio que --outline-*. */
+  --accent-fg: #527018; /* 5.69:1 en blanco, 5.26:1 en #f5f6f8 */
+  --accent-fg-hover: #456312; /* 6.89:1 / 6.37:1 — hover/estado activo */
+  /* Fondo de acento tenue para estados activos (chips/filas/radios):
+     #dfff8833 compone casi blanco en light, así que se usa un verde-lima
+     muy claro sólido; el texto --accent-fg encima da 5.97:1. */
+  --accent-surface: #eef7d6;
+
+  /* Mismo criterio que --accent-fg, para los usos de chart-1 (#dfff88) como
+     línea/punto sobre fondo transparente (leyendas, strokes, reference
+     lines) — el relleno de caja del país base sigue en chart-1 sin cambios. */
+  --chart-1-line: var(--accent-fg);
 }
 
 /* ── Dark mode — same variable names, dark values ── */
@@ -52,6 +68,13 @@
   --outline-fg: var(--primary);
   --outline-border: var(--primary);
   --outline-hover: var(--primary-muted);
+
+  /* En dark el acento sí contrasta: vuelve al primary y su hover. */
+  --accent-fg: var(--primary);
+  --accent-fg-hover: var(--primary-hover);
+  --accent-surface: var(--primary-muted);
+
+  --chart-1-line: var(--primary);
 }
 
 /* ── Design Tokens — @theme maps to the plain variables above ── */
@@ -78,6 +101,16 @@
   --color-outline-fg: var(--outline-fg);
   --color-outline-border: var(--outline-border);
   --color-outline-hover: var(--outline-hover);
+
+  /* Acento mode-aware como primer plano (verde oscuro en light, primary en
+     dark) + su fondo tenue de estado activo. */
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-fg-hover: var(--accent-fg-hover);
+  --color-accent-surface: var(--accent-surface);
+
+  /* chart-1 como línea/punto sobre fondo transparente (leyendas, strokes) —
+     el relleno de caja sigue usando --color-chart-1 directamente. */
+  --color-chart-1-line: var(--chart-1-line);
 
   /* Colors — Semantic (invariant across modes, literal values) */
   --color-success: #4ade80;

@@ -19,7 +19,7 @@ export function PricingSection({ currentTier, onSelectPlan }: PricingSectionProp
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="flex flex-col items-center gap-2 text-center">
-        <Text variant="caption" className="text-primary font-semibold tracking-wide uppercase">
+        <Text variant="caption" className="text-accent-fg font-semibold tracking-wide uppercase">
           Pricing
         </Text>
         <Text variant="h1">Get the full salary picture</Text>

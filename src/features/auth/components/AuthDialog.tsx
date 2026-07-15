@@ -138,7 +138,7 @@ export function AuthDialog({
             <button
               type="button"
               onClick={onForgotPassword}
-              className="text-primary cursor-pointer text-sm font-semibold hover:underline"
+              className="text-accent-fg cursor-pointer text-sm font-semibold hover:underline"
             >
               Forgot password?
             </button>
@@ -148,7 +148,7 @@ export function AuthDialog({
             <button
               type="button"
               onClick={() => setMode(otherMode)}
-              className="text-primary cursor-pointer font-semibold hover:underline"
+              className="text-accent-fg cursor-pointer font-semibold hover:underline"
             >
               {mode === 'login' ? 'Create an account' : 'Log in'}
             </button>

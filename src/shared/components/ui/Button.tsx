@@ -11,7 +11,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
  * instead of `primary`, for irreversible actions styled as secondary/outline
  * (e.g. "Cancel Subscription"). Not in §7 by name, but needed because
  * `cn()` has no Tailwind merge (documented in `shared/lib/cn.ts`): a caller
- * can't override `outline`'s border-primary/text-primary via className on
+ * can't override `outline`'s border/text classes via className on
  * the same utility axis, so this is a variant, not a class override.
  */
 type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'destructive-outline';
@@ -24,7 +24,7 @@ type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'destructive-outline';
  */
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-on-primary hover:bg-primary-hover',
-  outline: 'border border-primary text-primary hover:bg-primary-muted',
+  outline: 'border border-outline-border text-outline-fg hover:bg-outline-hover',
   ghost: 'text-muted hover:bg-surface-hover',
   'destructive-outline': 'border border-error text-error hover:bg-error/10',
 };

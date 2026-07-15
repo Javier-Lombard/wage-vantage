@@ -97,7 +97,11 @@ export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
             key={country}
             dataKey={`country${index}`}
             name={country}
-            fill={SERIES_COLORS[index % SERIES_COLORS.length]}
+            // País base (chart-1): la barra es un fill sólido sobre fondo
+            // transparente (sin ink encima como en el box-plot), así que usa
+            // chart-1-line, legible en light — mismo criterio que el area
+            // stroke de SectorDistributionChart.
+            fill={index === 0 ? 'var(--color-chart-1-line)' : SERIES_COLORS[index % SERIES_COLORS.length]}
             radius={[4, 4, 0, 0]}
           />
         ))}
