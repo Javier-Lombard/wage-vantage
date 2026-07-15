@@ -8,9 +8,14 @@
       "Bash(git commit -m ' *)",
       "Bash(npx eslint *)",
       "WebFetch(domain:prettier.io)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__take_screenshot"
     ],
-    "deny": ["Bash(rm -rf *)", "Bash(git push --force*)", "Bash(git push -f*)"]
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ]
   },
   "hooks": {
     "PreToolUse": [
