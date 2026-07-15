@@ -57,11 +57,16 @@ interface TextProps {
   variant?: TextVariant;
   /** Override the rendered element without changing the visual style. */
   as?: ElementType;
+  id?: string;
   className?: string;
   children: ReactNode;
 }
 
-export function Text({ variant = 'body', as, className, children }: TextProps) {
+export function Text({ variant = 'body', as, id, className, children }: TextProps) {
   const Component = as ?? VARIANT_ELEMENT[variant];
-  return <Component className={cn(VARIANT_CLASSES[variant], className)}>{children}</Component>;
+  return (
+    <Component id={id} className={cn(VARIANT_CLASSES[variant], className)}>
+      {children}
+    </Component>
+  );
 }

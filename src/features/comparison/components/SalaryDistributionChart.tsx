@@ -68,11 +68,14 @@ interface BoxShapeProps {
   y: number;
   width: number;
   height: number;
-  payload: BoxPlotDatum;
+  // Opcional porque así lo tipa Recharts' ActiveShape<BarShapeProps> — en la
+  // práctica siempre llega, dado que el Bar recibe `data={chartData}`.
+  payload?: BoxPlotDatum;
 }
 
 /** Caja + línea de mediana — fill por payload.color en vez de fijo, ver boxplot-pattern.md. */
-function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactElement {
+function BoxWithMedian({ x, y, width, height, payload }: BoxShapeProps): ReactElement | null {
+  if (!payload) return null;
   const range = payload.q3 - payload.q1;
   const medianRatio = range === 0 ? 0.5 : (payload.median - payload.q1) / range;
   const medianY = y + height * (1 - medianRatio);

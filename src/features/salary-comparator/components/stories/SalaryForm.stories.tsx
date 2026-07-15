@@ -27,6 +27,7 @@ function InteractiveSalaryForm() {
       onFieldChange={setFieldValue}
       onNext={goNext}
       onBack={goBack}
+      onSubmit={() => {}}
       canAdvance={canAdvance}
       fetchedOptions={data?.options}
       isFetchingOptions={isFetching}
@@ -58,6 +59,7 @@ export const Default: Story = {
     onFieldChange: () => {},
     onNext: () => {},
     onBack: () => {},
+    onSubmit: () => {},
     canAdvance: false,
     fetchedOptions: undefined,
     isFetchingOptions: false,
