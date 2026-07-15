@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 
+import { Footer } from '@/app/layout/Footer';
 import { Navbar } from '@/app/layout/Navbar';
-import { Footer } from '@/shared/components/layout/Footer';
 
 export function RootLayout() {
   return (

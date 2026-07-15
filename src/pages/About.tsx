@@ -1,4 +1,4 @@
-import { BarChart3, Database, Globe2, Lock, Mail, ShieldCheck, Zap } from 'lucide-react';
+import { BarChart3, Calculator, Database, Globe2, Lock, Mail, ShieldCheck, Zap } from 'lucide-react';
 
 import { FeatureCard, InfoSection } from '@/features/about';
 import { BackButton, Text } from '@/shared/components/ui';
@@ -43,6 +43,35 @@ export function About() {
             complementary national statistical office publications. Data is updated quarterly and
             tied to the most recent pan-European employment reports.
           </p>
+        </InfoSection>
+
+        <InfoSection title="How Your Results Are Calculated" icon={Calculator}>
+          <p>
+            For each group you select, we start with a list of salary numbers. Sorting that list
+            from lowest to highest is all it takes to find Median, Q1, and Q3.
+          </p>
+          <p>For example, take these seven salaries, already sorted from lowest to highest:</p>
+          <p className="text-foreground text-center font-semibold">
+            1,500 — 1,700 — 1,800 — <span className="text-primary">2,000</span> — 2,200 — 2,500 —
+            2,800
+          </p>
+          <ul className="flex flex-col gap-2">
+            <li>
+              <strong className="text-foreground">Median</strong> is the value exactly in the
+              middle of the sorted list — here, 2,000. Half the salaries are below it, half are
+              above it.
+            </li>
+            <li>
+              <strong className="text-foreground">Q1</strong> is the middle value of the lower
+              half of the list (the salaries below the Median) — here, 1,700. A quarter of all
+              salaries fall below this point.
+            </li>
+            <li>
+              <strong className="text-foreground">Q3</strong> is the middle value of the upper
+              half of the list (the salaries above the Median) — here, 2,500. Three quarters of
+              all salaries fall below this point.
+            </li>
+          </ul>
         </InfoSection>
 
         <InfoSection title="Privacy & Support" icon={Lock}>
