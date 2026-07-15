@@ -58,6 +58,7 @@ export function UserSettingsPanel({
         <Input
           label="New Password"
           type="password"
+          autoComplete="new-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="Leave blank to keep your current password"
