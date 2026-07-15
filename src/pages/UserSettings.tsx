@@ -8,7 +8,7 @@ import { toast } from '@/shared/lib/toast';
 import type { UserSettingsValues } from '@/features/auth';
 
 export function UserSettings() {
-  const { user, updateProfile, updateCredentials, signOut } = useAuth();
+  const { user, updateProfile, updateCredentials, deleteAccount } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -39,10 +39,10 @@ export function UserSettings() {
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
     try {
-      await signOut();
-      toast.info('Account deletion is coming soon — you have been signed out.');
+      await deleteAccount();
+      toast.success('Account deleted');
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not sign out.');
+      toast.error(err instanceof Error ? err.message : 'Could not delete account.');
     } finally {
       setIsDeleting(false);
     }

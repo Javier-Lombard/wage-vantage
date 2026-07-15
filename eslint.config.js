@@ -11,7 +11,9 @@ import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // supabase/functions/ es runtime Deno (Edge Functions), un toolchain
+  // distinto al proyecto Vite/browser que cubre este tsconfig — no se lintea aquí.
+  globalIgnores(['dist', 'supabase/functions']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

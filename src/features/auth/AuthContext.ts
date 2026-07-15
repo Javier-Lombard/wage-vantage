@@ -38,6 +38,9 @@ export type AuthContextValue = {
   /** Actualiza email y/o password nativos de auth.users (no user_metadata — para
    * eso está updateProfile). Patch parcial: solo se envían los campos presentes. */
   updateCredentials: (patch: { email?: string; password?: string }) => Promise<void>;
+  /** Borra la cuenta del usuario autenticado de forma permanente (Edge
+   * Function delete-account) y cierra sesión localmente. */
+  deleteAccount: () => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

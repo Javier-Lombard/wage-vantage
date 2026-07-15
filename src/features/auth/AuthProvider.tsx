@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { supabase } from '@/shared/lib/supabaseClient';
 
 import { AuthContext, type AuthCredentials, type OAuthProvider } from './AuthContext';
+import { invokeDeleteAccount } from './lib/deleteAccount';
 import { mapUser } from './lib/mapUser';
 
 import type { AppUser, UserMetadata } from './types';
@@ -32,12 +33,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithPassword = useCallback(async ({ email, password }: AuthCredentials) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(errorMessage(error, 'Could not log in. Please try again.'));
+    // Defensa en profundidad: el proyecto ya tiene "Confirm email" activado en
+    // Supabase (verificado en auth.users), pero se comprueba también aquí por
+    // si esa config cambiara — cierra la sesión que Supabase acaba de abrir
+    // en vez de dejar logueado a un usuario sin email confirmado.
+    if (!data.user.email_confirmed_at) {
+      await supabase.auth.signOut();
+      throw new Error('Please confirm your email before logging in.');
+    }
   }, []);
 
   const signUp = useCallback(async ({ email, password }: AuthCredentials) => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${window.location.origin}/confirm-email` },
+    });
     if (error) throw new Error(errorMessage(error, 'Could not create account. Please try again.'));
     return { needsEmailConfirmation: data.session === null };
   }, []);
@@ -68,16 +81,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(mapUser(data.user));
   }, []);
 
-  const updateCredentials = useCallback(
-    async (patch: { email?: string; password?: string }) => {
-      const { data, error } = await supabase.auth.updateUser(patch);
-      if (error) {
-        throw new Error(errorMessage(error, 'Could not update credentials. Please try again.'));
-      }
-      setUser(mapUser(data.user));
-    },
-    [],
-  );
+  const updateCredentials = useCallback(async (patch: { email?: string; password?: string }) => {
+    const { data, error } = await supabase.auth.updateUser(patch);
+    if (error) {
+      throw new Error(errorMessage(error, 'Could not update credentials. Please try again.'));
+    }
+    setUser(mapUser(data.user));
+  }, []);
+
+  const deleteAccount = useCallback(async () => {
+    await invokeDeleteAccount();
+    // El usuario ya no existe en el servidor llegados a este punto — un error
+    // de signOut no debe leerse como que el borrado falló.
+    await supabase.auth.signOut().catch(() => {});
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -93,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPasswordForEmail,
       updateProfile,
       updateCredentials,
+      deleteAccount,
     }),
     [
       user,
@@ -105,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       resetPasswordForEmail,
       updateProfile,
       updateCredentials,
+      deleteAccount,
     ],
   );
 
