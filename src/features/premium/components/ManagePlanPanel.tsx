@@ -1,21 +1,26 @@
-import { Badge, Button, Card, Text } from '@/shared/components/ui';
+import { AlertTriangle } from 'lucide-react';
+
+import { ActionDialog, Badge, Button, Card, Text } from '@/shared/components/ui';
+import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { formatCurrency } from '@/shared/lib/formatCurrency';
 import { PLAN_CONFIG } from '../config';
 import { BillingHistory } from './BillingHistory';
 import { PaymentMethodPanel } from './PaymentMethodPanel';
 
-import type { BillingHistoryEntry } from './BillingHistory';
+import type { CardInfo } from '@/features/auth';
 import type { Tier } from '../config';
+import type { BillingHistoryEntry } from './BillingHistory';
 
 interface ManagePlanPanelProps {
   tier: Extract<Tier, 'free' | 'premium'>;
   /** Solo aplica al plan Premium activo. */
   renewalDate?: string;
   billingEntries: BillingHistoryEntry[];
-  card: { brand: string; last4: string; expiry: string } | null;
+  card: CardInfo | null;
   onUpgrade: () => void;
   onCancelSubscription: () => void;
   onManagePayment: () => void;
+  isCancelling?: boolean;
 }
 
 export function ManagePlanPanel({
@@ -26,9 +31,11 @@ export function ManagePlanPanel({
   onUpgrade,
   onCancelSubscription,
   onManagePayment,
+  isCancelling = false,
 }: ManagePlanPanelProps) {
   const plan = PLAN_CONFIG[tier];
   const isPremium = tier === 'premium';
+  const cancelDialog = useDisclosure();
 
   return (
     <div className="flex flex-col gap-6">
@@ -78,15 +85,29 @@ export function ManagePlanPanel({
           <Text variant="body-sm" className="text-muted">
             You'll keep Premium until your billing period ends.
           </Text>
-          <Button
-            variant="destructive-outline"
-            onClick={onCancelSubscription}
-            className="self-start"
-          >
+          <Button variant="destructive-outline" onClick={cancelDialog.open} className="self-start">
             Cancel Subscription
           </Button>
         </Card>
       )}
+
+      <ActionDialog
+        isOpen={cancelDialog.isOpen}
+        onClose={cancelDialog.close}
+        icon={AlertTriangle}
+        tone="destructive"
+        title="Cancel your subscription?"
+        description="You'll keep Premium access until your current billing period ends, then your account reverts to the Free plan."
+        secondaryAction={{ label: 'Keep Premium', onClick: cancelDialog.close }}
+        primaryAction={{
+          label: 'Cancel Subscription',
+          onClick: () => {
+            onCancelSubscription();
+            cancelDialog.close();
+          },
+          isLoading: isCancelling,
+        }}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { createBrowserRouter } from 'react-router';
 import {
   About,
   ComparisonPage,
+  ConfirmEmail,
   DashboardHome,
   Home,
   ManagePlan,
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { path: 'plans', element: withSuspense(<Plans />) },
       { path: 'comparison', element: withSuspense(<ComparisonPage />) },
       { path: 'reset-password', element: withSuspense(<ResetPassword />) },
+      { path: 'confirm-email', element: withSuspense(<ConfirmEmail />) },
       {
         path: 'dashboard',
         element: <ProtectedRoute />,

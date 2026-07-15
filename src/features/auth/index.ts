@@ -11,4 +11,4 @@ export { UserSettingsPanel } from './components/UserSettingsPanel';
 
 export type { AuthContextValue, AuthCredentials, OAuthProvider } from './AuthContext';
 export type { UserSettingsValues } from './components/UserSettingsPanel';
-export type { AppUser, SavedComparison, SavedTemplate, UserMetadata } from './types';
+export type { AppUser, CardInfo, SavedComparison, SavedTemplate, UserMetadata } from './types';

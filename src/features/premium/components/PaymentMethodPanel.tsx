@@ -2,9 +2,11 @@ import { CreditCard } from 'lucide-react';
 
 import { Button, Card, Icon, Text } from '@/shared/components/ui';
 
+import type { CardInfo } from '@/features/auth';
+
 interface PaymentMethodPanelProps {
   /** `null` cuando no hay tarjeta guardada (plan Free). */
-  card: { brand: string; last4: string; expiry: string } | null;
+  card: CardInfo | null;
   onManage: () => void;
 }
 

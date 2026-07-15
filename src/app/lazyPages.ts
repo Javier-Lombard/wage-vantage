@@ -6,6 +6,9 @@ export const About = lazy(() =>
 export const ComparisonPage = lazy(() =>
   import('@/pages/ComparisonPage').then((module) => ({ default: module.ComparisonPage })),
 );
+export const ConfirmEmail = lazy(() =>
+  import('@/pages/ConfirmEmail').then((module) => ({ default: module.ConfirmEmail })),
+);
 export const DashboardHome = lazy(() =>
   import('@/pages/DashboardHome').then((module) => ({ default: module.DashboardHome })),
 );
