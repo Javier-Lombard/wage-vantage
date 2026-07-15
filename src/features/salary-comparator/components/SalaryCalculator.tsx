@@ -53,6 +53,12 @@ export function SalaryCalculator() {
   const [comparisonAggregations, setComparisonAggregations] = useState<
     Map<string, WageAggregation>
   >(new Map());
+  // País(es) de comparación con una query en vuelo ahora mismo — su unión con
+  // isFetching del país base decide si MainChart muestra el loader (ver
+  // isLoading más abajo), para que añadir un segundo país también lo dispare.
+  const [loadingComparisonCountries, setLoadingComparisonCountries] = useState<Set<string>>(
+    new Set(),
+  );
   const [isCompareOpen, setIsCompareOpen] = useState(false);
   // fast-fill y save-template comparten el mismo disclosure pero muestran
   // copy distinto (cargar vs guardar una template) — de ahí el variant en
@@ -109,10 +115,16 @@ export function SalaryCalculator() {
   // ComparisonCountryQuery — una referencia inestable lo re-dispararía en
   // cada render de SalaryCalculator sin que el dato realmente cambiara.
   const handleComparisonResult = useCallback(
-    (country: string, aggregation: WageAggregation | null) => {
+    (country: string, aggregation: WageAggregation | null, isLoading: boolean) => {
       setComparisonAggregations((prev) => {
         const next = new Map(prev);
         if (aggregation) next.set(country, aggregation);
+        else next.delete(country);
+        return next;
+      });
+      setLoadingComparisonCountries((prev) => {
+        const next = new Set(prev);
+        if (isLoading) next.add(country);
         else next.delete(country);
         return next;
       });
@@ -157,7 +169,7 @@ export function SalaryCalculator() {
         <ErrorBoundary>
           <MainChart
             series={series}
-            isLoading={isFetching}
+            isLoading={isFetching || loadingComparisonCountries.size > 0}
             hasStarted={hasStarted}
             userWage={values.monthlyWage}
           />

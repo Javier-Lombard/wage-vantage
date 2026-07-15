@@ -11,7 +11,13 @@ interface ComparisonCountryQueryProps {
   baseFilters: WageFilterParams;
   /** Perfil de 8 campos para el fallback de Gemini si la muestra de este país es pequeña — ver buildEnrichmentProfile. */
   enrichmentProfile: Record<string, string>;
-  onResult: (country: string, aggregation: WageAggregation | null) => void;
+  /**
+   * `isLoading` es `isFetching` de esta query — el padre lo agrega junto al
+   * del país base para que MainChart muestre el mismo loader mientras
+   * cualquier país (base o de comparación) tenga una petición en vuelo, no
+   * solo el primero.
+   */
+  onResult: (country: string, aggregation: WageAggregation | null, isLoading: boolean) => void;
 }
 
 /**
@@ -33,7 +39,7 @@ export function ComparisonCountryQuery({
   enrichmentProfile,
   onResult,
 }: ComparisonCountryQueryProps) {
-  const { data } = useGetWageInsightsQuery({
+  const { data, isFetching } = useGetWageInsightsQuery({
     filters: { ...baseFilters, Country: country },
     enrichmentProfile,
   });
@@ -43,13 +49,16 @@ export function ComparisonCountryQuery({
   // a `aggregation` dispararía onResult(country, null) en cada recálculo, no
   // solo al desmontar). La limpieza real va en un efecto aparte, atado solo
   // a `country`, que solo corre su cleanup cuando el componente se desmonta
-  // de verdad (país quitado de la comparación).
+  // de verdad (país quitado de la comparación). `isFetching` va en el mismo
+  // efecto que `aggregation` porque son la misma query: cambia con más
+  // frecuencia (arranca/termina en cada refetch) y el padre necesita
+  // enterarse de ambas transiciones para el loader agregado.
   useEffect(() => {
-    onResult(country, aggregation);
-  }, [country, aggregation, onResult]);
+    onResult(country, aggregation, isFetching);
+  }, [country, aggregation, isFetching, onResult]);
 
   useEffect(() => {
-    return () => onResult(country, null);
+    return () => onResult(country, null, false);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo debe correr en mount/unmount, no en cada cambio de onResult/country
   }, []);
 

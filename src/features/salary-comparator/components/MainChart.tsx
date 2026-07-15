@@ -12,7 +12,7 @@ import {
 
 import { Text } from '@/shared/components/ui';
 
-import { SalaryCalculatorSkeleton } from './SalaryCalculatorSkeleton';
+import { GeminiEnrichmentLoader } from './GeminiEnrichmentLoader';
 import { formatEur, SERIES_COLORS, toBoxPlotDatum } from './toBoxPlotDatum';
 
 import type { TooltipContentProps } from 'recharts';
@@ -168,7 +168,7 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
 
   const baseAggregation = series[0]?.aggregation;
   if (isLoading || !baseAggregation) {
-    return <SalaryCalculatorSkeleton />;
+    return <GeminiEnrichmentLoader />;
   }
 
   // Los países extra cuyo fetch aún no resolvió (aggregation null) se omiten
@@ -240,11 +240,13 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
 
       {chartData.length > 1 && (
         <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2">
-          {chartData.map((datum) => (
+          {chartData.map((datum, index) => (
             <li key={datum.label} className="flex items-center gap-1.5">
               <span
                 className="h-2.5 w-2.5 rounded-sm"
-                style={{ backgroundColor: datum.color }}
+                // País base (chart-1): el punto usa chart-1-line, legible en
+                // light — el relleno de caja sigue en chart-1 sin cambios.
+                style={{ backgroundColor: index === 0 ? 'var(--color-chart-1-line)' : datum.color }}
                 aria-hidden="true"
               />
               <Text variant="caption" className="text-muted">
