@@ -10,7 +10,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { Text } from '@/shared/components/ui';
+import { Logo, Text } from '@/shared/components/ui';
 
 import { GeminiEnrichmentLoader } from './GeminiEnrichmentLoader';
 import { formatEur, SERIES_COLORS, toBoxPlotDatum } from './toBoxPlotDatum';
@@ -158,7 +158,8 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
   // Antes de elegir país: la chart no existe en el DOM, solo el subtítulo guía.
   if (!hasStarted) {
     return (
-      <div className="flex h-full min-h-20 w-full items-center justify-center p-6 text-center">
+      <div className="flex h-full min-h-20 w-full flex-col items-center justify-center gap-4 p-6 text-center">
+        <Logo size="large" />
         <Text variant="body-sm" className="text-muted">
           Fill in the form to see how your salary compares.
         </Text>
@@ -182,7 +183,7 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
     .filter((datum): datum is BoxPlotDatum => datum !== null);
 
   return (
-    <figure className="border-border-subtle bg-surface flex h-full flex-col rounded-xl border p-6">
+    <figure className="border-border-subtle bg-surface flex h-full flex-col rounded-xl border px-2 py-6 md:px-6">
       <figcaption className="sr-only">
         Salary distribution box plot comparing the minimum, first quartile, median, third quartile
         and maximum monthly wage across the selected countries.
@@ -232,13 +233,23 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
                 position: 'insideTopRight',
                 fill: 'var(--color-error)',
                 fontSize: 11,
+                fontWeight: 700,
               }}
             />
           )}
         </BarChart>
       </ResponsiveContainer>
 
-      {chartData.length > 1 && (
+      <Text variant="body-sm" className="text-primary mt-3 text-center">
+        <span className="md:hidden">Tap chart to see tooltip</span>
+        <span className="hidden md:inline">Move cursor over chart to see tooltip</span>
+      </Text>
+      <Text variant="caption" className="mt-1 text-center">
+        Max: highest wage recorded · Q3: 75th percentile · Median: 50th percentile · Q1: 25th
+        percentile · Min: lowest wage recorded
+      </Text>
+
+      {chartData.length > 0 && (
         <ul className="mt-4 flex flex-wrap justify-center gap-x-4 gap-y-2">
           {chartData.map((datum, index) => (
             <li key={datum.label} className="flex items-center gap-1.5">

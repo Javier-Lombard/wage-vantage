@@ -5,7 +5,7 @@ import { LogOut, Menu, Moon, Sun, UserCircle, X } from 'lucide-react';
 
 import { useTheme } from '@/app/providers/useTheme';
 import { AuthFlowDialogs, useAuth } from '@/features/auth';
-import { Icon, Text } from '@/shared/components/ui';
+import { Icon, Logo } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { cn } from '@/shared/lib/cn';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
@@ -103,9 +103,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-border-subtle bg-background">
       {/* Desktop bar (md and up) */}
       <div className="mx-auto hidden max-w-7xl items-center justify-between px-8 py-4 md:flex lg:px-16">
-        <Text as="span" variant="h5" className="text-foreground">
-          Wage Comparator
-        </Text>
+        <Logo />
 
         <nav className="flex items-center gap-8">
           {NAV_LINKS.map((link) => (
@@ -191,6 +189,9 @@ export function Navbar() {
             <Icon icon={UserCircle} size={24} />
           )}
         </button>
+
+        <Logo />
+
         <button
           type="button"
           className={ICON_BUTTON_CLASSES}

@@ -9,6 +9,7 @@ export { FeatureItem } from './FeatureItem';
 export { Icon } from './Icon';
 export { IconBadge } from './IconBadge';
 export { Input } from './Input';
+export { Logo } from './Logo';
 export { Modal } from './Modal';
 export { PageSkeleton } from './PageSkeleton';
 export { SegmentedControl } from './SegmentedControl';
