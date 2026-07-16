@@ -6,7 +6,7 @@ import { UpgradeDialog } from '@/features/premium';
 import { SaveTemplateDialog } from '@/features/templates';
 import { ErrorBoundary } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
-import { useScrollToElement } from '@/shared/hooks/useScrollToElement';
+import { useScrollToTop } from '@/shared/hooks/useScrollToTop';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 import { toast } from '@/shared/lib/toast';
 
@@ -60,7 +60,7 @@ export function SalaryCalculator() {
   const { step, values, setFieldValue, goNext, goBack, canAdvance } =
     useSalaryFormState(initialValues);
   const chartRef = useRef<HTMLDivElement>(null);
-  const scrollToChart = useScrollToElement(chartRef);
+  const scrollToChart = useScrollToTop(chartRef);
   const handleFieldChange = (id: keyof SalaryFormValues, value: string | number) => {
     setFieldValue(id, value);
     if (SCROLL_TRIGGERING_FIELDS.has(id)) scrollToChart();
