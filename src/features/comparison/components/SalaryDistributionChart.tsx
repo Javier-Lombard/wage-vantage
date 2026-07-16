@@ -118,8 +118,10 @@ export function SalaryDistributionChart({ series, userWage }: SalaryDistribution
         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} />
         <XAxis dataKey="label" tick={false} tickLine={false} axisLine={CHART_AXIS_LINE_STYLE} />
         <YAxis tick={CHART_TICK_STYLE} tickLine={false} axisLine={CHART_AXIS_LINE_STYLE} />
+        {/* stroke: 'transparent' anula el borde gris claro (#ccc) que
+            Recharts dibuja por defecto en el rect del cursor. */}
         <Tooltip
-          cursor={{ fill: 'var(--color-primary-muted)' }}
+          cursor={{ fill: 'var(--color-primary-muted)', stroke: 'transparent' }}
           contentStyle={CHART_TOOLTIP_CONTENT_STYLE}
         />
         <Bar dataKey="baseOffset" stackId="box" fill="transparent" isAnimationActive={false} />

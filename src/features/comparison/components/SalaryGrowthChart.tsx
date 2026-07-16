@@ -87,8 +87,10 @@ export function SalaryGrowthChart({ countries }: SalaryGrowthChartProps) {
           tickFormatter={formatEur}
           width={72}
         />
+        {/* stroke: 'transparent' anula el borde gris claro (#ccc) que
+            Recharts dibuja por defecto en el rect del cursor. */}
         <Tooltip
-          cursor={{ fill: 'var(--color-primary-muted)' }}
+          cursor={{ fill: 'var(--color-primary-muted)', stroke: 'transparent' }}
           contentStyle={CHART_TOOLTIP_CONTENT_STYLE}
         />
         <Legend wrapperStyle={{ fontSize: 12, color: 'var(--color-muted)' }} />

@@ -216,7 +216,13 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
             axisLine={{ stroke: 'var(--color-border)' }}
             tickFormatter={formatEur}
           />
-          <Tooltip cursor={{ fill: 'var(--color-primary-muted)' }} content={BoxPlotTooltip} />
+          {/* stroke: 'transparent' anula el borde gris claro (#ccc) que
+              Recharts dibuja por defecto en el rect del cursor — sin esto,
+              se ve como un marco blanco envolviendo la barra al hacer tap. */}
+          <Tooltip
+            cursor={{ fill: 'var(--color-primary-muted)', stroke: 'transparent' }}
+            content={BoxPlotTooltip}
+          />
           <Bar dataKey="baseOffset" stackId="box" fill="transparent" isAnimationActive={false} />
           <Bar dataKey="boxHeight" stackId="box" shape={BoxWithMedian}>
             <ErrorBar
