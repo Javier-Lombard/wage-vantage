@@ -84,10 +84,16 @@ export function Combobox({
     setActiveIndex(-1);
   }
 
-  function selectOption(option: ComboboxOption) {
+  // keepFocus=false cierra el teclado virtual en Android: un tap en la opción
+  // nunca hacía perder el foco al input (preventDefault en pointerdown lo
+  // impide, ver más abajo), así que el teclado se quedaba abierto tapando la
+  // pantalla tras elegir. Solo se blurea en tap táctil — un Enter de teclado
+  // o un click de ratón conservan el foco para no romper el orden de Tab.
+  function selectOption(option: ComboboxOption, keepFocus = true) {
     onChange(option.value);
     closeList();
-    inputRef.current?.focus();
+    if (keepFocus) inputRef.current?.focus();
+    else inputRef.current?.blur();
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -192,11 +198,13 @@ export function Combobox({
                     'cursor-pointer px-4 py-2 text-sm text-foreground',
                     index === activeIndex ? 'bg-accent-surface' : 'hover:bg-surface-hover',
                   )}
-                  // mousedown (not click) fires before the input's blur, so the
+                  // pointerdown (not click) fires before the input's blur, so the
                   // selection registers before closeList() would otherwise win.
-                  onMouseDown={(event) => {
+                  // pointerType distingue tap táctil (cierra el teclado) de
+                  // click de ratón/teclado (conserva el foco, ver selectOption).
+                  onPointerDown={(event) => {
                     event.preventDefault();
-                    selectOption(option);
+                    selectOption(option, event.pointerType !== 'touch');
                   }}
                 >
                   {option.label}
