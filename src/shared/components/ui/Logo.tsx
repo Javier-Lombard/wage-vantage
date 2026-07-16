@@ -1,5 +1,25 @@
 import { cn } from '@/shared/lib/cn';
 
+/**
+ * Contorno de texto multiplataforma — no -webkit-text-stroke: esa propiedad
+ * es WebKit-only y renderiza desalineada ("sombra fantasma") en el
+ * compositor GPU de Chrome Android con fuentes bold/variables (Poppins 700).
+ * text-shadow es CSS estándar (Blink/Gecko/WebKit): 8 sombras sin blur en las
+ * direcciones cardinales + diagonales simulan un stroke uniforme de ~1.5px.
+ * Se hereda a los dos <span> hijos (solo sobreescriben color, no
+ * text-shadow), así que se declara una sola vez en el span contenedor.
+ */
+const LOGO_TEXT_OUTLINE = [
+  '-1.5px -1.5px 0 var(--color-gray)',
+  '1.5px -1.5px 0 var(--color-gray)',
+  '-1.5px 1.5px 0 var(--color-gray)',
+  '1.5px 1.5px 0 var(--color-gray)',
+  '0 -1.5px 0 var(--color-gray)',
+  '0 1.5px 0 var(--color-gray)',
+  '-1.5px 0 0 var(--color-gray)',
+  '1.5px 0 0 var(--color-gray)',
+].join(', ');
+
 interface LogoProps {
   /** 'large' es un 70% más grande que 'default' (navbar) — usado en el
    * placeholder de MainChart antes de que el usuario empiece el form. */
@@ -49,7 +69,7 @@ export function Logo({ size = 'default' }: LogoProps) {
       <LogoIcon className={cn(isLarge ? 'h-[3.4rem] w-[3.4rem]' : 'h-8 w-8')} />
       <span
         className={cn('font-bold tracking-wide', isLarge ? 'text-[2.125rem]' : 'text-xl')}
-        style={{ WebkitTextStroke: '1.5px var(--color-gray)' }}
+        style={{ textShadow: LOGO_TEXT_OUTLINE }}
       >
         <span className="text-white">wage</span>
         <span className="text-primary">comparator</span>

@@ -182,4 +182,20 @@
     height: 0;
     width: 0;
   }
+
+  /* accessibilityLayer (Recharts) da tabIndex al <svg> raíz para navegación
+     por teclado — no se quita, es a11y legítima. Pero el navegador dibuja su
+     outline nativo al recibir foco por CUALQUIER medio, incluido un tap en
+     móvil, donde se ve como un marco claro sobre el fondo oscuro de la chart.
+     :focus-visible ya distingue foco-por-teclado (mostrar) de
+     foco-por-puntero (no mostrar) — sustituye el outline nativo por uno
+     propio solo cuando sí es por teclado. */
+  .recharts-surface:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .recharts-surface:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
 }

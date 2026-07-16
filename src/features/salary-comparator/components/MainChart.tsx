@@ -248,8 +248,8 @@ export function MainChart({ series, isLoading, hasStarted, userWage }: MainChart
         <span className="hidden md:inline">Move cursor over chart to see tooltip</span>
       </Text>
       <Text variant="caption" className="mt-1 text-center">
-        Max: highest wage recorded · Q3: 75th percentile · Median: 50th percentile · Q1: 25th
-        percentile · Min: lowest wage recorded
+        Max: highest wage recorded | Q3: 75th percentile | Median: 50th percentile | Q1: 25th
+        percentile | Min: lowest wage recorded
       </Text>
 
       {chartData.length > 0 && (

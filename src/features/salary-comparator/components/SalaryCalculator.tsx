@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import { AuthFlowDialogs, AuthPromptDialog, useAuth } from '@/features/auth';
@@ -6,6 +6,7 @@ import { UpgradeDialog } from '@/features/premium';
 import { SaveTemplateDialog } from '@/features/templates';
 import { ErrorBoundary } from '@/shared/components/ui';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
+import { useScrollToElement } from '@/shared/hooks/useScrollToElement';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 import { toast } from '@/shared/lib/toast';
 
@@ -18,10 +19,25 @@ import { useWageInsights } from '../hooks/useWageInsights';
 
 import { CompareCountryModal } from './CompareCountryModal';
 import { ComparisonCountryQuery } from './ComparisonCountryQuery';
+import { SALARY_FORM_FIELDS } from './fieldConfig';
 import { MainChart } from './MainChart';
 import { SalaryForm } from './SalaryForm';
 
 import type { SalaryFormValues, WageAggregation } from '../types';
+
+/**
+ * Campos cuya selección cambia lo que MainChart muestra (disparan un fetch,
+ * ver fieldConfig.ts) — derivado de SALARY_FORM_FIELDS en vez de una lista
+ * fija para quedar auto-sincronizado si se añade/quita un campo. Quedan
+ * fuera 'combobox-static-no-filter' (Years of Experience, Company Size: no
+ * filtran nada del lado servidor) y 'number-input' (Monthly Wage: no es
+ * combobox y no dispara fetch).
+ */
+const SCROLL_TRIGGERING_FIELDS = new Set(
+  SALARY_FORM_FIELDS.filter(
+    (field) => field.kind !== 'combobox-static-no-filter' && field.kind !== 'number-input',
+  ).map((field) => field.id),
+);
 
 /**
  * Contenedor de la feature: cablea los tres hooks (estado del formulario,
@@ -43,6 +59,12 @@ export function SalaryCalculator() {
     ?.fastFillValues;
   const { step, values, setFieldValue, goNext, goBack, canAdvance } =
     useSalaryFormState(initialValues);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const scrollToChart = useScrollToElement(chartRef);
+  const handleFieldChange = (id: keyof SalaryFormValues, value: string | number) => {
+    setFieldValue(id, value);
+    if (SCROLL_TRIGGERING_FIELDS.has(id)) scrollToChart();
+  };
   const { data, isFetching, nextOptionsField } = useWageInsights(values);
   const aggregation = useResolvedAggregation(data);
   const { extraCountries, addCountry, removeCountry, canAddMore, gateOnLimit } =
@@ -165,7 +187,7 @@ export function SalaryCalculator() {
   return (
     <div className="grid gap-8 lg:grid-cols-2 lg:items-stretch lg:gap-x-16">
       {/* Columna derecha en desktop / arriba en mobile — order-1 en mobile */}
-      <div className="order-1 lg:order-2">
+      <div className="order-1 lg:order-2" ref={chartRef}>
         <ErrorBoundary>
           <MainChart
             series={series}
@@ -181,7 +203,7 @@ export function SalaryCalculator() {
         <SalaryForm
           step={step}
           values={values}
-          onFieldChange={setFieldValue}
+          onFieldChange={handleFieldChange}
           onNext={goNext}
           onBack={goBack}
           onSubmit={handleSubmit}
