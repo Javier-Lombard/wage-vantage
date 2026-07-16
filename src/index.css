@@ -190,11 +190,18 @@
      :focus-visible ya distingue foco-por-teclado (mostrar) de
      foco-por-puntero (no mostrar) — sustituye el outline nativo por uno
      propio solo cuando sí es por teclado. */
-  .recharts-surface:focus:not(:focus-visible) {
+  /* accessibilityLayer también mueve el foco DOM real a grupos internos
+     <g class="recharts-zIndex-layer_N"> (N variable, uno por capa de
+     z-index) al tap/activar un punto de datos — no solo al <svg> raíz — así
+     que el selector de atributo por prefijo cubre cualquier valor de N sin
+     enumerarlos. */
+  .recharts-surface:focus:not(:focus-visible),
+  [class*='recharts-zIndex-layer']:focus:not(:focus-visible) {
     outline: none;
   }
 
-  .recharts-surface:focus-visible {
+  .recharts-surface:focus-visible,
+  [class*='recharts-zIndex-layer']:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
