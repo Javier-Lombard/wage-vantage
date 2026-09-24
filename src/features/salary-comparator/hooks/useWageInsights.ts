@@ -44,17 +44,17 @@ function buildCascadeQuery(values: SalaryFormValues) {
 }
 
 /**
- * Live cascade query — re-derives the accumulated filters from `values` on
- * every render and refetches via RTK Query's own caching whenever they
- * change. Skipped entirely until at least one filterable field is chosen
- * (Country), per the brief: nothing fetches before that.
+ * Consulta viva de cascada — re-deriva los filtros acumulados a partir de
+ * `values` en cada render y vuelve a pedir los datos usando la propia caché
+ * de RTK Query cuando cambian. Se omite por completo hasta que se elige al
+ * menos un campo filtrable (País), según el encargo: nada se pide antes de eso.
  *
- * Returns `nextOptionsField` alongside the query result so callers can tell
- * which field `data.options` actually belongs to — every
- * combobox-fetched-options field in the same step shares this one query, but
- * only the field whose filterColumn matches `nextOptionsField` is the live
- * target; an already-answered sibling must not render these options as its
- * own (see SalaryFormField).
+ * Devuelve `nextOptionsField` junto al resultado de la consulta para que
+ * quien la llame sepa a qué campo pertenecen realmente las `data.options` —
+ * todos los campos combobox-fetched-options del mismo paso comparten esta
+ * única consulta, pero solo el campo cuyo filterColumn coincide con
+ * `nextOptionsField` es el destinatario activo; un campo hermano ya
+ * contestado no debe renderizar estas opciones como propias (ver SalaryFormField).
  */
 export function useWageInsights(values: SalaryFormValues) {
   const cascadeQuery = buildCascadeQuery(values);
