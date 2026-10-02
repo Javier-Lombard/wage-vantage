@@ -23,6 +23,7 @@ import { SALARY_FORM_FIELDS } from './fieldConfig';
 import { MainChart } from './MainChart';
 import { SalaryForm } from './SalaryForm';
 
+import type { AuthMode } from '@/features/auth';
 import type { SalaryFormValues, WageAggregation } from '../types';
 
 /**
@@ -90,6 +91,9 @@ export function SalaryCalculator() {
   >('log-in-to-load-template');
   const templatePrompt = useDisclosure();
   const authDialog = useDisclosure();
+  // Los prompts de upsell abren AuthDialog en login o signup según el link
+  // que pulse el usuario ("Log In" / "Create an account").
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
   const saveTemplateDialog = useDisclosure();
   const comparePrompt = useDisclosure();
   const compareUpgrade = useDisclosure();
@@ -124,8 +128,12 @@ export function SalaryCalculator() {
     }
   };
 
-  const openAuthDialog = () => {
+  // Los dos prompts de upsell (template y compare) convergen aquí; cerrar
+  // ambos es inocuo si solo uno estaba abierto.
+  const openAuthDialog = (mode: AuthMode) => {
     templatePrompt.close();
+    comparePrompt.close();
+    setAuthMode(mode);
     authDialog.open();
   };
 
@@ -255,17 +263,16 @@ export function SalaryCalculator() {
         isOpen={templatePrompt.isOpen}
         onClose={templatePrompt.close}
         variant={templatePromptVariant}
-        onLogIn={openAuthDialog}
+        onLogIn={() => openAuthDialog('login')}
+        onSignUp={() => openAuthDialog('signup')}
       />
 
       <AuthPromptDialog
         isOpen={comparePrompt.isOpen}
         onClose={comparePrompt.close}
         variant="sign-in-to-compare"
-        onLogIn={() => {
-          comparePrompt.close();
-          authDialog.open();
-        }}
+        onLogIn={() => openAuthDialog('login')}
+        onSignUp={() => openAuthDialog('signup')}
       />
 
       <UpgradeDialog
@@ -276,7 +283,11 @@ export function SalaryCalculator() {
         showFeatureList
       />
 
-      <AuthFlowDialogs isOpen={authDialog.isOpen} onClose={authDialog.close} />
+      <AuthFlowDialogs
+        isOpen={authDialog.isOpen}
+        onClose={authDialog.close}
+        initialMode={authMode}
+      />
 
       <SaveTemplateDialog
         isOpen={saveTemplateDialog.isOpen}

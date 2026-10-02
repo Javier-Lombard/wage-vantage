@@ -3,9 +3,13 @@ import { ResetPasswordDialog } from './ResetPasswordDialog';
 
 import { useAuthFlow } from '../useAuthFlow';
 
+import type { AuthMode } from '../types';
+
 export interface AuthFlowDialogsProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Modo con el que se abre AuthDialog; por defecto 'login'. */
+  initialMode?: AuthMode;
 }
 
 /**
@@ -15,7 +19,7 @@ export interface AuthFlowDialogsProps {
  * reset (abrir/cerrar ResetPasswordDialog, enviar el email) es interno,
  * ningún caller lo dispara desde fuera.
  */
-export function AuthFlowDialogs({ isOpen, onClose }: AuthFlowDialogsProps) {
+export function AuthFlowDialogs({ isOpen, onClose, initialMode }: AuthFlowDialogsProps) {
   const { resetPasswordDialog, openForgotPassword, handleAuthSubmit, handleResetPassword, signInWithOAuth } =
     useAuthFlow();
 
@@ -24,6 +28,7 @@ export function AuthFlowDialogs({ isOpen, onClose }: AuthFlowDialogsProps) {
       <AuthDialog
         isOpen={isOpen}
         onClose={onClose}
+        initialMode={initialMode}
         onSubmit={handleAuthSubmit}
         onForgotPassword={() => openForgotPassword(onClose)}
         onOAuth={(provider) => signInWithOAuth(provider)}
