@@ -12,6 +12,8 @@ export async function invokeDeleteAccount(): Promise<void> {
 
   const invokeError: unknown = response.error;
   if (invokeError) {
-    throw invokeError instanceof Error ? invokeError : new Error('delete-account invocation failed');
+    throw invokeError instanceof Error
+      ? invokeError
+      : new Error('delete-account invocation failed');
   }
 }
