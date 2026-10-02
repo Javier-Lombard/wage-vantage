@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Lock } from 'lucide-react';
 
 import { ActionDialog, Input, Text } from '@/shared/components/ui';
+import { useResetOnOpen } from '@/shared/hooks/useResetOnOpen';
 import { outlineButtonClasses } from '@/shared/lib/outlineButtonClasses';
 import { toast } from '@/shared/lib/toast';
 
-type AuthMode = 'login' | 'signup';
+import type { AuthMode } from '../types';
 
 /**
  * Marca de Google multicolor: lucide no la incluye y su SVG no usa currentColor,
@@ -85,6 +86,14 @@ export function AuthDialog({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPending, setIsPending] = useState(false);
+
+  // El diálogo sigue montado al cerrarse: sin esto, `initialMode` solo valdría
+  // la primera vez y lo escrito sobreviviría a un Cancel.
+  useResetOnOpen(isOpen, () => {
+    setMode(initialMode);
+    setEmail('');
+    setPassword('');
+  });
 
   const otherMode: AuthMode = mode === 'login' ? 'signup' : 'login';
 

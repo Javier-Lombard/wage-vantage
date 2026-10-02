@@ -70,9 +70,17 @@ interface AuthPromptDialogProps {
   onClose: () => void;
   variant: AuthPromptVariant;
   onLogIn: () => void;
+  /** Requerido (no opcional) para que el link del footer nunca quede inerte si un caller lo olvida. */
+  onSignUp: () => void;
 }
 
-export function AuthPromptDialog({ isOpen, onClose, variant, onLogIn }: AuthPromptDialogProps) {
+export function AuthPromptDialog({
+  isOpen,
+  onClose,
+  variant,
+  onLogIn,
+  onSignUp,
+}: AuthPromptDialogProps) {
   const copy = VARIANT_COPY[variant];
 
   return (
@@ -87,7 +95,14 @@ export function AuthPromptDialog({ isOpen, onClose, variant, onLogIn }: AuthProm
       footer={
         copy.showCreateAccountFooter && (
           <Text variant="body-sm" className="text-muted">
-            New here? <span className="text-accent-fg font-semibold">Create an account</span>
+            New here?{' '}
+            <button
+              type="button"
+              onClick={onSignUp}
+              className="text-accent-fg cursor-pointer font-semibold hover:underline"
+            >
+              Create an account
+            </button>
           </Text>
         )
       }

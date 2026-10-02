@@ -20,6 +20,7 @@ import { SalaryGrowthChart } from './SalaryGrowthChart';
 import { SaveComparisonDialog } from './SaveComparisonDialog';
 import { SectorDistributionChart } from './SectorDistributionChart';
 
+import type { AuthMode } from '@/features/auth';
 import type { WageAggregation } from '@/features/salary-comparator';
 
 interface ComparisonSheetProps {
@@ -83,6 +84,7 @@ export function ComparisonSheet({
   const saveDialog = useDisclosure();
   const authPrompt = useDisclosure();
   const authDialog = useDisclosure();
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
   // Modo "replay" (comparación guardada reabierta) vs "fetch en vivo" (llegada
   // desde el form) — decide si se montan los ComparisonCountryQuery más abajo.
   // Se fija en el primer render: si el usuario reabre esta misma URL/estado no
@@ -161,8 +163,9 @@ export function ComparisonSheet({
     }
   };
 
-  const openAuthDialog = () => {
+  const openAuthDialog = (mode: AuthMode) => {
     authPrompt.close();
+    setAuthMode(mode);
     authDialog.open();
   };
 
@@ -256,10 +259,15 @@ export function ComparisonSheet({
         isOpen={authPrompt.isOpen}
         onClose={authPrompt.close}
         variant="log-in-to-save-comparison"
-        onLogIn={openAuthDialog}
+        onLogIn={() => openAuthDialog('login')}
+        onSignUp={() => openAuthDialog('signup')}
       />
 
-      <AuthFlowDialogs isOpen={authDialog.isOpen} onClose={authDialog.close} />
+      <AuthFlowDialogs
+        isOpen={authDialog.isOpen}
+        onClose={authDialog.close}
+        initialMode={authMode}
+      />
     </div>
   );
 }

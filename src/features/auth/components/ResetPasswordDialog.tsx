@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Lock } from 'lucide-react';
 
 import { ActionDialog, Input } from '@/shared/components/ui';
+import { useResetOnOpen } from '@/shared/hooks/useResetOnOpen';
 
 interface ResetPasswordDialogProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ export function ResetPasswordDialog({
   isLoading = false,
 }: ResetPasswordDialogProps) {
   const [email, setEmail] = useState('');
+
+  useResetOnOpen(isOpen, () => setEmail(''));
 
   return (
     <ActionDialog

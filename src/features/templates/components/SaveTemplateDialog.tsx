@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Bookmark } from 'lucide-react';
 
 import { ActionDialog, Input } from '@/shared/components/ui';
+import { useResetOnOpen } from '@/shared/hooks/useResetOnOpen';
 
 interface SaveTemplateDialogProps {
   isOpen: boolean;
@@ -17,6 +18,8 @@ export function SaveTemplateDialog({
   isLoading = false,
 }: SaveTemplateDialogProps) {
   const [name, setName] = useState('');
+
+  useResetOnOpen(isOpen, () => setName(''));
 
   return (
     <ActionDialog

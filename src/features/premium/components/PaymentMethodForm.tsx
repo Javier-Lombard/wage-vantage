@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CreditCard } from 'lucide-react';
 
 import { ActionDialog, Input } from '@/shared/components/ui';
+import { useResetOnOpen } from '@/shared/hooks/useResetOnOpen';
 
 interface PaymentMethodFormProps {
   isOpen: boolean;
@@ -78,6 +79,14 @@ export function PaymentMethodForm({
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // Los datos de tarjeta y los errores de validación no deben sobrevivir a un Cancel.
+  useResetOnOpen(isOpen, () => {
+    setCardNumber('');
+    setExpiry('');
+    setCvc('');
+    setErrors({});
+  });
 
   const handleSubmit = () => {
     const values = { cardNumber, expiry, cvc };

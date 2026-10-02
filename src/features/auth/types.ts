@@ -43,6 +43,9 @@ export interface UserMetadata {
   comparisons?: SavedComparison[];
 }
 
+/** Modos del AuthDialog; lo comparten el diálogo y quien decide en cuál abrirlo. */
+export type AuthMode = 'login' | 'signup';
+
 export interface AppUser {
   id: string;
   email: string | null;
