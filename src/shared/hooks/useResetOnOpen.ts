@@ -11,6 +11,7 @@ import { useState } from 'react';
 export function useResetOnOpen(isOpen: boolean, reset: () => void) {
   const [wasOpen, setWasOpen] = useState(isOpen);
 
+  
   if (isOpen !== wasOpen) {
     setWasOpen(isOpen);
     if (isOpen) reset();
