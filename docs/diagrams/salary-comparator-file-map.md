@@ -55,11 +55,12 @@ flowchart LR
     end
 
     subgraph FH ["features/salary-comparator/hooks"]
-        SFS["useSalaryFormState.ts<br/>step + values + canAdvance"]:::hook
+        SFS["useSalaryFormState.ts<br/>step + values + canAdvance<br/>persistidos en sessionStorage"]:::hook
+        PSF["parseStoredFormValues.ts<br/>valida lo guardado campo a campo"]:::pure
         UWI["useWageInsights.ts<br/>cascada + skip"]:::hook
         URA["useResolvedAggregation.ts"]:::hook
         UWS["useWageStats.ts"]:::hook
-        UCC["useCountryComparison.ts<br/>países extra + gate de tier"]:::hook
+        UCC["useCountryComparison.ts<br/>países extra (sessionStorage) + gate de tier"]:::hook
         BWF["buildWageFilters.ts"]:::pure
         BEP["buildEnrichmentProfile.ts"]:::pure
         AGW["aggregateWages.ts<br/>plausibleWages + percentiles"]:::pure
@@ -68,7 +69,9 @@ flowchart LR
 
     subgraph FA ["features/salary-comparator/api y types"]
         WApi["wageApi.ts<br/>getWageInsights + getCountryOptions"]:::api
+        EC["enrichmentCache.ts<br/>getEnrichmentEstimate · caché sessionStorage<br/>por país + perfil"]:::api
         ESD["enrichSalaryData.ts<br/>único punto que toca functions.invoke"]:::api
+        IWA["isWageAggregation.ts<br/>type guard compartido"]:::pure
         WTypes["wageApi.types.ts<br/>shapes crudos de Supabase"]:::types
         DTypes["types.ts<br/>SalaryFormValues · WageAggregation"]:::types
         Barrel["index.ts<br/>API pública de la feature"]:::types
@@ -82,6 +85,7 @@ flowchart LR
         Misc["ui/StepBar · Button · Icon<br/>Modal · Badge · ErrorBoundary · Logo · Text"]:::sharedui
         UST["hooks/useScrollToTop.ts"]:::hook
         UD["hooks/useDisclosure.ts"]:::hook
+        USS["hooks/useSessionStorage.ts<br/>useState respaldado por sessionStorage"]:::hook
         SB["lib/supabaseClient.ts"]:::api
     end
 
@@ -137,6 +141,9 @@ flowchart LR
     Inp --> FS
 
     SFS --> Cfg
+    SFS --> PSF
+    SFS --> USS
+    UCC --> USS
     UWI --> Cfg
     UWI --> BWF
     UWI --> BEP
@@ -147,7 +154,10 @@ flowchart LR
 
     WApi --> AGW
     WApi --> MRG
-    WApi --> ESD
+    WApi --> EC
+    EC --> ESD
+    EC --> IWA
+    ESD --> IWA
     WApi --> SB
     WApi --> WTypes
     WApi --> DTypes
@@ -184,6 +194,10 @@ flowchart LR
 - **`supabaseClient.ts` es el único cuello de botella hacia el backend**, y solo
   lo importan `wageApi.ts` y `enrichSalaryData.ts`. Ningún componente conoce
   Supabase (SoC).
+- **Dos capas de persistencia con roles distintos**: `useSessionStorage` guarda
+  el estado del form (la _clave_ de la caché de RTK Query) y `enrichmentCache.ts`
+  guarda la estimación de Gemini (el único dato caro de recomputar). Las RPC no
+  se persisten: son baratas y se repiten tras un F5.
 - **`aggregateWages.ts` es función pura, no hook**, precisamente porque la
   necesitan dos consumidores incompatibles: `useWageStats` (en render) y el
   `queryFn` de `wageApi` (fuera de React, donde no se puede llamar a un hook).

@@ -12,7 +12,9 @@ Archivos clave:
 
 - `src/features/salary-comparator/api/wageApi.ts` — `queryFn` de `getWageInsights` (orquesta el flujo).
 - `src/features/salary-comparator/hooks/aggregateWages.ts` — `plausibleWages` (filtro de outliers + conteo) y `aggregateWages` (percentiles).
+- `src/features/salary-comparator/api/enrichmentCache.ts` — `getEnrichmentEstimate` (caché en sessionStorage por país + perfil; solo llama a Gemini si no hay entrada).
 - `src/features/salary-comparator/api/enrichSalaryData.ts` — `invokeEnrichSalaryData` (wrapper tipado sobre la Edge Function).
+- `src/features/salary-comparator/api/isWageAggregation.ts` — type guard compartido por la respuesta de la Edge Function y la lectura de la caché.
 - `src/features/salary-comparator/hooks/mergeAggregations.ts` — `mergeAggregations` (media percentil-a-percentil + clamp de monotonía).
 - `src/features/salary-comparator/hooks/useResolvedAggregation.ts` — prefiere `data.aggregation` sobre recalcular.
 
@@ -24,14 +26,16 @@ flowchart TD
 
     Decide -->|"No (muestra suficiente\no sin país)"| NoEnrich["return { monthlyWages, options }\nSIN aggregation"]
 
-    Decide -->|"Sí (muestra escasa)"| Invoke["invokeEnrichSalaryData(country, enrichmentProfile)"]
+    Decide -->|"Sí (muestra escasa)"| Cache{"getEnrichmentEstimate:\n¿estimación válida en sessionStorage\npara país + perfil?"}
+    Cache -->|"Sí (misma pestaña)"| RealAgg
+    Cache -->|"No, o entrada corrupta"| Invoke["invokeEnrichSalaryData(country, enrichmentProfile)"]
     Invoke -->|"functions.invoke('enrich-salary-data',\n{ body: { country, formValues } })"| Edge[["Edge Function\nenrich-salary-data"]]
     Edge -->|"prompt con perfil de 8 campos"| Gemini[["API Gemini\n(key server-side)"]]
     Gemini -->|"{ category, min, q1, median, q3, max }"| Edge
     Edge -->|"respuesta JSON"| Validate["isEnrichSalaryResponse(data)\nnarrowing de unknown, descarta category"]
 
     Validate -->|"shape inválido\no invoke con error"| Err["throw → queryFn captura\nreturn { error }"]
-    Validate -->|"WageAggregation válida (estimate)"| RealAgg["aggregateWages(monthlyWages)\npercentiles de los reales (o null)"]
+    Validate -->|"WageAggregation válida (estimate)\nse guarda en sessionStorage"| RealAgg["aggregateWages(monthlyWages)\npercentiles de los reales (o null)"]
 
     RealAgg -->|"real === null\n(0 salarios reales)"| UseGemini["aggregation = estimate\n(solo Gemini)"]
     RealAgg -->|"real !== null\n(1–7 salarios reales)"| Merge["mergeAggregations(real, estimate)\nmedia percentil-a-percentil + clamp monótono"]
@@ -66,6 +70,12 @@ flowchart TD
 - **Transparencia aguas abajo**: `useResolvedAggregation` decide entre usar el
   `aggregation` ya resuelto (fallback) o derivar de `monthlyWages`; `MainChart`
   recibe siempre un `WageAggregation` y no distingue el origen.
-- **Caché**: `getWageInsights` cachea por args (`keepUnusedDataFor: 300` s), así
-  que revisitar la misma combinación de filtros dentro de 5 min no re-invoca a
-  Gemini.
+- **Caché en dos niveles**: `getWageInsights` cachea por args en memoria
+  (`keepUnusedDataFor: 300` s), así que revisitar la misma combinación de
+  filtros dentro de 5 min no repite ni las RPC ni Gemini. Además,
+  `getEnrichmentEstimate` memoiza la estimación de Gemini en sessionStorage
+  por país + perfil durante toda la pestaña: un F5 o volver tarde repite las
+  RPC (baratas) pero no la IA, y los números de la chart no cambian para los
+  mismos datos.
+- **Se guarda la estimación cruda**, no la fusionada: `mergeAggregations` se
+  recalcula con los salarios reales del momento. Los errores no se guardan.
