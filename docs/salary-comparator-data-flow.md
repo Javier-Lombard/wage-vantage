@@ -191,7 +191,7 @@ if (country && validCount < MIN_SAMPLE_SIZE) { ... }   // MIN_SAMPLE_SIZE = 8
 
 `plausibleWages` ([aggregateWages.ts:39-42](../src/features/salary-comparator/hooks/aggregateWages.ts#L39-L42)) descarta todo lo que supere `MAX_PLAUSIBLE_WAGE = 15000`. TABLE_0 arrastra outliers absurdos (en Francia hay registros de 23.399.999.488 €/mes) y algún país en moneda local sin convertir. **El umbral se mide sobre el conteo ya truncado**: los outliers no deben rellenar la muestra ni ocultar que hay pocos datos reales.
 
-Si la muestra es escasa, [enrichSalaryData.ts](../src/features/salary-comparator/api/enrichSalaryData.ts) invoca `supabase.functions.invoke('enrich-salary-data', { body: { country, formValues } })`. La Edge Function llama a Gemini server-side (la API key nunca llega al navegador) y devuelve `{ category, min, q1, median, q3, max }`. El type guard `isEnrichSalaryResponse` estrecha ese `unknown` y descarta `category`. Este archivo es **el único punto de la feature que toca `supabase.functions`**.
+Si la muestra es escasa, [enrichmentCache.ts](../src/features/salary-comparator/api/enrichmentCache.ts) (`getEnrichmentEstimate`) mira primero en sessionStorage si ya hay una estimación para ese país + perfil de enriquecimiento; si la hay y es válida, la usa sin llamar a Gemini. Si no, [enrichSalaryData.ts](../src/features/salary-comparator/api/enrichSalaryData.ts) invoca `supabase.functions.invoke('enrich-salary-data', { body: { country, formValues } })`. La Edge Function llama a Gemini server-side (la API key nunca llega al navegador) y devuelve `{ category, min, q1, median, q3, max }`. El type guard `isEnrichSalaryResponse` estrecha ese `unknown` y descarta `category`. Este archivo es **el único punto de la feature que toca `supabase.functions`**.
 
 Después:
 
@@ -210,7 +210,7 @@ El resultado es un `WageInsightsResult` ([types.ts](../src/features/salary-compa
 
 `aggregation` **solo está presente si hubo enriquecimiento**. Ese campo opcional es la señal que la fase siguiente interpreta.
 
-`keepUnusedDataFor: 300` (5 min) se fija pensando en el peor caso: avanzar y retroceder pasos, o añadir y quitar países, no debe re-invocar la IA para los mismos filtros.
+`keepUnusedDataFor: 300` (5 min) cubre avanzar y retroceder pasos, o añadir y quitar países, sin repetir las RPC. La llamada a Gemini no depende de ese plazo: la estimación cruda se guarda en sessionStorage por país + perfil (no la ya fusionada, que se recalcula con los salarios reales del momento), de modo que un F5 o volver a la home tarde repite las RPC pero no la IA. Los errores nunca se guardan.
 
 ---
 

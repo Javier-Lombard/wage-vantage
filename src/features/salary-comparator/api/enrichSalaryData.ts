@@ -1,5 +1,7 @@
 import { supabase } from '@/shared/lib/supabaseClient';
 
+import { isWageAggregation } from './isWageAggregation';
+
 import type { EnrichSalaryResponse } from './wageApi.types';
 import type { WageAggregation } from '../types';
 
@@ -10,15 +12,7 @@ import type { WageAggregation } from '../types';
  * del feature que toca supabase.functions (SoC: los componentes no lo ven).
  */
 function isEnrichSalaryResponse(value: unknown): value is EnrichSalaryResponse {
-  if (typeof value !== 'object' || value === null) return false;
-
-  const candidate = value as Record<string, unknown>;
-  const numericKeys = ['min', 'q1', 'median', 'q3', 'max'] as const;
-
-  return (
-    typeof candidate.category === 'string' &&
-    numericKeys.every((key) => typeof candidate[key] === 'number' && Number.isFinite(candidate[key]))
-  );
+  return isWageAggregation(value) && 'category' in value && typeof value.category === 'string';
 }
 
 /**

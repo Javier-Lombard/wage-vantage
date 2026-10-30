@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import { AuthFlowDialogs, AuthPromptDialog, useAuth } from '@/features/auth';
@@ -60,6 +60,12 @@ export function SalaryCalculator() {
     ?.fastFillValues;
   const { step, values, setFieldValue, goNext, goBack, canAdvance } =
     useSalaryFormState(initialValues);
+  // location.state vive en history.state, que sobrevive al F5: sin borrarlo
+  // tras consumirlo, una recarga volvería a pisar con la template original
+  // lo editado después (ya persistido en sessionStorage por useSalaryFormState).
+  useEffect(() => {
+    if (initialValues) void navigate(location.pathname, { replace: true, state: null });
+  }, [initialValues, location.pathname, navigate]);
   const chartRef = useRef<HTMLDivElement>(null);
   const scrollToChart = useScrollToTop(chartRef);
   const handleFieldChange = (id: keyof SalaryFormValues, value: string | number) => {
