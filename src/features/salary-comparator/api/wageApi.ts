@@ -4,7 +4,7 @@ import { supabase } from '@/shared/lib/supabaseClient';
 
 import { aggregateWages, plausibleWages } from '../hooks/aggregateWages';
 import { mergeAggregations } from '../hooks/mergeAggregations';
-import { invokeEnrichSalaryData } from './enrichSalaryData';
+import { getEnrichmentEstimate } from './enrichmentCache';
 
 import type { WageFilterColumn, WageFilterParams } from './wageApi.types';
 import type { WageInsightsResult } from '../types';
@@ -80,7 +80,7 @@ export const wageApi = createApi({
         if (country && validCount < MIN_SAMPLE_SIZE) {
           let estimate;
           try {
-            estimate = await invokeEnrichSalaryData(country, enrichmentProfile ?? {});
+            estimate = await getEnrichmentEstimate(country, enrichmentProfile ?? {});
           } catch (err) {
             return { error: err instanceof Error ? err : new Error('Enrichment request failed') };
           }
@@ -93,13 +93,13 @@ export const wageApi = createApi({
 
         return { data: { monthlyWages: wages.data, options } };
       },
-      // Este endpoint puede haber invocado la Edge Function enrich-salary-data
-      // (Gemini) cuando la muestra es escasa, pero cachea por args igual que
-      // el caso "solo RPC" — no hay forma de distinguir el coste real desde
-      // la clave de caché. 5 min se fija pensando en el peor caso (con
-      // Gemini): cubre avanzar/retroceder pasos del form o añadir/quitar
-      // países de comparación sin re-invocar la IA para los mismos filtros,
-      // sin cachear indefinidamente un dato que podría quedar obsoleto.
+      // Cachea por args la entrada completa (RPC + opciones + agregación).
+      // 5 min cubre avanzar/retroceder pasos del form o añadir/quitar países
+      // de comparación sin repetir las RPC, sin cachear indefinidamente un
+      // dato que podría quedar obsoleto. La llamada a Gemini no depende de
+      // este plazo: getEnrichmentEstimate la memoiza en sessionStorage por
+      // país + perfil durante toda la pestaña, así que un F5 o volver tarde
+      // repite las RPC pero no la IA.
       keepUnusedDataFor: 300,
     }),
   }),
