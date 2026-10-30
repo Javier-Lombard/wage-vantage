@@ -95,6 +95,9 @@ export function CompareCountryModal({
           isFetchingOptions={false}
           onChange={setCountry}
           excludeOptions={excludeOptions}
+          // Lista corta: en móvil el teclado virtual taparía las opciones, que
+          // se eligen con el dedo sin necesidad de buscar.
+          inputMode="none"
         />
 
         <div className="flex justify-end gap-3">

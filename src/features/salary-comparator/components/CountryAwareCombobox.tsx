@@ -3,6 +3,8 @@ import { Combobox } from '@/shared/components/ui';
 import { useGetCountryOptionsQuery } from '../api/wageApi';
 import { toComboboxOptions } from './toComboboxOptions';
 
+import type { ComponentProps } from 'react';
+
 import type { SalaryFormField } from './fieldConfig';
 
 interface CountryAwareComboboxProps {
@@ -14,6 +16,8 @@ interface CountryAwareComboboxProps {
   /** Países a ocultar de la lista (usado por CompareCountryModal para que no
    * se pueda elegir el país del form ni uno ya añadido a la comparación). */
   excludeOptions?: string[];
+  /** Se reenvía tal cual al Combobox — ver su doc. */
+  inputMode?: ComponentProps<typeof Combobox>['inputMode'];
 }
 
 /**
@@ -30,6 +34,7 @@ export function CountryAwareCombobox({
   isFetchingOptions,
   onChange,
   excludeOptions,
+  inputMode,
 }: CountryAwareComboboxProps) {
   const isCountryField = field.id === 'country';
   const countryQuery = useGetCountryOptionsQuery(undefined, { skip: !isCountryField });
@@ -55,6 +60,7 @@ export function CountryAwareCombobox({
       onChange={onChange}
       disabled={isLoading}
       placeholder={isLoading ? 'Loading...' : undefined}
+      inputMode={inputMode}
     />
   );
 }
