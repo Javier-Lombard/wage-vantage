@@ -190,6 +190,7 @@ export function Navbar() {
           ) : (
             <Icon icon={UserCircle} size={24} />
           )}
+            {isAuthenticated && <span className="absolute left-11 top-9 size-3 rounded-full bg-green-500"></span> }
         </button>
 
         <Logo />
