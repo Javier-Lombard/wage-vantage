@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
@@ -47,6 +47,15 @@ export function Modal({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // El foco entra en el propio panel al abrir, no en un campo: así ningún
+  // input/combobox del contenido arranca enfocado y, en móvil, no se abre el
+  // teclado virtual sobre un modal recién aparecido.
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    panelRef.current?.focus({ preventScroll: true });
+  }, [isOpen]);
+
   // Bloquea el scroll del fondo mientras el modal está abierto.
   useEffect(() => {
     if (!isOpen) return;
@@ -66,13 +75,16 @@ export function Modal({
       onClick={onClose}
     >
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={title ?? ariaLabel}
+        // tabIndex -1: enfocable por código (ver panelRef) pero fuera del orden de Tab.
+        tabIndex={-1}
         // El click dentro del panel no debe cerrar el modal.
         onClick={(event) => event.stopPropagation()}
         className={cn(
-          'border-border-subtle bg-surface relative w-full max-w-md rounded-2xl border p-6 shadow-xl',
+          'border-border-subtle bg-surface relative w-full max-w-md rounded-2xl border p-6 shadow-xl outline-none',
           className,
         )}
       >

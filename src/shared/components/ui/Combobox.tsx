@@ -6,7 +6,7 @@ import { FieldShell } from './FieldShell';
 import { Icon } from './Icon';
 import { CONTROL_BASE, controlStateClasses } from './controlClasses';
 
-import type { KeyboardEvent } from 'react';
+import type { InputHTMLAttributes, KeyboardEvent } from 'react';
 
 export interface ComboboxOption {
   value: string;
@@ -23,6 +23,10 @@ interface ComboboxProps {
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  /** 'none' evita que el teclado virtual se abra al enfocar el input: útil
+   * cuando la lista es corta y el teclado solo taparía las opciones. El
+   * teclado físico no se ve afectado. */
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode'];
   className?: string;
 }
 
@@ -46,6 +50,7 @@ export function Combobox({
   onChange,
   placeholder,
   disabled,
+  inputMode,
   className,
 }: ComboboxProps) {
   const generatedId = useId();
@@ -59,6 +64,9 @@ export function Combobox({
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Tipo del último puntero que tocó una opción: el click no lo distingue de
+  // forma fiable, y selectOption lo necesita para decidir si cierra el teclado.
+  const pointerTypeRef = useRef('mouse');
 
   const selectedOption = useMemo(
     () => options.find((option) => option.value === value) ?? null,
@@ -85,7 +93,7 @@ export function Combobox({
   }
 
   // keepFocus=false cierra el teclado virtual en Android: un tap en la opción
-  // nunca hacía perder el foco al input (preventDefault en pointerdown lo
+  // nunca hacía perder el foco al input (preventDefault en mousedown lo
   // impide, ver más abajo), así que el teclado se quedaba abierto tapando la
   // pantalla tras elegir. Solo se blurea en tap táctil — un Enter de teclado
   // o un click de ratón conservan el foco para no romper el orden de Tab.
@@ -161,6 +169,7 @@ export function Combobox({
           aria-invalid={hasError || undefined}
           aria-describedby={hasError ? errorId : helperText ? helperId : undefined}
           autoComplete="off"
+          inputMode={inputMode}
           disabled={disabled}
           placeholder={placeholder}
           value={displayValue}
@@ -198,14 +207,18 @@ export function Combobox({
                     'cursor-pointer px-4 py-2 text-sm text-foreground',
                     index === activeIndex ? 'bg-accent-surface' : 'hover:bg-surface-hover',
                   )}
-                  // pointerdown (not click) fires before the input's blur, so the
-                  // selection registers before closeList() would otherwise win.
-                  // pointerType distingue tap táctil (cierra el teclado) de
-                  // click de ratón/teclado (conserva el foco, ver selectOption).
+                  // Se selecciona en click, no en pointerdown: en táctil pointerdown
+                  // salta al apoyar el dedo, antes de saber si el gesto es un
+                  // scroll, y seleccionaba el país bajo el dedo al desplazar la
+                  // lista. Un scroll no genera click; un tap sí.
                   onPointerDown={(event) => {
-                    event.preventDefault();
-                    selectOption(option, event.pointerType !== 'touch');
+                    pointerTypeRef.current = event.pointerType;
                   }}
+                  // Sin esto el mousedown (también el de compatibilidad tras un tap)
+                  // movería el foco fuera del input, su blur cerraría la lista y el
+                  // click ya no llegaría a la opción.
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => selectOption(option, pointerTypeRef.current !== 'touch')}
                 >
                   {option.label}
                 </li>
