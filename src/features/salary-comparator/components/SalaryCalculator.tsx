@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 
 import { AuthFlowDialogs, AuthPromptDialog, useAuth } from '@/features/auth';
@@ -183,11 +183,8 @@ export function SalaryCalculator() {
   // Mismos filtros del form para las queries de comparación en paralelo —
   // cada ComparisonCountryQuery sobrescribe Country con el país que le toca.
   const baseFilters = buildWageFilters(values);
-  // Mismo perfil para el fallback de Gemini de cada país de comparación —
-  // memoizado porque es dependencia de args de useGetWageInsightsQuery en
-  // cada ComparisonCountryQuery (una referencia inestable dispararía un
-  // refetch en cada render de SalaryCalculator).
-  const enrichmentProfile = useMemo(() => buildEnrichmentProfile(values), [values]);
+  // Mismo perfil para el fallback de Gemini de cada país de comparación.
+  const enrichmentProfile = buildEnrichmentProfile(values);
   // País base primero, luego los extra en el orden en que se añadieron —
   // MainChart asigna el color de cada caja por este mismo orden de índice.
   const series = [
