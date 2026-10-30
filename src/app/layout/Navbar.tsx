@@ -136,11 +136,13 @@ export function Navbar() {
                   alt="Account"
                   className="border-border-subtle h-9 w-9 rounded-full border object-cover"
                 />
+                
               ) : (
                 <Icon icon={UserCircle} size={24} />
               )}
             </button>
-
+            {isAuthenticated && <span className="absolute left-7 top-6 size-3 rounded-full bg-green-500"></span> }
+         
             {isAccountMenuOpen && (
               <div className="border-border-subtle bg-surface absolute right-0 top-full z-10 mt-2 flex w-44 flex-col gap-1 rounded-lg border p-2 shadow-lg">
                 <NavLink
