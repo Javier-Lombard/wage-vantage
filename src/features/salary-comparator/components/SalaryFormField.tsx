@@ -1,6 +1,7 @@
 import { Combobox, Input } from '@/shared/components/ui';
 
-import { CountryAwareCombobox } from './CountryAwareCombobox';
+import { CascadeCombobox } from './CascadeCombobox';
+import { CountryCombobox } from './CountryCombobox';
 import { toComboboxOptions } from './toComboboxOptions';
 
 import type { ChangeEvent } from 'react';
@@ -42,32 +43,39 @@ export function SalaryFormField({
     );
   }
 
+  const selectedValue = typeof value === 'string' ? value : null;
+  const handleSelect = (selected: string) => onChange(field.id, selected);
+
   if (field.kind === 'combobox-static-no-filter' || field.kind === 'combobox-static-but-filters') {
     return (
       <Combobox
         label={field.label}
         options={toComboboxOptions(field.options)}
-        value={typeof value === 'string' ? value : null}
-        onChange={(selected) => onChange(field.id, selected)}
+        value={selectedValue}
+        onChange={handleSelect}
       />
     );
   }
 
-  // combobox-fetched-options — every field of this kind in the same step
-  // shares one fetchedOptions/isFetchingOptions pair (see useWageInsights),
-  // but it's only meaningful for the field whose filterColumn the cascade is
-  // currently targeting. An already-answered sibling must not render
-  // another field's options as its own (it would also blank its display,
-  // since its own value wouldn't be among them).
-  const isLiveTarget = field.id === 'country' || field.filterColumn === nextOptionsField;
+  // combobox-fetched-options. País no depende de la cascada: tiene su propio
+  // endpoint, ver CountryCombobox.
+  if (field.id === 'country') {
+    return <CountryCombobox label={field.label} value={selectedValue} onChange={handleSelect} />;
+  }
+
+  // El resto de campos fetched del paso comparte un único par
+  // fetchedOptions/isFetchingOptions (ver useWageInsights), válido solo para
+  // el campo cuyo filterColumn es el destinatario actual de la cascada. Un
+  // hermano ya contestado no debe mostrar como propias las opciones de otro.
+  const isLiveTarget = field.filterColumn === nextOptionsField;
 
   return (
-    <CountryAwareCombobox
-      field={field}
-      value={typeof value === 'string' ? value : null}
-      fetchedOptions={isLiveTarget ? fetchedOptions : undefined}
-      isFetchingOptions={isLiveTarget && isFetchingOptions}
-      onChange={(selected) => onChange(field.id, selected)}
+    <CascadeCombobox
+      label={field.label}
+      value={selectedValue}
+      options={isLiveTarget ? fetchedOptions : undefined}
+      isLoading={isLiveTarget && isFetchingOptions}
+      onChange={handleSelect}
     />
   );
 }

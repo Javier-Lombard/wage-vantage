@@ -3,10 +3,7 @@ import { useState } from 'react';
 
 import { Badge, Button, Icon, Modal } from '@/shared/components/ui';
 
-import { CountryAwareCombobox } from './CountryAwareCombobox';
-import { SALARY_FORM_FIELDS } from './fieldConfig';
-
-import type { SalaryFormField } from './fieldConfig';
+import { CountryCombobox } from './CountryCombobox';
 
 interface CompareCountryModalProps {
   isOpen: boolean;
@@ -27,21 +24,9 @@ interface CompareCountryModalProps {
   isAtHardLimit: boolean;
 }
 
-/** Reutiliza la config del primer combobox del form (país) para que el
- * selector del modal sea idéntico al del formulario, sin duplicar opciones ni
- * el endpoint de países. `country` siempre existe en SALARY_FORM_FIELDS; si se
- * eliminara, este throw lo hace evidente en desarrollo en vez de fallar mudo. */
-function getCountryField(): SalaryFormField {
-  const field = SALARY_FORM_FIELDS.find((f) => f.id === 'country');
-  if (!field) throw new Error('Country field missing from SALARY_FORM_FIELDS');
-  return field;
-}
-
-const COUNTRY_FIELD = getCountryField();
-
 /**
  * Modal para elegir países contra los que comparar. Monta el mismo combobox de
- * país que el paso 1 del formulario (vía CountryAwareCombobox), excluyendo el
+ * país que el paso 1 del formulario (CountryCombobox), excluyendo el
  * país base y los ya añadidos para que sea imposible elegir un duplicado. La
  * decisión de qué pasa al exceder el límite del tier (login/upgrade) vive en
  * el padre (SalaryCalculator) — este modal solo notifica la intención de
@@ -88,11 +73,9 @@ export function CompareCountryModal({
           </ul>
         )}
 
-        <CountryAwareCombobox
-          field={COUNTRY_FIELD}
+        <CountryCombobox
+          label="Country"
           value={country}
-          fetchedOptions={undefined}
-          isFetchingOptions={false}
           onChange={setCountry}
           excludeOptions={excludeOptions}
           // Lista corta: en móvil el teclado virtual taparía las opciones, que
