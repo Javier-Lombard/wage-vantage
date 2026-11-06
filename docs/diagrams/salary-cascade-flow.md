@@ -14,7 +14,8 @@ Archivos clave, en orden de aparición:
 
 - `src/shared/components/ui/Combobox.tsx` — selección y cierre de la lista.
 - `src/features/salary-comparator/components/SalaryFormField.tsx` — decide qué control renderiza cada `kind` y quién es el destinatario vivo de las opciones.
-- `src/features/salary-comparator/components/CountryAwareCombobox.tsx` — endpoint propio para País, resto de campos desde la cascada.
+- `src/features/salary-comparator/components/CascadeCombobox.tsx` — campos con opciones de la cascada; conserva el valor propio y se deshabilita mientras carga.
+- `src/features/salary-comparator/components/CountryCombobox.tsx` — País, con su propio endpoint en lugar de la cascada.
 - `src/features/salary-comparator/components/SalaryCalculator.tsx` — contenedor que cablea los hooks y reparte sus salidas.
 - `src/features/salary-comparator/hooks/useSalaryFormState.ts` — dueño de `step` y de los 9 valores.
 - `src/features/salary-comparator/hooks/useWageInsights.ts` — arma la query de la cascada y decide el `nextOptionsField`.
@@ -44,7 +45,7 @@ flowchart TD
     end
 
     subgraph S2 ["2 · Elevación del cambio — features/salary-comparator/components"]
-        FieldCB["CountryAwareCombobox.tsx<br/>solo kind combobox-fetched-options"]:::feature
+        FieldCB["CascadeCombobox.tsx o CountryCombobox.tsx<br/>solo kind combobox-fetched-options"]:::feature
         Field["SalaryFormField.tsx<br/>onChange(field.id, selected)"]:::feature
         Step["SalaryFormStep.tsx<br/>prop onChange"]:::feature
         Form["SalaryForm.tsx<br/>prop onFieldChange"]:::feature
@@ -81,7 +82,7 @@ flowchart TD
 
     subgraph S5 ["5 · Reparto de la respuesta"]
         Live["SalaryFormField.tsx · isLiveTarget<br/>field.filterColumn === nextOptionsField"]:::feature
-        Country["CountryAwareCombobox.tsx<br/>añade el valor propio · disabled mientras carga"]:::feature
+        Cascade["CascadeCombobox.tsx<br/>añade el valor propio · disabled mientras carga"]:::feature
         ToOpts["toComboboxOptions.ts<br/>string[] → value/label"]:::pure
         NextCB["Combobox.tsx<br/>nueva lista de opciones lista para el usuario"]:::sharedui
         Resolve["useResolvedAggregation.ts<br/>data.aggregation ?? derivada"]:::hook
@@ -135,8 +136,8 @@ flowchart TD
     Result -->|"㉔ data"| Resolve
     Stats -.->|"deriva de monthlyWages<br/>se llama siempre, sin condicional"| Resolve
     Resolve -->|"㉕ WageAggregation"| Series
-    Live -->|"solo el campo destinatario"| Country
-    Country --> ToOpts
+    Live -->|"solo el campo destinatario"| Cascade
+    Cascade --> ToOpts
     ToOpts -->|"㉖ opciones del siguiente combobox"| NextCB
     Series -->|"㉗ ComparisonSeries[]"| Main
     Main -->|"isFetching o falta la base"| Loader
@@ -167,8 +168,9 @@ flowchart TD
   renderizarlas como suyas; a los demás se les pasa `undefined`.
 - **País es la excepción**: no tiene filtros acumulados todavía, así que sus
   opciones vienen de `getCountryOptions` (`keepUnusedDataFor: Infinity`), no de
-  la cascada. Por eso vive en su propio componente: el hook de esa query no
-  puede llamarse condicionalmente dentro de `SalaryFormField`.
+  la cascada. Por eso vive en su propio componente, `CountryCombobox`: el hook
+  de esa query no puede llamarse condicionalmente dentro de `SalaryFormField`.
+  El resto de campos de la cascada usa `CascadeCombobox`.
 - **Ni `SalaryForm` ni `MainChart` tocan datos**: el único que habla con hooks y
   RTK Query es `SalaryCalculator`. La chart es puramente presentacional.
 - **`options` y `aggregation` van en la misma respuesta**: una sola llamada a

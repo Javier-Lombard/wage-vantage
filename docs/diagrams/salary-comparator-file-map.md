@@ -44,7 +44,8 @@ flowchart LR
         Form["SalaryForm.tsx<br/>StepBar + botones + enlaces de template"]:::feature
         Stp["SalaryFormStep.tsx<br/>filtra los campos del paso"]:::feature
         Fld["SalaryFormField.tsx<br/>elige control según kind<br/>calcula isLiveTarget"]:::feature
-        CAC["CountryAwareCombobox.tsx<br/>País desde su propio endpoint"]:::feature
+        CC["CountryCombobox.tsx<br/>País desde su propio endpoint"]:::feature
+        CSC["CascadeCombobox.tsx<br/>opciones de la cascada + valor propio"]:::feature
         Modal["CompareCountryModal.tsx<br/>reutiliza el combobox de País"]:::feature
         CCQ["ComparisonCountryQuery.tsx<br/>render null · una query por país extra"]:::feature
         Chart["MainChart.tsx<br/>presentacional puro<br/>BoxWithMedian + BoxPlotTooltip"]:::chart
@@ -120,15 +121,17 @@ flowchart LR
     Stp --> Cfg
     Stp --> Fld
     Fld --> Cfg
-    Fld --> CAC
+    Fld --> CC
+    Fld --> CSC
     Fld --> CB
     Fld --> Inp
     Fld --> TCO
-    CAC --> CB
-    CAC --> TCO
-    CAC --> WApi
-    Modal --> CAC
-    Modal --> Cfg
+    CC --> CB
+    CC --> TCO
+    CC --> WApi
+    CSC --> CB
+    CSC --> TCO
+    Modal --> CC
     Modal --> Misc
     CCQ --> WApi
     CCQ --> URA
@@ -204,6 +207,7 @@ flowchart LR
 - **`ComparisonCountryQuery` renderiza `null`**: existe solo para poder llamar
   al hook de RTK Query un número variable de veces sin romper las reglas de
   hooks; un bucle de hooks sería ilegal.
-- **`CountryAwareCombobox` tiene dos consumidores** (`SalaryFormField` y
+- **`CountryCombobox` tiene dos consumidores** (`SalaryFormField` y
   `CompareCountryModal`), y por eso acepta `excludeOptions`: el modal excluye el
-  país base y los ya añadidos.
+  país base y los ya añadidos. Los demás campos con opciones del servidor usan
+  `CascadeCombobox`, que no pide nada: recibe las opciones ya resueltas.

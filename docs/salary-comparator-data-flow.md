@@ -52,11 +52,11 @@ Hay un detalle importante para más adelante: `displayValue` depende de `selecte
 
 El `onChange` del Combobox recorre cinco componentes. La ruta depende del `kind` del campo, definido en [fieldConfig.ts](../src/features/salary-comparator/components/fieldConfig.ts):
 
-| Ruta | Campos | Recorrido |
-|---|---|---|
-| **A** (opciones estáticas) | Gender, Years of Experience, Company Size | `Combobox` → `SalaryFormField` |
-| **B** (opciones del servidor) | Country, Occupation, Occupation Level, Economic Activity, Education Level | `Combobox` → `CountryAwareCombobox` → `SalaryFormField` |
-| **C** (numérico) | Monthly Wage | `Input` → `SalaryFormField` |
+| Ruta                          | Campos                                                                    | Recorrido                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **A** (opciones estáticas)    | Gender, Years of Experience, Company Size                                 | `Combobox` → `SalaryFormField`                                                           |
+| **B** (opciones del servidor) | Country, Occupation, Occupation Level, Economic Activity, Education Level | `Combobox` → `CountryCombobox` (Country) o `CascadeCombobox` (resto) → `SalaryFormField` |
+| **C** (numérico)              | Monthly Wage                                                              | `Input` → `SalaryFormField`                                                              |
 
 [SalaryFormField.tsx](../src/features/salary-comparator/components/SalaryFormField.tsx) es un **dispatcher por `kind`**: mira `field.kind` y decide qué control montar. En los tres casos el callback termina siendo el mismo:
 
@@ -90,7 +90,7 @@ const handleFieldChange = (id: keyof SalaryFormValues, value: string | number) =
 
 **`setFieldValue`** viene de [useSalaryFormState.ts](../src/features/salary-comparator/hooks/useSalaryFormState.ts), que es el dueño de los 9 valores y del índice de paso. Hace un merge inmutable: `setValues(current => ({ ...current, [id]: value }))`. Ese hook también expone `canAdvance`, calculado por `isStepComplete` — que comprueba que **todos** los campos del paso actual tengan valor no vacío ni `NaN`. Es lo que habilita el botón "Next step".
 
-Nota de arquitectura: este estado está *elevado* al contenedor, no dentro de `SalaryForm`. La razón está documentada en el propio hook: la chart necesita leer los mismos `values` sin que el formulario tenga que "alcanzar hacia arriba" con un callback.
+Nota de arquitectura: este estado está _elevado_ al contenedor, no dentro de `SalaryForm`. La razón está documentada en el propio hook: la chart necesita leer los mismos `values` sin que el formulario tenga que "alcanzar hacia arriba" con un callback.
 
 **`SCROLL_TRIGGERING_FIELDS`** ([SalaryCalculator.tsx:36-40](../src/features/salary-comparator/components/SalaryCalculator.tsx#L36-L40)) se deriva de `SALARY_FORM_FIELDS` en lugar de ser una lista fija: son los campos que **no** son `combobox-static-no-filter` ni `number-input`, es decir, los 6 que provocan un fetch y por tanto cambian lo que se ve en la chart. `scrollToChart` es [useScrollToTop.ts](../src/shared/hooks/useScrollToTop.ts), que sube al top absoluto de la página (no `scrollIntoView`, para no dejar el navbar fuera), se salta el scroll si el borde superior de la chart ya es visible —caso desktop, con las dos columnas lado a lado— y respeta `prefers-reduced-motion`.
 
@@ -107,7 +107,7 @@ En el nuevo render, [useWageInsights.ts](../src/features/salary-comparator/hooks
 [buildWageFilters.ts](../src/features/salary-comparator/hooks/buildWageFilters.ts) recorre `SALARY_FORM_FIELDS`, se queda con los campos que tienen `filterColumn` (los `combobox-fetched-options` y `combobox-static-but-filters`) y que tienen valor, y vuelca cada uno a su columna de Supabase:
 
 ```ts
-filters[field.filterColumn] = value;   // p.ej. { Country: 'Spain', Gender: 'Male' }
+filters[field.filterColumn] = value; // p.ej. { Country: 'Spain', Gender: 'Male' }
 ```
 
 Fíjate en el mapeo: el id del campo es camelCase (`occupationLevel`) pero la columna es el nombre real de TABLE_0 con espacios y mayúsculas (`'Occupation Level'`). Esa traducción vive **solo** aquí y en [wageApi.types.ts](../src/features/salary-comparator/api/wageApi.types.ts).
@@ -123,15 +123,15 @@ Esta es la pieza que hace que la cascada sea una cascada ([useWageInsights.ts:15
 
 Aplicado al orden real del array:
 
-| Ya elegido | `lastFilledIndex` | `nextOptionsField` |
-|---|---|---|
-| (nada) | −1 | `undefined` → query en skip |
-| Country | 0 | **Occupation** |
-| Country + Gender | 1 | **Occupation** |
-| + Occupation | 3 | **Occupation Level** |
-| + Occupation Level | 4 | **Economic Activity** |
-| + Economic Activity | 5 | **Education Level** |
-| + Education Level | 6 | `undefined` — no quedan campos fetched |
+| Ya elegido          | `lastFilledIndex` | `nextOptionsField`                     |
+| ------------------- | ----------------- | -------------------------------------- |
+| (nada)              | −1                | `undefined` → query en skip            |
+| Country             | 0                 | **Occupation**                         |
+| Country + Gender    | 1                 | **Occupation**                         |
+| + Occupation        | 3                 | **Occupation Level**                   |
+| + Occupation Level  | 4                 | **Economic Activity**                  |
+| + Economic Activity | 5                 | **Education Level**                    |
+| + Education Level   | 6                 | `undefined` — no quedan campos fetched |
 
 Dos consecuencias que conviene ver:
 
@@ -154,7 +154,7 @@ return { ...query, nextOptionsField: cascadeQuery?.nextOptionsField };
 
 RTK Query **serializa los args para formar la clave de caché**. Esto tiene un efecto práctico importante: escribir en Monthly Wage re-renderiza el contenedor y vuelve a construir un objeto `filters` nuevo, pero con el mismo contenido → misma clave → **cero peticiones**. El campo numérico no participa en el filtrado.
 
-`nextOptionsField` se devuelve *junto* al resultado, no dentro de él: los consumidores necesitan saber **a qué campo pertenecen** las `options` que llegan.
+`nextOptionsField` se devuelve _junto_ al resultado, no dentro de él: los consumidores necesitan saber **a qué campo pertenecen** las `options` que llegan.
 
 ---
 
@@ -169,14 +169,14 @@ Las dos consultas pasan por funciones de Postgres en vez de leer filas crudas po
 ### 6.2 La secuencia
 
 ```ts
-const wages = await supabase.rpc('wage_monthly_wages', { p_filters: filters });   // number[]
+const wages = await supabase.rpc('wage_monthly_wages', { p_filters: filters }); // number[]
 
 if (nextOptionsField) {
   const distinct = await supabase.rpc('wage_distinct_options', {
     p_filters: filters,
     p_field: nextOptionsField,
   });
-  options = distinct.data;                                                        // string[]
+  options = distinct.data; // string[]
 }
 ```
 
@@ -228,26 +228,25 @@ Bajan intactas por `SalaryForm` → `SalaryFormStep` → **cada uno** de los `Sa
 
 ### 7.1 `isLiveTarget` — el filtro que resuelve la ambigüedad
 
-[SalaryFormField.tsx:62](../src/features/salary-comparator/components/SalaryFormField.tsx#L62):
+[SalaryFormField.tsx:70-77](../src/features/salary-comparator/components/SalaryFormField.tsx#L70-L77):
 
 ```tsx
-const isLiveTarget = field.id === 'country' || field.filterColumn === nextOptionsField;
+const isLiveTarget = field.filterColumn === nextOptionsField;
 ...
-fetchedOptions={isLiveTarget ? fetchedOptions : undefined}
-isFetchingOptions={isLiveTarget && isFetchingOptions}
+options={isLiveTarget ? fetchedOptions : undefined}
+isLoading={isLiveTarget && isFetchingOptions}
 ```
 
-Sin esto, un campo ya contestado renderizaría las opciones de *otro* campo como suyas — y además **se vería vacío**, porque su propio valor no estaría entre ellas (recuerda `selectedOption` de la fase 1). `country` está exento porque su fuente es otra.
+Sin esto, un campo ya contestado renderizaría las opciones de _otro_ campo como suyas — y además **se vería vacío**, porque su propio valor no estaría entre ellas (recuerda `selectedOption` de la fase 1). `country` ni siquiera llega a este punto: `SalaryFormField` lo resuelve antes con `CountryCombobox`, porque su fuente es otra.
 
-### 7.2 `CountryAwareCombobox` — el caso especial de País
+### 7.2 `CountryCombobox` y `CascadeCombobox` — una fuente de opciones cada uno
 
-[CountryAwareCombobox.tsx](../src/features/salary-comparator/components/CountryAwareCombobox.tsx) existe por una razón concreta de reglas de hooks: País es el único campo `combobox-fetched-options` **sin filtros acumulados**, así que sus opciones vienen del endpoint dedicado `getCountryOptions` (`keepUnusedDataFor: Infinity` — los 11 países no cambian en caliente, cero refetches en toda la sesión). Ese hook no podía llamarse condicionalmente dentro del cuerpo de render de `SalaryFormField`, así que se aisló en su propio componente.
+Los campos `combobox-fetched-options` se reparten entre dos componentes según de dónde salen sus opciones:
 
-Hace tres cosas:
+- [CountryCombobox.tsx](../src/features/salary-comparator/components/CountryCombobox.tsx) — País es el único campo **sin filtros acumulados**, así que sus opciones vienen del endpoint dedicado `getCountryOptions` (`keepUnusedDataFor: Infinity` — los 11 países no cambian en caliente, cero refetches en toda la sesión). Vive en su propio componente porque ese hook no puede llamarse condicionalmente dentro del cuerpo de render de `SalaryFormField`. Acepta `excludeOptions`, que solo usa [CompareCountryModal.tsx](../src/features/salary-comparator/components/CompareCountryModal.tsx) para que no puedas comparar un país consigo mismo ni añadir un duplicado.
+- [CascadeCombobox.tsx](../src/features/salary-comparator/components/CascadeCombobox.tsx) — Occupation, Occupation Level, Economic Activity y Education Level. No pide nada: recibe `options` e `isLoading` ya resueltos por `isLiveTarget`.
 
-1. **Elige la fuente**: `isCountryField ? countryQuery.data : fetchedOptions`.
-2. **Aplica `excludeOptions`** si las hay — solo lo usa [CompareCountryModal.tsx](../src/features/salary-comparator/components/CompareCountryModal.tsx), para que no puedas comparar un país consigo mismo ni añadir un duplicado.
-3. **`optionsWithOwnValue`** ([CountryAwareCombobox.tsx:47-48](../src/features/salary-comparator/components/CountryAwareCombobox.tsx#L47-L48)): si el campo ya tiene valor y ese valor no está en `options`, lo añade. Es exactamente el parche al efecto secundario de `isLiveTarget` — un campo contestado deja de recibir opciones vivas, y sin esta línea se vería en blanco.
+Los dos aplican **`optionsWithOwnValue`**: si el campo ya tiene valor y ese valor no está en `options`, lo añaden. En `CascadeCombobox` ([CascadeCombobox.tsx:31-32](../src/features/salary-comparator/components/CascadeCombobox.tsx#L31-L32)) es el parche al efecto secundario de `isLiveTarget` — un campo contestado deja de recibir opciones vivas, y sin esta línea se vería en blanco. En `CountryCombobox` ([CountryCombobox.tsx:40-41](../src/features/salary-comparator/components/CountryCombobox.tsx#L40-L41)) cubre el arranque tras un F5: el valor llega de sessionStorage antes que la lista de países.
 
 Mientras carga, el combobox va `disabled` con placeholder `"Loading..."`.
 
@@ -315,7 +314,10 @@ El orden importa: **el país base siempre primero**, porque `MainChart` asigna l
 ```ts
 series
   .map(({ country, aggregation }, index) =>
-    aggregation ? toBoxPlotDatum(aggregation, country, SERIES_COLORS[index % SERIES_COLORS.length]) : null)
+    aggregation
+      ? toBoxPlotDatum(aggregation, country, SERIES_COLORS[index % SERIES_COLORS.length])
+      : null,
+  )
   .filter((datum): datum is BoxPlotDatum => datum !== null);
 ```
 
@@ -325,11 +327,11 @@ Los países cuyo fetch aún no resolvió se **omiten**, nunca se pasa un datum a
 
 Recharts no tiene `BoxPlot` nativo. [toBoxPlotDatum.ts](../src/features/salary-comparator/components/toBoxPlotDatum.ts) traduce las 5 estadísticas a las 3 claves que Recharts sí sabe dibujar:
 
-| Clave | Valor | Para qué |
-|---|---|---|
-| `baseOffset` | `q1` | Bar **invisible** que levanta la caja de 0 hasta Q1 |
-| `boxHeight` | `q3 - q1` | Bar visible apilado encima — la caja real |
-| `whiskerRange` | `[q3 - min, max - q3]` | Los bigotes, vía `ErrorBar` |
+| Clave          | Valor                  | Para qué                                            |
+| -------------- | ---------------------- | --------------------------------------------------- |
+| `baseOffset`   | `q1`                   | Bar **invisible** que levanta la caja de 0 hasta Q1 |
+| `boxHeight`    | `q3 - q1`              | Bar visible apilado encima — la caja real           |
+| `whiskerRange` | `[q3 - min, max - q3]` | Los bigotes, vía `ErrorBar`                         |
 
 El detalle no evidente es `whiskerRange`: en un Bar apilado, `ErrorBar` toma como referencia el **valor acumulado más alto** del stack (`baseOffset + boxHeight = q3`), no `q1`. Por eso el extremo inferior es `q3 - min` y no `q1 - min`; con lo segundo el bigote se detendría en `q3 - q1 + min`.
 
@@ -350,7 +352,7 @@ El detalle no evidente es `whiskerRange`: en un Bar apilado, `ErrorBar` toma com
 Usuario en el paso 2, ya con `{ country: 'Spain', gender: 'Male' }`, elige **Occupation = "Nurse"**:
 
 1. `pointerdown` en la `<li>` → `selectOption` → `onChange('Nurse')` → `closeList()`.
-2. Sube: `CountryAwareCombobox` → `SalaryFormField('occupation', 'Nurse')` → `SalaryFormStep` → `SalaryForm` → `SalaryCalculator`.
+2. Sube: `CascadeCombobox` → `SalaryFormField('occupation', 'Nurse')` → `SalaryFormStep` → `SalaryForm` → `SalaryCalculator`.
 3. `setFieldValue` actualiza `values`; `occupation` está en `SCROLL_TRIGGERING_FIELDS` → `scrollToChart()` (no hace nada en desktop si la chart ya se ve).
 4. Re-render → `useWageInsights`: `filters = { Country: 'Spain', Gender: 'Male', Occupation: 'Nurse' }`, `nextOptionsField = 'Occupation Level'`.
 5. Clave de caché nueva → `queryFn`: RPC `wage_monthly_wages` con esos 3 filtros, y RPC `wage_distinct_options` con `p_field: 'Occupation Level'`.
