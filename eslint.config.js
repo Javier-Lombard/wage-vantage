@@ -13,7 +13,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 export default defineConfig([
   // supabase/functions/ es runtime Deno (Edge Functions), un toolchain
   // distinto al proyecto Vite/browser que cubre este tsconfig — no se lintea aquí.
-  globalIgnores(['dist', 'supabase/functions']),
+  globalIgnores(['dist', 'coverage', 'supabase/functions']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
