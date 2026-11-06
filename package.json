@@ -42,7 +42,6 @@
     "@eslint/js": "^10.0.1",
     "@storybook/addon-a11y": "^10.4.6",
     "@storybook/addon-docs": "^10.4.6",
-    "@storybook/addon-vitest": "^10.4.6",
     "@storybook/react-vite": "^10.4.6",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
@@ -53,8 +52,6 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/browser-playwright": "^4.1.9",
-    "@vitest/coverage-v8": "^4.1.9",
     "babel-jest": "^30.5.2",
     "babel-plugin-transform-vite-meta-env": "^1.0.3",
     "eslint": "^10.3.0",
@@ -68,13 +65,11 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
-    "playwright": "^1.61.0",
     "prettier": "^3.8.4",
     "storybook": "^10.4.6",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
-    "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.9"
+    "vite-tsconfig-paths": "^6.1.1"
   }
 }
