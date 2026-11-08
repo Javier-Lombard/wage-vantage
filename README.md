@@ -46,6 +46,7 @@ Each feature owns its own components, hooks, RTK Query endpoints, and exposes a 
 Project conventions and decisions are documented for both contributors and AI coding assistants:
 
 - [`CLAUDE.md`](./CLAUDE.md) — stack, conventions, and architecture summary (entry point)
+- [`docs/PRD.md`](./docs/PRD.md) — product requirements: plans, access matrix, all use cases, known gaps
 - [`docs/architecture.md`](./docs/architecture.md) — folder structure, data flow, architectural decisions (ADR-lite)
 - [`docs/conventions.md`](./docs/conventions.md) — TypeScript, naming, and component patterns
 - [`docs/DESIGN.md`](./docs/DESIGN.md) — design system: color tokens, typography, spacing, component patterns

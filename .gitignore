@@ -34,3 +34,5 @@ storybook-static
 
 # Jest coverage reports
 coverage
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json

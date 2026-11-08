@@ -1,0 +1,2228 @@
+[
+  {
+    "id": "TC001",
+    "title": "Complete the salary comparison form and open the comparison sheet",
+    "description": "This verifies that a visitor can complete the three-step salary form, see the live chart update, and open the comparison sheet from the final step.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Enter a monthly wage"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the salary distribution chart and reference line are displayed"
+      },
+      {
+        "type": "action",
+        "description": "Advance through the remaining form steps"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison sheet is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Complete the salary comparison flow and open the comparison sheet",
+    "description": "A visitor can complete the full salary form, review the live salary distribution, and open the comparison sheet with the chosen context.",
+    "category": "Compare with other countries",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the next form step"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the final form step"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the salary distribution chart is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison sheet is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Delete an account from settings",
+    "description": "A signed-in user can start from dashboard settings, confirm account deletion, and be returned to the home page with the account removed message visible.",
+    "category": "Delete account",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings"
+      },
+      {
+        "type": "action",
+        "description": "Open the delete account flow"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the account deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the account deleted confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is returned to the home page"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Complete the basic salary comparison form",
+    "description": "A guest user can choose a country, gender, and monthly wage and advance to the next step when the basic salary inputs are complete.",
+    "category": "Salary form basics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the country selector"
+      },
+      {
+        "type": "action",
+        "description": "Search for a country and select it"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the salary reference line is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the next step becomes available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Keep the salary form state after reload",
+    "description": "A user can complete the salary form, reload the page, and return to the same in-progress state instead of losing input.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the in-progress salary form state is restored"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected form values are still present"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Redirect guests away from the dashboard",
+    "description": "This verifies that an unauthenticated visitor is redirected away from the protected dashboard route back to the public home page.",
+    "category": "Protected dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is redirected to the home page"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "See the salary distribution chart after choosing a country",
+    "description": "A guest user can load the salary chart for a chosen country and see the distribution statistics render on the page.",
+    "category": "Interactive salary box plot",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the empty chart guidance is visible"
+      },
+      {
+        "type": "action",
+        "description": "Open the country selector"
+      },
+      {
+        "type": "action",
+        "description": "Search for a country and select it"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the chart loading state appears"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the salary distribution chart is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Restore the salary form after reloading the page",
+    "description": "A visitor can leave the home page, reload it, and return to the same form step with the entered selections preserved.",
+    "category": "Form persistence across navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Refresh the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the same form step is still active"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously entered selections are still present"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Restore the salary form after reload",
+    "description": "This verifies that a visitor can enter the salary form, reload the page, and keep the previously entered form state.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Enter a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Reload the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously entered salary form state is restored"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Log in through the authentication dialog",
+    "description": "A user can open the authentication dialog and sign in successfully from the home page.",
+    "category": "Authentication dialog",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is signed in"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the signed-in account controls are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Inspect the salary chart reference line and tooltip",
+    "description": "A user can view the live salary chart and inspect the reference line and tooltip for the entered wage.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the salary distribution chart is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the reference line and tooltip information are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Access the dashboard while signed in",
+    "description": "This verifies that a signed-in user can open the dashboard and see the dashboard overview content.",
+    "category": "Protected dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard overview is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Continue editing after navigation and return",
+    "description": "This verifies that a visitor can keep salary form progress while moving away and then returning to the home page.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Enter a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Open the Plans page"
+      },
+      {
+        "type": "action",
+        "description": "Return to the home page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the salary form still contains the previous progress"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Restore the comparison sheet from direct navigation state",
+    "description": "A user can navigate to the comparison page with existing selection state and see the sheet summary instead of an empty view.",
+    "category": "Comparison sheet",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison summary content is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Complete the role and background profile",
+    "description": "A user who finishes the basics step can choose role and background details and continue through the full profile flow.",
+    "category": "Salary form role and background steps",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the country selector"
+      },
+      {
+        "type": "action",
+        "description": "Search for a country and select it"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the role step"
+      },
+      {
+        "type": "action",
+        "description": "Select an occupation"
+      },
+      {
+        "type": "action",
+        "description": "Select an occupation level"
+      },
+      {
+        "type": "action",
+        "description": "Select an economic activity"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the background step"
+      },
+      {
+        "type": "action",
+        "description": "Select an education level"
+      },
+      {
+        "type": "action",
+        "description": "Select years of experience"
+      },
+      {
+        "type": "action",
+        "description": "Select company size"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the background step remains completed after navigating back and forward"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously chosen profile values remain selected"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Save a salary template and reload it later",
+    "description": "This verifies that a signed-in user can save a salary template, return later, load it, and continue editing from the restored step.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Enter a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Save the current form as a template"
+      },
+      {
+        "type": "action",
+        "description": "Navigate away from the home page"
+      },
+      {
+        "type": "action",
+        "description": "Return to the home page"
+      },
+      {
+        "type": "action",
+        "description": "Load the saved template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the restored form continues from the saved step"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Restore the salary form after navigating away and back",
+    "description": "A visitor can leave the home page for another public page and return without losing the current salary form progress.",
+    "category": "Form persistence across navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the about page"
+      },
+      {
+        "type": "action",
+        "description": "Return to the home page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the same form step is still active"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the previously entered selections are still present"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Reach the guest limit for country comparisons",
+    "description": "A guest can add countries up to the allowed limit and then is prompted to log in when trying to add more.",
+    "category": "Compare with other countries",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the final form step"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison flow"
+      },
+      {
+        "type": "action",
+        "description": "Add countries until the comparison limit is reached"
+      },
+      {
+        "type": "action",
+        "description": "Try to add one more country"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login prompt is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the extra country is not added to the chart"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Save a template and load it later from the dashboard",
+    "description": "A signed-in user can save a salary template, return to the templates page, load it, and continue editing from the restored state.",
+    "category": "Saved templates",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Save the current form as a template"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/templates"
+      },
+      {
+        "type": "action",
+        "description": "Load the saved template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved template is restored into the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify editing can continue from the restored step"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Compare with another country and hit the free limit prompt",
+    "description": "This verifies that a guest can add a comparison country within plan limits and is prompted to log in or upgrade when trying to exceed the free comparison limit.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Enter a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Advance to the comparison step"
+      },
+      {
+        "type": "action",
+        "description": "Add another comparison country within the free limit"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to add one more comparison country beyond the limit"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a prompt to log in or upgrade to Premium is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Clear the wage and block progression",
+    "description": "A guest user can remove the monthly wage and the form prevents continuing until the wage is restored.",
+    "category": "Salary form basics",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the country selector"
+      },
+      {
+        "type": "action",
+        "description": "Search for a country and select it"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Clear the monthly wage field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the salary reference line is not displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the next step is disabled"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Compare countries within the free plan limit",
+    "description": "A user on the free plan can add comparison countries up to the allowed limit and see the comparison update before the limit is reached.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Add comparison countries up to the free plan limit"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison countries are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison updates with the added countries"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Add another country to the comparison chart",
+    "description": "A visitor can open the comparison flow from the salary form and add an additional country so it appears in the chart.",
+    "category": "Compare with other countries",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the final form step"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison flow"
+      },
+      {
+        "type": "action",
+        "description": "Add another country"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the added country appears in the comparison chart"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison country chips are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Prompt a guest to log in when exceeding the comparison limit",
+    "description": "A guest user who tries to add more comparison countries than allowed is prompted to log in or create an account.",
+    "category": "Guest login prompts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Add comparison countries until the guest limit is reached"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to add one more comparison country"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login prompt is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison limit prompt is shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Save a comparison and open it from the dashboard",
+    "description": "A signed-in user can save a comparison sheet and later open it from the saved comparisons page.",
+    "category": "Saved comparisons",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "action",
+        "description": "Save the comparison"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/comparisons"
+      },
+      {
+        "type": "action",
+        "description": "Open the saved comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved comparison details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison opens successfully from the dashboard"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "See the wage reference line on the chart",
+    "description": "A user can enter a monthly wage and see the chart mark that value with a reference line.",
+    "category": "Interactive salary box plot",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Open the country selector"
+      },
+      {
+        "type": "action",
+        "description": "Search for a country and select it"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the wage reference line is displayed on the chart"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Save a completed salary form as a template",
+    "description": "A signed-in user can complete the salary form and save it as a reusable template from the home flow.",
+    "category": "Saved templates management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials for the required role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Complete the three-step salary form with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the current form as a template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a template saved confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC028",
+    "title": "Add a payment method on the manage plan page",
+    "description": "A signed-in user can open the payment method panel, save card details, and see the payment method saved confirmation.",
+    "category": "Manage plan and billing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/manage-plan"
+      },
+      {
+        "type": "action",
+        "description": "Open the payment method panel"
+      },
+      {
+        "type": "action",
+        "description": "Enter valid card details"
+      },
+      {
+        "type": "action",
+        "description": "Save the payment method"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the payment method saved confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC029",
+    "title": "Save and reopen a comparison sheet from the dashboard",
+    "description": "This verifies that a signed-in user can save a comparison sheet, open it from saved comparisons, and delete it afterward.",
+    "category": "Home salary comparison flow",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Select a gender"
+      },
+      {
+        "type": "action",
+        "description": "Enter a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "action",
+        "description": "Save the comparison sheet"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/comparisons"
+      },
+      {
+        "type": "action",
+        "description": "Open the saved comparison"
+      },
+      {
+        "type": "action",
+        "description": "Delete the saved comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved comparison was opened and then removed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC030",
+    "title": "Remove an added comparison country",
+    "description": "A visitor can remove a country from the comparison sheet and see it disappear from the chart.",
+    "category": "Compare with other countries",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the final form step"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison flow"
+      },
+      {
+        "type": "action",
+        "description": "Add another country"
+      },
+      {
+        "type": "action",
+        "description": "Remove the added country"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the removed country no longer appears in the comparison chart"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC031",
+    "title": "Review detailed comparison charts on the sheet",
+    "description": "A user can open the comparison sheet after building a comparison and review the country chips and chart cards for the chosen countries.",
+    "category": "Comparison sheet",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify country chips are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify four chart cards are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC032",
+    "title": "Load a saved template into the home form",
+    "description": "A signed-in user can open a saved template from the templates dashboard and restore it into the home form.",
+    "category": "Saved templates management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials for the required role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/templates"
+      },
+      {
+        "type": "action",
+        "description": "Open a saved template"
+      },
+      {
+        "type": "action",
+        "description": "Load the template into the home form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the home form is restored at the first step"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the restored form data is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC033",
+    "title": "Cancel Premium and return to the free plan",
+    "description": "A Premium subscriber can confirm subscription cancellation and see the plan change back to Free.",
+    "category": "Manage plan and billing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/manage-plan"
+      },
+      {
+        "type": "action",
+        "description": "Open the cancel subscription flow"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the cancellation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a plan change confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current plan is Free"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC034",
+    "title": "Save and delete a comparison sheet from the dashboard",
+    "description": "A signed-in user can save a comparison and later open and delete it from the saved comparisons page.",
+    "category": "Compare with other countries",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Proceed to the final form step"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison flow"
+      },
+      {
+        "type": "action",
+        "description": "Save the comparison sheet"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/comparisons"
+      },
+      {
+        "type": "action",
+        "description": "Open the saved comparison"
+      },
+      {
+        "type": "action",
+        "description": "Delete the saved comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison is removed from the saved comparisons list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC035",
+    "title": "Manage saved templates from the dashboard",
+    "description": "This verifies that a signed-in user can view saved templates, load one, and delete it from the templates area.",
+    "category": "Protected dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/templates"
+      },
+      {
+        "type": "action",
+        "description": "Load a saved template"
+      },
+      {
+        "type": "action",
+        "description": "Delete the loaded template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved templates view is displayed and the template is removed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC036",
+    "title": "Manage saved comparisons from the dashboard",
+    "description": "This verifies that a signed-in user can view saved comparisons, open one, and delete it from the comparisons area.",
+    "category": "Protected dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/comparisons"
+      },
+      {
+        "type": "action",
+        "description": "Open a saved comparison"
+      },
+      {
+        "type": "action",
+        "description": "Delete the saved comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved comparisons view is displayed and the comparison is removed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC037",
+    "title": "Sign in and save a salary template",
+    "description": "A signed-in user can save the current salary form as a template and see it available in their saved templates.",
+    "category": "Form persistence across navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Choose a country"
+      },
+      {
+        "type": "action",
+        "description": "Choose a gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a monthly wage"
+      },
+      {
+        "type": "action",
+        "description": "Save the current form as a template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a template save confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved template is available in the account area"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC038",
+    "title": "Manage Premium plan and billing details",
+    "description": "A Premium subscriber can view plan information, add a payment method, and cancel the subscription from the manage-plan page.",
+    "category": "Manage plan",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/manage-plan"
+      },
+      {
+        "type": "action",
+        "description": "Add a payment method"
+      },
+      {
+        "type": "action",
+        "description": "Cancel the Premium subscription"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current plan information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify billing management options are visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC039",
+    "title": "Save a comparison sheet for later access",
+    "description": "A signed-in user can open the comparison sheet from a completed salary flow and save it for later reuse.",
+    "category": "Saved comparisons management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials for the required role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Complete the three-step salary form with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "action",
+        "description": "Save the current comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a comparison saved confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC040",
+    "title": "Prompt a guest to log in when saving a comparison",
+    "description": "A guest user trying to save a comparison sheet is prompted to log in or create an account.",
+    "category": "Guest login prompts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Open the comparison sheet"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to save the comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login prompt is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the prompt can be dismissed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC041",
+    "title": "Reopen a saved comparison from the dashboard",
+    "description": "A signed-in user can reopen a previously saved comparison sheet from the comparisons dashboard.",
+    "category": "Saved comparisons management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials for the required role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/comparisons"
+      },
+      {
+        "type": "action",
+        "description": "Open a saved comparison"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the comparison sheet is displayed with stored data"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC042",
+    "title": "Load a saved template and continue editing",
+    "description": "A signed-in user can reopen a saved template and continue from the restored form step with the saved values.",
+    "category": "Form persistence across navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/templates"
+      },
+      {
+        "type": "action",
+        "description": "Load a saved template"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the home form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the same form step from the template is restored"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the template selections are present"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC043",
+    "title": "Prompt a guest to log in when saving a template",
+    "description": "A guest user trying to save the current form as a template is prompted to log in or create an account.",
+    "category": "Guest login prompts",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the country field with a valid country"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid gender"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the monthly wage field with a valid amount"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid role"
+      },
+      {
+        "type": "action",
+        "description": "Continue to the next step"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid background option"
+      },
+      {
+        "type": "action",
+        "description": "Attempt to save the current form as a template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login prompt is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify account creation and dismiss options are available"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC044",
+    "title": "Update profile settings",
+    "description": "This verifies that a signed-in user can change profile details from the settings page and keep the updated settings visible.",
+    "category": "Protected dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile name field"
+      },
+      {
+        "type": "action",
+        "description": "Update the email field"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile settings remain visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC045",
+    "title": "Manage premium billing settings",
+    "description": "A signed-in premium subscriber can open plan management and view the current plan, payment method area, and cancel subscription controls.",
+    "category": "Manage plan and billing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/manage-plan"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the current plan information is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the payment method and subscription controls are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC046",
+    "title": "Delete a saved template from the dashboard",
+    "description": "A signed-in user can remove a saved template from the templates management page.",
+    "category": "Saved templates",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/templates"
+      },
+      {
+        "type": "action",
+        "description": "Delete a saved template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the template is removed from the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC047",
+    "title": "Open manage plan and add a payment method",
+    "description": "This verifies that a signed-in user can open billing management, add a simulated payment method, and see Premium plan details.",
+    "category": "Protected dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings/manage-plan"
+      },
+      {
+        "type": "action",
+        "description": "Add a payment method"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Premium plan details are visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC048",
+    "title": "Toggle pricing between monthly and annual",
+    "description": "This verifies that a visitor can switch pricing periods on the plans page and see the Premium price update accordingly.",
+    "category": "Plans and pricing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /plans"
+      },
+      {
+        "type": "action",
+        "description": "Select the annual pricing option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Premium price updates for the annual period"
+      },
+      {
+        "type": "action",
+        "description": "Select the monthly pricing option"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the Premium price updates for the monthly period"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC049",
+    "title": "Update profile details and save settings",
+    "description": "A signed-in user can update profile information from account settings and save the changes successfully.",
+    "category": "Profile and account settings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials for the required role"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings"
+      },
+      {
+        "type": "action",
+        "description": "Update the display name or email with valid information"
+      },
+      {
+        "type": "action",
+        "description": "Save the settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a settings saved confirmation is visible"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC050",
+    "title": "Update profile details from account settings",
+    "description": "A signed-in user can update profile information from settings and see the changes reflected in the account area.",
+    "category": "Profile settings",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Navigate to /dashboard/settings"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile name"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile email"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a profile update confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile information is displayed"
+      }
+    ],
+    "priority": "Medium"
+  }
+]

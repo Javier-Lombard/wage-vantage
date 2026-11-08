@@ -22,7 +22,7 @@ export function ExportButton({ onExport }: ExportButtonProps) {
 
   return (
     <PremiumGate
-      hasAccess={can('canExport')}
+      hasAccess={can('accurateData')}
       fallback={
         <>
           <Button onClick={upgradeDialog.open}>Export</Button>
